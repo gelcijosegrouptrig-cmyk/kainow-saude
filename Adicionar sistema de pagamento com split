@@ -1,0 +1,233 @@
+payment-with-affiliate.js/**
+ * KAINOW SAÚDE - PAGAMENTO COM AFILIADO
+ * Sistema de pagamento PIX integrado com tracking de afiliados
+ */
+
+// URL do backend
+const BACKEND_URL = 'https://kainow-saude-production.up.railway.app';
+
+/**
+ * Cria cobrança PIX com split de afiliado
+ * @param {Object} productData - Dados do produto
+ * @param {string} productData.id - ID do produto (mulher, senior, farma, etc)
+ * @param {string} productData.name - Nome do produto
+ * @param {number} productData.value - Valor em centavos (ex: 4990 = R$ 49,90)
+ */
+async function criarCobrancaComAfiliado(productData) {
+    try {
+        console.log('🚀 Iniciando criação de cobrança...');
+        
+        // 1. Verificar se há afiliado rastreado
+        const affiliate = KaiNowAffiliate.getSavedAffiliate();
+        
+        if (!affiliate || !affiliate.id) {
+            alert('⚠️ Nenhum afiliado detectado. Redirecionando para checkout padrão...');
+            // Redirecionar para checkout sem afiliado
+            window.location.href = `/checkout.html?produto=${productData.id}&valor=${productData.value}`;
+            return;
+        }
+
+        console.log('✅ Afiliado detectado:', affiliate.id);
+
+        // 2. Mostrar loading
+        mostrarLoading('Gerando código PIX...');
+
+        // 3. Buscar dados completos do afiliado
+        let affiliateData;
+        try {
+            const affiliateResponse = await fetch(`${BACKEND_URL}/api/affiliates/${affiliate.id}`);
+            
+            if (!affiliateResponse.ok) {
+                throw new Error('Afiliado não encontrado no sistema');
+            }
+            
+            affiliateData = await affiliateResponse.json();
+            console.log('✅ Dados do afiliado carregados');
+            
+        } catch (error) {
+            console.error('❌ Erro ao buscar afiliado:', error);
+            esconderLoading();
+            alert('❌ Erro: Afiliado não encontrado. Tente novamente.');
+            return;
+        }
+
+        // 4. Criar cobrança com split
+        const chargeData = {
+            productId: productData.id,
+            value: productData.value,
+            affiliateId: affiliate.id,
+            customerName: '', // Será preenchido no checkout
+            customerEmail: '',
+            customerPhone: ''
+        };
+
+        console.log('📤 Criando cobrança na Woovi...');
+        
+        const response = await fetch(`${BACKEND_URL}/api/charges/create-with-split`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(chargeData)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao criar cobrança');
+        }
+
+        const result = await response.json();
+        console.log('✅ Cobrança criada com sucesso!');
+        console.log('Split:', result.charge.split);
+
+        // 5. Salvar dados da cobrança no localStorage
+        localStorage.setItem('kainow_current_charge', JSON.stringify({
+            chargeId: result.charge.id,
+            productId: productData.id,
+            productName: productData.name,
+            value: productData.value,
+            qrCode: result.charge.qrCode,
+            qrCodeText: result.charge.qrCodeText,
+            paymentLink: result.charge.paymentLink,
+            affiliateId: affiliate.id,
+            affiliateName: affiliateData.name || affiliate.id,
+            createdAt: new Date().toISOString(),
+            expiresAt: result.charge.expiresAt
+        }));
+
+        // 6. Redirecionar para página de pagamento
+        esconderLoading();
+        window.location.href = '/pagamento-pix.html';
+
+    } catch (error) {
+        console.error('❌ Erro ao criar cobrança:', error);
+        esconderLoading();
+        alert(`❌ Erro ao processar pagamento: ${error.message}\n\nTente novamente ou entre em contato com o suporte.`);
+    }
+}
+
+/**
+ * Mostra overlay de loading
+ */
+function mostrarLoading(mensagem = 'Carregando...') {
+    // Remove loading anterior se existir
+    esconderLoading();
+    
+    const loadingHTML = `
+        <div id="kainow-payment-loading" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        ">
+            <div style="
+                background: white;
+                padding: 40px;
+                border-radius: 12px;
+                text-align: center;
+                max-width: 300px;
+            ">
+                <div style="
+                    width: 50px;
+                    height: 50px;
+                    border: 4px solid #f3f3f3;
+                    border-top: 4px solid #1e40af;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 20px;
+                "></div>
+                <p style="
+                    margin: 0;
+                    font-size: 18px;
+                    color: #333;
+                    font-weight: 600;
+                ">${mensagem}</p>
+            </div>
+        </div>
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', loadingHTML);
+}
+
+/**
+ * Esconde overlay de loading
+ */
+function esconderLoading() {
+    const loading = document.getElementById('kainow-payment-loading');
+    if (loading) {
+        loading.remove();
+    }
+}
+
+/**
+ * Inicializa o sistema de pagamento com afiliado
+ * Deve ser chamado quando a página carrega
+ */
+function inicializarPagamentoAfiliado() {
+    console.log('💳 Sistema de pagamento com afiliado inicializado');
+    
+    // Verificar se há afiliado rastreado
+    const affiliate = KaiNowAffiliate.getSavedAffiliate();
+    
+    if (affiliate && affiliate.id) {
+        console.log(`✅ Afiliado ativo: ${affiliate.id}`);
+        
+        // Adicionar badge visual (opcional)
+        const badge = document.createElement('div');
+        badge.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        badge.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9 12l2 2 4-4"></path>
+            </svg>
+            Link de divulgador ativo
+        `;
+        
+        document.body.appendChild(badge);
+        
+        // Remover badge após 5 segundos
+        setTimeout(() => badge.remove(), 5000);
+    }
+}
+
+// Exportar funções para uso global
+window.criarCobrancaComAfiliado = criarCobrancaComAfiliado;
+window.mostrarLoading = mostrarLoading;
+window.esconderLoading = esconderLoading;
+
+// Inicializar quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarPagamentoAfiliado);
+} else {
+    inicializarPagamentoAfiliado();
+}
+
+console.log('✅ Sistema de pagamento com afiliado carregado');
+console.log('✅ Função criarCobrancaComAfiliado() disponível globalmente');
