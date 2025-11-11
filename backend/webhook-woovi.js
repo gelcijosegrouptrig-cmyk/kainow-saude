@@ -12,6 +12,22 @@ const admin = require('firebase-admin');
 const db = admin.firestore();
 
 /**
+ * GET /webhook/woovi
+ * 
+ * Endpoint de teste (responde com 200 OK)
+ */
+router.get('/woovi', async (req, res) => {
+    console.log('✅ Teste GET recebido no webhook');
+    res.status(200).json({ 
+        success: true, 
+        message: 'Webhook endpoint is ready and listening',
+        service: 'Kainow Saúde Backend',
+        methods: ['GET', 'POST'],
+        timestamp: new Date().toISOString()
+    });
+});
+
+/**
  * POST /webhook/woovi
  * 
  * Recebe notificação da Woovi sobre pagamento
