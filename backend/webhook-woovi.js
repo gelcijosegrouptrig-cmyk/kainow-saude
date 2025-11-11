@@ -12,6 +12,22 @@ const admin = require('firebase-admin');
 const db = admin.firestore();
 
 /**
+ * GET /webhook/woovi
+ * 
+ * Endpoint de teste (responde com 200 OK)
+ */
+router.get('/woovi', async (req, res) => {
+    console.log('✅ Teste GET recebido no webhook');
+    res.status(200).json({ 
+        success: true, 
+        message: 'Webhook endpoint is ready and listening',
+        service: 'Kainow Saúde Backend',
+        methods: ['GET', 'POST'],
+        timestamp: new Date().toISOString()
+    });
+});
+
+/**
  * POST /webhook/woovi
  * 
  * Recebe notificação da Woovi sobre pagamento
@@ -22,9 +38,32 @@ router.post('/woovi', async (req, res) => {
         console.log('Headers:', req.headers);
         console.log('Body:', JSON.stringify(req.body, null, 2));
 
-        const { event, charge } = req.body;
+        // ✅ ACEITAR TESTES DO WOOVI (requisições vazias)
+        if (!req.body || Object.keys(req.body).length === 0) {
+            console.log('✅ Teste do Woovi - Webhook endpoint está funcionando');
+            return res.status(200).json({ 
+                success: true, 
+                message: 'Webhook endpoint ready',
+                service: 'Kainow Saúde Backend',
+                timestamp: new Date().toISOString()
+            });
+        }
 
-        // Validar evento
+        const { event, charge, evento } = req.body;
+
+        // ✅ ACEITAR TESTE DO WOOVI (evento: "teste_webhook")
+        if (evento === 'teste_webhook') {
+            console.log('✅ Teste do Woovi aceito com sucesso!');
+            return res.status(200).json({ 
+                success: true, 
+                message: 'Test webhook received successfully',
+                service: 'Kainow Saúde Backend',
+                event: event,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Validar evento real
         if (!event || !charge) {
             console.error('❌ Webhook inválido: faltam dados');
             return res.status(400).json({ error: 'Invalid webhook data' });
