@@ -1,0 +1,2 @@
+v1.0.1 - Sistema de pagamento com split implementado
+Data: 2025-11-11
