@@ -49,9 +49,21 @@ router.post('/woovi', async (req, res) => {
             });
         }
 
-        const { event, charge } = req.body;
+        const { event, charge, evento } = req.body;
 
-        // Validar evento
+        // ✅ ACEITAR TESTE DO WOOVI (evento: "teste_webhook")
+        if (evento === 'teste_webhook') {
+            console.log('✅ Teste do Woovi aceito com sucesso!');
+            return res.status(200).json({ 
+                success: true, 
+                message: 'Test webhook received successfully',
+                service: 'Kainow Saúde Backend',
+                event: event,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Validar evento real
         if (!event || !charge) {
             console.error('❌ Webhook inválido: faltam dados');
             return res.status(400).json({ error: 'Invalid webhook data' });
