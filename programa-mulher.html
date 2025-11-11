@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KaiNow Mulher - Produto de Saúde Feminina</title>
+    <title>KaiNow Mulher - Saúde Feminina</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/iframe-content.css">
 </head>
 <body class="bg-gradient-to-br from-pink-50 via-purple-50 to-white min-h-screen">
     <div class="container mx-auto px-4 py-8">
@@ -23,49 +22,33 @@
 
         <div class="bg-gradient-to-r from-pink-500 via-purple-600 to-pink-600 rounded-2xl p-8 text-center text-white shadow-2xl max-w-4xl mx-auto">
             <i class="fas fa-gem text-6xl mb-6 animate-pulse"></i>
-            <h3 class="text-3xl font-bold mb-4">
-                Cuide da sua saúde com quem entende de você
-            </h3>
+            <h3 class="text-3xl font-bold mb-4">Cuide da sua saúde com quem entende de você</h3>
             
             <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6 mb-6 max-w-lg mx-auto">
                 <div class="text-center mb-6">
                     <p class="text-lg opacity-90 mb-2">Assinatura Mensal</p>
-                    <div class="text-5xl font-bold mb-2">
-                        R$ 49<sup class="text-3xl">,90</sup>
-                    </div>
+                    <div class="text-5xl font-bold mb-2">R$ 49<sup class="text-3xl">,90</sup></div>
                     <p class="text-sm opacity-75">por mês via PIX Recorrente</p>
                 </div>
 
                 <div class="bg-white/30 backdrop-blur-sm rounded-lg p-4 mb-4">
                     <label class="flex items-start cursor-pointer">
-                        <input 
-                            type="checkbox" 
-                            id="accept-terms-mulher"
-                            class="mt-1 mr-3 w-5 h-5 text-green-500 bg-white border-2 border-white rounded focus:ring-2 focus:ring-white cursor-pointer"
-                        >
-                        <span class="text-sm leading-relaxed">
-                            Aceito os termos da assinatura recorrente. Valor de R$ 49,90 mensal via PIX.
-                        </span>
+                        <input type="checkbox" id="accept-terms-mulher" class="mt-1 mr-3 w-5 h-5 text-green-500 bg-white border-2 border-white rounded focus:ring-2 focus:ring-white cursor-pointer">
+                        <span class="text-sm leading-relaxed">Aceito os termos da assinatura recorrente. Valor de R$ 49,90 mensal via PIX.</span>
                     </label>
                 </div>
 
-                <button 
-                    id="btn-pix-mulher"
-                    onclick="handlePixRecorrente('mulher', 49.90)"
-                    disabled
-                    class="w-full bg-gray-400 text-white px-8 py-5 rounded-full font-bold text-xl cursor-not-allowed transition-all disabled:opacity-50"
-                >
-                    <i class="fab fa-pix mr-3"></i>
-                    Assinar com PIX Recorrente
+                <button id="btn-pix-mulher" onclick="handlePixRecorrente('mulher', 49.90)" disabled class="w-full bg-gray-400 text-white px-8 py-5 rounded-full font-bold text-xl cursor-not-allowed transition-all disabled:opacity-50">
+                    <i class="fab fa-pix mr-3"></i>Assinar com PIX Recorrente
                 </button>
 
                 <p class="text-xs text-center mt-4 opacity-75">
-                    <i class="fas fa-shield-alt mr-1"></i>
-                    Pagamento seguro
+                    <i class="fas fa-shield-alt mr-1"></i>Pagamento seguro
                 </p>
             </div>
         </div>
     </div>
+
     <script>
         document.getElementById('accept-terms-mulher').addEventListener('change', function(e) {
             const btn = document.getElementById('btn-pix-mulher');
