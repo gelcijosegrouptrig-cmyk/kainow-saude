@@ -1,949 +1,243 @@
-1	<!DOCTYPE html>
-     2	<html lang="pt-BR">
-     3	<head>
-     4	    <meta charset="UTF-8">
-     5	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6	    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-     7	    <meta http-equiv="Pragma" content="no-cache">
-     8	    <meta http-equiv="Expires" content="0">
-     9	    <title>Gerenciador de Afiliados - KaiNow Admin v3.0</title>
-    10	    <script src="https://cdn.tailwindcss.com"></script>
-    11	    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    12	    
-    13	    <!-- Firebase SDKs -->
-    14	    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    15	    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    16	</head>
-    17	<body class="bg-gray-50">
-    18	    <!-- Header -->
-    19	    <header class="bg-white shadow-lg border-b-4 border-blue-500">
-    20	        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-    21	            <div class="flex items-center space-x-4">
-    22	                <button onclick="window.location.href='dashboard-admin.html'" class="text-gray-600 hover:text-gray-800">
-    23	                    <i class="fas fa-arrow-left text-xl"></i>
-    24	                </button>
-    25	                <div>
-    26	                    <h1 class="text-2xl font-bold text-gray-800">Gerenciar Afiliados</h1>
-    27	                    <p class="text-sm text-gray-600">Criar afiliados e gerar links</p>
-    28	                </div>
-    29	            </div>
-    30	            
-    31	            <button 
-    32	                onclick="logout()"
-    33	                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
-    34	            >
-    35	                <i class="fas fa-sign-out-alt mr-2"></i>
-    36	                Sair
-    37	            </button>
-    38	        </div>
-    39	    </header>
-    40	
-    41	    <div class="container mx-auto px-4 py-8">
-    42	        <!-- Título -->
-    43	        <div class="mb-8">
-    44	            <div class="flex justify-between items-center">
-    45	                <div>
-    46	                    <h2 class="text-3xl font-bold text-gray-800 mb-2">
-    47	                        <i class="fas fa-users-cog text-blue-600 mr-3"></i>
-    48	                        Gerenciador de Afiliados
-    49	                        <span class="text-sm bg-green-500 text-white px-2 py-1 rounded ml-2">v3.0</span>
-    50	                    </h2>
-    51	                    <p class="text-gray-600">Crie divulgadores, gere links e gerencie comissões</p>
-    52	                </div>
-    53	                <button 
-    54	                    onclick="location.reload(true)"
-    55	                    class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition"
-    56	                >
-    57	                    <i class="fas fa-sync-alt mr-2"></i>
-    58	                    Forçar Atualização
-    59	                </button>
-    60	            </div>
-    61	        </div>
-    62	
-    63	        <!-- Cards Estatísticas -->
-    64	        <div class="grid md:grid-cols-4 gap-6 mb-8">
-    65	            <div class="bg-white rounded-xl shadow-lg p-6">
-    66	                <div class="flex items-center justify-between">
-    67	                    <div>
-    68	                        <p class="text-gray-600 text-sm">Total Afiliados</p>
-    69	                        <h3 class="text-3xl font-bold text-blue-600" id="total-affiliates">0</h3>
-    70	                    </div>
-    71	                    <i class="fas fa-users text-4xl text-blue-600 opacity-20"></i>
-    72	                </div>
-    73	            </div>
-    74	            
-    75	            <div class="bg-white rounded-xl shadow-lg p-6">
-    76	                <div class="flex items-center justify-between">
-    77	                    <div>
-    78	                        <p class="text-gray-600 text-sm">Links Gerados</p>
-    79	                        <h3 class="text-3xl font-bold text-green-600" id="total-links">0</h3>
-    80	                    </div>
-    81	                    <i class="fas fa-link text-4xl text-green-600 opacity-20"></i>
-    82	                </div>
-    83	            </div>
-    84	            
-    85	            <div class="bg-white rounded-xl shadow-lg p-6">
-    86	                <div class="flex items-center justify-between">
-    87	                    <div>
-    88	                        <p class="text-gray-600 text-sm">Comissão Padrão</p>
-    89	                        <h3 class="text-3xl font-bold text-amber-600">20%</h3>
-    90	                    </div>
-    91	                    <i class="fas fa-percentage text-4xl text-amber-600 opacity-20"></i>
-    92	                </div>
-    93	            </div>
-    94	            
-    95	            <div class="bg-white rounded-xl shadow-lg p-6">
-    96	                <div class="flex items-center justify-between">
-    97	                    <div>
-    98	                        <p class="text-gray-600 text-sm">Plataforma</p>
-    99	                        <h3 class="text-3xl font-bold text-purple-600">80%</h3>
-   100	                    </div>
-   101	                    <i class="fas fa-building text-4xl text-purple-600 opacity-20"></i>
-   102	                </div>
-   103	            </div>
-   104	        </div>
-   105	
-   106	        <!-- Botão Novo Afiliado -->
-   107	        <div class="mb-6">
-   108	            <button onclick="openNewAffiliateModal()" class="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-3 rounded-lg font-bold hover:shadow-xl transition">
-   109	                <i class="fas fa-user-plus mr-2"></i>
-   110	                Novo Divulgador
-   111	            </button>
-   112	        </div>
-   113	
-   114	        <!-- Lista de Afiliados -->
-   115	        <div class="bg-white rounded-xl shadow-lg p-6">
-   116	            <h3 class="text-xl font-bold text-gray-800 mb-6">
-   117	                <i class="fas fa-list mr-2"></i>
-   118	                Divulgadores Cadastrados
-   119	            </h3>
-   120	            <div id="affiliates-list" class="space-y-4">
-   121	                <!-- Afiliados serão listados aqui -->
-   122	            </div>
-   123	        </div>
-   124	    </div>
-   125	
-   126	    <!-- Modal: Novo Afiliado -->
-   127	    <div id="new-affiliate-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-   128	        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6">
-   129	            <div class="flex justify-between items-center mb-4">
-   130	                <h3 class="text-xl font-bold text-gray-800">
-   131	                    <i class="fas fa-user-plus text-blue-600 mr-2"></i>
-   132	                    Novo Divulgador
-   133	                </h3>
-   134	                <button onclick="closeNewAffiliateModal()" class="text-gray-500 hover:text-gray-700">
-   135	                    <i class="fas fa-times text-xl"></i>
-   136	                </button>
-   137	            </div>
-   138	
-   139	            <form id="affiliate-form" class="space-y-3">
-   140	                <div>
-   141	                    <label class="block text-xs font-bold text-gray-700 mb-1">Nome do Divulgador</label>
-   142	                    <input type="text" id="affiliate-name" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm">
-   143	                </div>
-   144	
-   145	                <div>
-   146	                    <label class="block text-xs font-bold text-gray-700 mb-1">Email</label>
-   147	                    <input type="email" id="affiliate-email" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm">
-   148	                </div>
-   149	
-   150	                <div>
-   151	                    <label class="block text-xs font-bold text-gray-700 mb-1">Telefone/WhatsApp</label>
-   152	                    <input type="tel" id="affiliate-phone" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm" placeholder="(00) 00000-0000">
-   153	                </div>
-   154	
-   155	                <div class="bg-green-50 border border-green-300 rounded-lg p-3">
-   156	                    <label class="block text-xs font-bold text-gray-700 mb-1">
-   157	                        <i class="fab fa-pix text-green-600 mr-1"></i>
-   158	                        Chave PIX
-   159	                    </label>
-   160	                    <select id="affiliate-pix-type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none mb-2 text-sm">
-   161	                        <option value="cpf">CPF</option>
-   162	                        <option value="cnpj">CNPJ</option>
-   163	                        <option value="email">Email</option>
-   164	                        <option value="telefone">Telefone</option>
-   165	                        <option value="aleatoria">Chave Aleatória</option>
-   166	                    </select>
-   167	                    <input type="text" id="affiliate-pix" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm" placeholder="Digite a chave PIX">
-   168	                    <p class="text-xs text-gray-600 mt-1">
-   169	                        <i class="fas fa-info-circle mr-1"></i>
-   170	                        Comissões via esta chave
-   171	                    </p>
-   172	                </div>
-   173	
-   174	                <div class="bg-blue-50 border border-blue-300 rounded-lg p-3">
-   175	                    <label class="block text-xs font-bold text-gray-700 mb-1">
-   176	                        <i class="fas fa-link text-blue-600 mr-1"></i>
-   177	                        Nome/Apelido no Link (Opcional)
-   178	                    </label>
-   179	                    <input 
-   180	                        type="text" 
-   181	                        id="affiliate-slug" 
-   182	                        placeholder="Ex: joaosilva"
-   183	                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm"
-   184	                        pattern="[a-z0-9-]+"
-   185	                        maxlength="30"
-   186	                    >
-   187	                    <p class="text-xs text-gray-600 mt-1">
-   188	                        <i class="fas fa-info-circle mr-1"></i>
-   189	                        Apenas letras minúsculas, números e hífen. Deixe vazio para gerar automaticamente.
-   190	                    </p>
-   191	                    <p class="text-xs text-blue-600 mt-1">
-   192	                        Ex: ...?ref=<span id="slug-preview">joaosilva</span>
-   193	                    </p>
-   194	                </div>
-   195	
-   196	                <div>
-   197	                    <label class="block text-xs font-bold text-gray-700 mb-1">Comissão (%)</label>
-   198	                    <input type="number" id="affiliate-commission" value="20" min="0" max="100" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm">
-   199	                    <p class="text-xs text-gray-500 mt-1">Padrão: 20% para divulgador, 80% para plataforma</p>
-   200	                </div>
-   201	
-   202	                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-3 rounded-lg font-bold hover:shadow-xl transition text-sm">
-   203	                    <i class="fas fa-save mr-2"></i>
-   204	                    Criar Divulgador
-   205	                </button>
-   206	            </form>
-   207	        </div>
-   208	    </div>
-   209	
-   210	    <!-- Modal: Links do Afiliado -->
-   211	    <div id="affiliate-links-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-   212	        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto p-6">
-   213	            <div class="flex justify-between items-center mb-4">
-   214	                <h3 class="text-xl font-bold text-gray-800">
-   215	                    <i class="fas fa-link text-blue-600 mr-2"></i>
-   216	                    Links de Divulgação
-   217	                </h3>
-   218	                <button onclick="closeLinksModal()" class="text-gray-500 hover:text-gray-700">
-   219	                    <i class="fas fa-times text-xl"></i>
-   220	                </button>
-   221	            </div>
-   222	
-   223	            <div id="affiliate-info" class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 rounded-xl mb-4">
-   224	                <!-- Informações do afiliado -->
-   225	            </div>
-   226	
-   227	            <div id="products-links" class="space-y-3">
-   228	                <!-- Links dos produtos -->
-   229	            </div>
-   230	        </div>
-   231	    </div>
-   232	
-   233	    <!-- Modal Ver Login -->
-   234	    <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-   235	        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6">
-   236	            <div class="flex justify-between items-center mb-4">
-   237	                <h3 class="text-xl font-bold text-gray-800">
-   238	                    <i class="fas fa-key text-blue-600 mr-2"></i>
-   239	                    Credenciais de Acesso
-   240	                </h3>
-   241	                <button onclick="closeLoginModal()" class="text-gray-500 hover:text-gray-700">
-   242	                    <i class="fas fa-times text-xl"></i>
-   243	                </button>
-   244	            </div>
-   245	
-   246	            <div id="login-info" class="space-y-4">
-   247	                <!-- Informações serão inseridas aqui -->
-   248	            </div>
-   249	
-   250	            <div class="mt-4 flex space-x-2">
-   251	                <button 
-   252	                    onclick="copyLoginCredentials()"
-   253	                    class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-lg transition text-sm"
-   254	                >
-   255	                    <i class="fas fa-copy mr-1"></i>
-   256	                    Copiar
-   257	                </button>
-   258	                <button 
-   259	                    onclick="sendWhatsApp()"
-   260	                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition text-sm"
-   261	                >
-   262	                    <i class="fab fa-whatsapp mr-1"></i>
-   263	                    WhatsApp
-   264	                </button>
-   265	                <button 
-   266	                    onclick="closeLoginModal()"
-   267	                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition text-sm"
-   268	                >
-   269	                    Fechar
-   270	                </button>
-   271	            </div>
-   272	        </div>
-   273	    </div>
-   274	
-   275	    <script>
-   276	        // Dados dos produtos
-   277	        const products = [
-   278	            { id: 'mulher', name: 'KaiNow Mulher', price: '49,90', color: 'pink', icon: 'fa-venus' },
-   279	            { id: 'senior', name: 'KaiNow Sênior', price: '59,90', color: 'amber', icon: 'fa-user-shield' },
-   280	            { id: 'farma', name: 'KaiNow Farma', price: '19,90', color: 'green', icon: 'fa-pills' },
-   281	            { id: 'acolher', name: 'KaiNow Acolher', price: '24,90', color: 'blue', icon: 'fa-hands-holding-child' },
-   282	            { id: 'orienta', name: 'KaiNow Orienta', price: '19,90', color: 'purple', icon: 'fa-lightbulb' },
-   283	            { id: 'vivaleve', name: 'KaiNow Viva Leve', price: '24,90', color: 'teal', icon: 'fa-spa' }
-   284	        ];
-   285	
-   286	        // Configuração Firebase
-   287	        const firebaseConfig = {
-   288	            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
-   289	            authDomain: "kainowsaude.firebaseapp.com",
-   290	            projectId: "kainowsaude",
-   291	            storageBucket: "kainowsaude.firebasestorage.app",
-   292	            messagingSenderId: "230049250523",
-   293	            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
-   294	        };
-   295	
-   296	        firebase.initializeApp(firebaseConfig);
-   297	        const db = firebase.firestore();
-   298	        console.log('🔥 Firebase inicializado');
-   299	
-   300	        // Carregar afiliados do Firestore
-   301	        async function loadAffiliates() {
-   302	            try {
-   303	                console.log('📡 Carregando afiliados do Firestore...');
-   304	                const snapshot = await db.collection('affiliates').get();
-   305	                
-   306	                const affiliates = snapshot.docs.map(doc => ({
-   307	                    id: doc.id,
-   308	                    ...doc.data()
-   309	                }));
-   310	                
-   311	                console.log(`✅ ${affiliates.length} afiliados carregados`);
-   312	                return affiliates;
-   313	            } catch (error) {
-   314	                console.error('❌ Erro ao carregar afiliados:', error);
-   315	                return [];
-   316	            }
-   317	        }
-   318	
-   319	        // DEPRECATED: Não usar mais - agora usa Firestore
-   320	        function saveAffiliates(affiliates) {
-   321	            console.warn('⚠️ saveAffiliates() está obsoleta. Use Firestore diretamente.');
-   322	        }
-   323	
-   324	        // Atualizar estatísticas
-   325	        async function updateStats() {
-   326	            const affiliates = await loadAffiliates();
-   327	            document.getElementById('total-affiliates').textContent = affiliates.length;
-   328	            document.getElementById('total-links').textContent = affiliates.length * products.length;
-   329	        }
-   330	
-   331	        // Renderizar lista de afiliados
-   332	        async function renderAffiliates() {
-   333	            const affiliates = await loadAffiliates();
-   334	            const container = document.getElementById('affiliates-list');
-   335	
-   336	            if (affiliates.length === 0) {
-   337	                container.innerHTML = `
-   338	                    <div class="text-center py-12 text-gray-500">
-   339	                        <i class="fas fa-users text-6xl mb-4 opacity-20"></i>
-   340	                        <p class="text-lg">Nenhum divulgador cadastrado ainda</p>
-   341	                        <button onclick="openNewAffiliateModal()" class="mt-4 text-blue-600 hover:underline">
-   342	                            <i class="fas fa-plus mr-2"></i>Cadastrar primeiro divulgador
-   343	                        </button>
-   344	                    </div>
-   345	                `;
-   346	                return;
-   347	            }
-   348	
-   349	            container.innerHTML = affiliates.map(affiliate => `
-   350	                <div class="border-2 border-gray-200 rounded-xl p-6 hover:border-blue-600 transition">
-   351	                    <div class="flex justify-between items-start">
-   352	                        <div class="flex items-start space-x-4">
-   353	                            <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-full w-16 h-16 flex items-center justify-center text-white text-2xl font-bold">
-   354	                                ${affiliate.name.charAt(0).toUpperCase()}
-   355	                            </div>
-   356	                            <div>
-   357	                                <h4 class="text-xl font-bold text-gray-800">${affiliate.name}</h4>
-   358	                                <p class="text-gray-600"><i class="fas fa-envelope mr-2"></i>${affiliate.email}</p>
-   359	                                <p class="text-gray-600"><i class="fas fa-phone mr-2"></i>${affiliate.phone}</p>
-   360	                                ${affiliate.pixKey ? `
-   361	                                <p class="text-green-600 font-semibold mt-1">
-   362	                                    <i class="fab fa-pix mr-2"></i>PIX: ${affiliate.pixKey}
-   363	                                    <span class="text-xs text-gray-500">(${affiliate.pixType})</span>
-   364	                                </p>
-   365	                                ` : ''}
-   366	                                <div class="mt-2">
-   367	                                    <span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
-   368	                                        <i class="fas fa-percentage mr-1"></i>${affiliate.commission}% comissão
-   369	                                    </span>
-   370	                                    ${affiliate.slug ? `
-   371	                                    <span class="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-bold ml-2">
-   372	                                        <i class="fas fa-link mr-1"></i>ref=${affiliate.slug}
-   373	                                    </span>
-   374	                                    ` : `
-   375	                                    <span class="inline-block bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-bold ml-2">
-   376	                                        ID: ${affiliate.id}
-   377	                                    </span>
-   378	                                    `}
-   379	                                </div>
-   380	                            </div>
-   381	                        </div>
-   382	                        <div class="flex flex-col gap-2">
-   383	                            <button onclick="showLogin('${affiliate.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition">
-   384	                                <i class="fas fa-key mr-2"></i>Ver Login
-   385	                            </button>
-   386	                            <button onclick="showLinks('${affiliate.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition">
-   387	                                <i class="fas fa-link mr-2"></i>Ver Links
-   388	                            </button>
-   389	                            <button onclick="editCommission('${affiliate.id}')" class="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition">
-   390	                                <i class="fas fa-edit mr-2"></i>Editar
-   391	                            </button>
-   392	                            <button onclick="deleteAffiliate('${affiliate.id}')" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition">
-   393	                                <i class="fas fa-trash mr-2"></i>Excluir
-   394	                            </button>
-   395	                        </div>
-   396	                    </div>
-   397	                </div>
-   398	            `).join('');
-   399	        }
-   400	
-   401	        // Abrir modal de novo afiliado
-   402	        function openNewAffiliateModal() {
-   403	            document.getElementById('new-affiliate-modal').classList.remove('hidden');
-   404	        }
-   405	
-   406	        // Fechar modal de novo afiliado
-   407	        function closeNewAffiliateModal() {
-   408	            document.getElementById('new-affiliate-modal').classList.add('hidden');
-   409	            document.getElementById('affiliate-form').reset();
-   410	        }
-   411	
-   412	        // Criar novo afiliado - CÓDIGO CORRIGIDO
-   413	        document.getElementById('affiliate-form').addEventListener('submit', async function(e) {
-   414	            e.preventDefault();
-   415	            console.log('🚀 Formulário submetido!');
-   416	
-   417	            const name = document.getElementById('affiliate-name').value;
-   418	            const email = document.getElementById('affiliate-email').value;
-   419	            const phone = document.getElementById('affiliate-phone').value;
-   420	            const pixType = document.getElementById('affiliate-pix-type').value;
-   421	            const pixKey = document.getElementById('affiliate-pix').value;
-   422	            const commission = parseInt(document.getElementById('affiliate-commission').value);
-   423	            let slug = document.getElementById('affiliate-slug').value.toLowerCase().trim();
-   424	
-   425	            console.log('📝 Dados do formulário:', { name, email, phone, pixKey, commission });
-   426	
-   427	            const submitButton = e.target.querySelector('button[type="submit"]');
-   428	            submitButton.disabled = true;
-   429	            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Criando...';
-   430	
-   431	            try {
-   432	                console.log('🔄 Carregando afiliados...');
-   433	                const affiliates = await loadAffiliates();
-   434	                console.log('✅ Afiliados carregados:', affiliates.length);
-   435	
-   436	                if (slug) {
-   437	                    slug = slug.replace(/[^a-z0-9-]/g, '');
-   438	                    if (affiliates.some(a => a.slug === slug)) {
-   439	                        alert('❌ Este nome/apelido já está em uso! Escolha outro.');
-   440	                        submitButton.disabled = false;
-   441	                        submitButton.innerHTML = '<i class="fas fa-save mr-2"></i> Criar Divulgador';
-   442	                        return;
-   443	                    }
-   444	                } else {
-   445	                    slug = name.toLowerCase()
-   446	                        .normalize('NFD')
-   447	                        .replace(/[\u0300-\u036f]/g, '')
-   448	                        .replace(/[^a-z0-9\s-]/g, '')
-   449	                        .replace(/\s+/g, '-')
-   450	                        .substring(0, 30);
-   451	                    
-   452	                    let slugCounter = 1;
-   453	                    let finalSlug = slug;
-   454	                    while (affiliates.some(a => a.slug === finalSlug)) {
-   455	                        finalSlug = slug + slugCounter;
-   456	                        slugCounter++;
-   457	                    }
-   458	                    slug = finalSlug;
-   459	                }
-   460	
-   461	                const username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
-   462	                const defaultPassword = 'kainow' + Math.random().toString(36).slice(-6);
-   463	                
-   464	                const affiliate = {
-   465	                    slug: slug,
-   466	                    name: name,
-   467	                    email: email,
-   468	                    phone: phone,
-   469	                    pixType: pixType,
-   470	                    pixKey: pixKey,
-   471	                    commission: commission,
-   472	                    username: username,
-   473	                    password: defaultPassword,
-   474	                    passwordChanged: false,
-   475	                    createdAt: new Date().toISOString(),
-   476	                    sales: [],
-   477	                    totalEarned: 0,
-   478	                    status: 'active'
-   479	                };
-   480	
-   481	                console.log('💾 Salvando no Firebase...');
-   482	                const docRef = await db.collection('affiliates').add(affiliate);
-   483	                console.log('✅ Criado com ID:', docRef.id);
-   484	
-   485	                alert(
-   486	                    '✅ Divulgador cadastrado com sucesso!\n\n' +
-   487	                    '🔐 CREDENCIAIS DE ACESSO:\n' +
-   488	                    '👤 Usuário: ' + affiliate.username + '\n' +
-   489	                    '🔑 Senha: ' + affiliate.password + '\n\n' +
-   490	                    '🔗 Link personalizado: ?ref=' + affiliate.slug + '\n\n' +
-   491	                    '🌐 Login: https://kainow.com.br/afiliado/login.html\n\n' +
-   492	                    '💰 Comissões via PIX: ' + pixKey + '\n\n' +
-   493	                    '⚠️ IMPORTANTE: Envie estas credenciais para o divulgador!'
-   494	                );
-   495	
-   496	                closeNewAffiliateModal();
-   497	                document.getElementById('affiliate-form').reset();
-   498	                await renderAffiliates();
-   499	                await updateStats();
-   500	
-   501	            } catch (error) {
-   502	                console.error('❌ Erro ao criar afiliado:', error);
-   503	                alert('❌ Erro ao criar afiliado: ' + error.message);
-   504	            } finally {
-   505	                submitButton.disabled = false;
-   506	                submitButton.innerHTML = '<i class="fas fa-save mr-2"></i> Criar Divulgador';
-   507	            }
-   508	        });
-   509	
-   510	        // Variável global para armazenar afiliado atual
-   511	        let currentAffiliate = null;
-   512	
-   513	        // Mostrar login do afiliado
-   514	        async function showLogin(affiliateId) {
-   515	            const affiliates = await loadAffiliates();
-   516	            const affiliate = affiliates.find(a => a.id === affiliateId);
-   517	
-   518	            if (!affiliate) return;
-   519	
-   520	            currentAffiliate = affiliate;
-   521	
-   522	            const passwordStatus = affiliate.passwordChanged 
-   523	                ? '<span class="text-green-600"><i class="fas fa-check-circle mr-2"></i>Senha já foi alterada</span>' 
-   524	                : '<span class="text-yellow-600"><i class="fas fa-exclamation-triangle mr-2"></i>Senha padrão (não alterada)</span>';
-   525	
-   526	            const loginInfoHtml = `
-   527	                <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-xl">
-   528	                    <div class="flex items-center space-x-3 mb-3">
-   529	                        <div class="bg-white text-blue-600 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold">
-   530	                            ${affiliate.name.charAt(0).toUpperCase()}
-   531	                        </div>
-   532	                        <div>
-   533	                            <h4 class="text-lg font-bold">${affiliate.name}</h4>
-   534	                            <p class="opacity-90 text-sm">${affiliate.email}</p>
-   535	                        </div>
-   536	                    </div>
-   537	                    <div class="grid grid-cols-2 gap-3 text-xs">
-   538	                        <div>
-   539	                            <p class="opacity-75">Telefone:</p>
-   540	                            <p class="font-bold">${affiliate.phone}</p>
-   541	                        </div>
-   542	                        <div>
-   543	                            <p class="opacity-75">ID:</p>
-   544	                            <p class="font-bold">${affiliate.id}</p>
-   545	                        </div>
-   546	                        <div>
-   547	                            <p class="opacity-75">Comissão:</p>
-   548	                            <p class="font-bold">${affiliate.commission}%</p>
-   549	                        </div>
-   550	                        <div>
-   551	                            <p class="opacity-75">PIX:</p>
-   552	                            <p class="font-bold">${affiliate.pixKey || 'Não cadastrado'}</p>
-   553	                        </div>
-   554	                    </div>
-   555	                </div>
-   556	
-   557	                <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-   558	                    <h5 class="text-base font-bold text-gray-800 mb-3">
-   559	                        <i class="fas fa-key text-blue-600 mr-2"></i>
-   560	                        Credenciais de Login
-   561	                    </h5>
-   562	                    <div class="space-y-2">
-   563	                        <div class="bg-white p-3 rounded-lg border border-gray-200">
-   564	                            <label class="block text-xs font-bold text-gray-600 mb-1">USUÁRIO</label>
-   565	                            <div class="flex items-center justify-between">
-   566	                                <span class="text-base font-bold text-gray-800">${affiliate.username || 'Não gerado'}</span>
-   567	                                <button 
-   568	                                    onclick="copyToClipboard('${affiliate.username}')"
-   569	                                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition"
-   570	                                >
-   571	                                    <i class="fas fa-copy"></i>
-   572	                                </button>
-   573	                            </div>
-   574	                        </div>
-   575	                        
-   576	                        <div class="bg-white p-3 rounded-lg border border-gray-200">
-   577	                            <label class="block text-xs font-bold text-gray-600 mb-1">SENHA</label>
-   578	                            <div class="flex items-center justify-between">
-   579	                                <span class="text-base font-bold text-gray-800 font-mono">${affiliate.password || 'Não gerada'}</span>
-   580	                                <button 
-   581	                                    onclick="copyToClipboard('${affiliate.password}')"
-   582	                                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition"
-   583	                                >
-   584	                                    <i class="fas fa-copy"></i>
-   585	                                </button>
-   586	                            </div>
-   587	                        </div>
-   588	
-   589	                        <div class="bg-white p-3 rounded-lg border border-gray-200">
-   590	                            <label class="block text-xs font-bold text-gray-600 mb-1">LINK</label>
-   591	                            <div class="flex items-center justify-between gap-2">
-   592	                                <span class="text-xs text-blue-600 truncate">https://kainow.com.br/afiliado/login.html</span>
-   593	                                <button 
-   594	                                    onclick="copyToClipboard('https://kainow.com.br/afiliado/login.html')"
-   595	                                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition flex-shrink-0"
-   596	                                >
-   597	                                    <i class="fas fa-copy"></i>
-   598	                                </button>
-   599	                            </div>
-   600	                        </div>
-   601	                    </div>
-   602	
-   603	                    <div class="mt-3 p-2 bg-white rounded-lg border-l-4 border-${affiliate.passwordChanged ? 'green' : 'yellow'}-500">
-   604	                        <p class="text-xs font-bold">${passwordStatus}</p>
-   605	                    </div>
-   606	                </div>
-   607	
-   608	                <div class="bg-green-50 border-2 border-green-200 rounded-xl p-4">
-   609	                    <h5 class="text-base font-bold text-gray-800 mb-3">
-   610	                        <i class="fas fa-comment-dots text-green-600 mr-2"></i>
-   611	                        Mensagem Pronta para Enviar
-   612	                    </h5>
-   613	                    <div class="bg-white p-3 rounded-lg border-2 border-gray-200">
-   614	                        <pre id="whatsapp-message" class="text-xs text-gray-700 whitespace-pre-wrap font-sans">🎉 Olá ${affiliate.name}!
-   615	
-   616	Você foi cadastrado como divulgador da KaiNow Saúde!
-   617	
-   618	🔐 CREDENCIAIS DE ACESSO:
-   619	👤 Usuário: ${affiliate.username}
-   620	🔑 Senha: ${affiliate.password}
-   621	
-   622	🌐 Acesse seu painel:
-   623	https://kainow.com.br/afiliado/login.html
-   624	
-   625	💰 Sua comissão: ${affiliate.commission}%
-   626	💳 Recebimento PIX: ${affiliate.pixKey || 'A cadastrar'}
-   627	
-   628	⚠️ IMPORTANTE: Troque sua senha no primeiro acesso!
-   629	
-   630	Qualquer dúvida, estou à disposição! 😊</pre>
-   631	                    </div>
-   632	                </div>
-   633	            `;
-   634	
-   635	            document.getElementById('login-info').innerHTML = loginInfoHtml;
-   636	            document.getElementById('login-modal').classList.remove('hidden');
-   637	        }
-   638	
-   639	        // Fechar modal de login
-   640	        function closeLoginModal() {
-   641	            document.getElementById('login-modal').classList.add('hidden');
-   642	            currentAffiliate = null;
-   643	        }
-   644	
-   645	        // Copiar para área de transferência
-   646	        function copyToClipboard(text) {
-   647	            if (navigator.clipboard) {
-   648	                navigator.clipboard.writeText(text).then(() => {
-   649	                    alert('✅ Copiado para área de transferência!');
-   650	                }).catch(err => {
-   651	                    alert('❌ Erro ao copiar: ' + err);
-   652	                });
-   653	            } else {
-   654	                const textarea = document.createElement('textarea');
-   655	                textarea.value = text;
-   656	                document.body.appendChild(textarea);
-   657	                textarea.select();
-   658	                document.execCommand('copy');
-   659	                document.body.removeChild(textarea);
-   660	                alert('✅ Copiado!');
-   661	            }
-   662	        }
-   663	
-   664	        // Copiar todas as credenciais
-   665	        function copyLoginCredentials() {
-   666	            if (!currentAffiliate) return;
-   667	
-   668	            const text = 
-   669	                `🔐 CREDENCIAIS DE ACESSO\n\n` +
-   670	                `👤 Usuário: ${currentAffiliate.username}\n` +
-   671	                `🔑 Senha: ${currentAffiliate.password}\n` +
-   672	                `🌐 Link: https://kainow.com.br/afiliado/login.html`;
-   673	
-   674	            copyToClipboard(text);
-   675	        }
-   676	
-   677	        // Enviar via WhatsApp
-   678	        function sendWhatsApp() {
-   679	            if (!currentAffiliate) return;
-   680	
-   681	            const message = 
-   682	                `🎉 Olá ${currentAffiliate.name}!\n\n` +
-   683	                `Você foi cadastrado como divulgador da KaiNow Saúde!\n\n` +
-   684	                `🔐 CREDENCIAIS DE ACESSO:\n` +
-   685	                `👤 Usuário: ${currentAffiliate.username}\n` +
-   686	                `🔑 Senha: ${currentAffiliate.password}\n\n` +
-   687	                `🌐 Acesse seu painel:\n` +
-   688	                `https://kainow.com.br/afiliado/login.html\n\n` +
-   689	                `💰 Sua comissão: ${currentAffiliate.commission}%\n` +
-   690	                `💳 Recebimento PIX: ${currentAffiliate.pixKey || 'A cadastrar'}\n\n` +
-   691	                `⚠️ IMPORTANTE: Troque sua senha no primeiro acesso!\n\n` +
-   692	                `Qualquer dúvida, estou à disposição! 😊`;
-   693	
-   694	            const phone = currentAffiliate.phone.replace(/\D/g, '');
-   695	            const whatsappUrl = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
-   696	            
-   697	            window.open(whatsappUrl, '_blank');
-   698	        }
-   699	
-   700	        // Mostrar links do afiliado
-   701	        async function showLinks(affiliateId) {
-   702	            const affiliates = await loadAffiliates();
-   703	            const affiliate = affiliates.find(a => a.id === affiliateId);
-   704	
-   705	            if (!affiliate) return;
-   706	
-   707	            const infoHtml = `
-   708	                <div class="flex justify-between items-start">
-   709	                    <div>
-   710	                        <h4 class="text-lg font-bold">${affiliate.name}</h4>
-   711	                        <p class="opacity-90 mb-2 text-sm">${affiliate.email}</p>
-   712	                        ${affiliate.pixKey ? `
-   713	                        <div class="bg-white bg-opacity-20 rounded-lg px-3 py-1.5 inline-block">
-   714	                            <p class="text-xs font-semibold">
-   715	                                <i class="fab fa-pix mr-1"></i>
-   716	                                PIX: ${affiliate.pixKey}
-   717	                            </p>
-   718	                            <p class="text-xs opacity-80">Tipo: ${affiliate.pixType.toUpperCase()}</p>
-   719	                        </div>
-   720	                        ` : ''}
-   721	                    </div>
-   722	                    <div class="text-right">
-   723	                        <p class="text-2xl font-black">${affiliate.commission}%</p>
-   724	                        <p class="text-xs opacity-90">comissão</p>
-   725	                    </div>
-   726	                </div>
-   727	            `;
-   728	
-   729	            const linksHtml = products.map(product => {
-   730	                const refParam = affiliate.slug || affiliate.username;
-   731	                const affiliateLink = `https://kainow.com.br/programa-${product.id}.html?ref=${refParam}`;
-   732	                
-   733	                return `
-   734	                    <div class="border-2 border-${product.color}-200 bg-${product.color}-50 rounded-xl p-4">
-   735	                        <div class="flex items-center mb-3">
-   736	                            <div class="bg-gradient-to-r from-${product.color}-500 to-${product.color}-600 rounded-full w-10 h-10 flex items-center justify-center text-white mr-3 text-sm">
-   737	                                <i class="fas ${product.icon}"></i>
-   738	                            </div>
-   739	                            <div>
-   740	                                <h5 class="text-base font-bold text-gray-800">${product.name}</h5>
-   741	                                <p class="text-sm text-gray-600">R$ ${product.price}/mês</p>
-   742	                            </div>
-   743	                        </div>
-   744	                        
-   745	                        <div class="bg-white p-3 rounded-lg mb-2">
-   746	                            <p class="text-xs text-gray-600 mb-1 font-bold">Link:</p>
-   747	                            <div class="flex items-center gap-2">
-   748	                                <input type="text" value="${affiliateLink}" readonly class="flex-1 px-2 py-1.5 bg-gray-50 border border-gray-300 rounded text-xs" id="link-${product.id}-${affiliateId}">
-   749	                                <button onclick="copyLink('link-${product.id}-${affiliateId}')" class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-opacity-90 transition text-xs">
-   750	                                    <i class="fas fa-copy"></i>
-   751	                                </button>
-   752	                            </div>
-   753	                        </div>
-   754	
-   755	                        <div class="grid grid-cols-2 gap-2">
-   756	                            <div class="bg-green-100 p-2 rounded-lg">
-   757	                                <p class="text-xs text-gray-700 mb-0.5">
-   758	                                    <i class="fab fa-pix mr-1"></i>
-   759	                                    Divulgador
-   760	                                </p>
-   761	                                <p class="text-base font-bold text-green-700">R$ ${(parseFloat(product.price.replace(',', '.')) * affiliate.commission / 100).toFixed(2).replace('.', ',')}</p>
-   762	                                ${affiliate.pixKey ? `<p class="text-xs text-gray-600 mt-0.5 truncate">↪ ${affiliate.pixKey}</p>` : ''}
-   763	                            </div>
-   764	                            <div class="bg-purple-100 p-2 rounded-lg">
-   765	                                <p class="text-xs text-gray-700 mb-0.5">Plataforma</p>
-   766	                                <p class="text-base font-bold text-purple-700">R$ ${(parseFloat(product.price.replace(',', '.')) * (100 - affiliate.commission) / 100).toFixed(2).replace('.', ',')}</p>
-   767	                            </div>
-   768	                        </div>
-   769	                    </div>
-   770	                `;
-   771	            }).join('');
-   772	
-   773	            document.getElementById('affiliate-info').innerHTML = infoHtml;
-   774	            document.getElementById('products-links').innerHTML = linksHtml;
-   775	            document.getElementById('affiliate-links-modal').classList.remove('hidden');
-   776	        }
-   777	
-   778	        // Fechar modal de links
-   779	        function closeLinksModal() {
-   780	            document.getElementById('affiliate-links-modal').classList.add('hidden');
-   781	        }
-   782	
-   783	        // Copiar link
-   784	        function copyLink(inputId) {
-   785	            const input = document.getElementById(inputId);
-   786	            input.select();
-   787	            document.execCommand('copy');
-   788	            
-   789	            alert('✅ Link copiado para área de transferência!');
-   790	        }
-   791	
-   792	        // Editar comissão
-   793	        async function editCommission(affiliateId) {
-   794	            const affiliates = await loadAffiliates();
-   795	            const affiliate = affiliates.find(a => a.id === affiliateId);
-   796	
-   797	            if (!affiliate) return;
-   798	
-   799	            const currentPix = affiliate.pixKey || 'Não cadastrado';
-   800	            const editData = prompt(
-   801	                `📝 EDITAR AFILIADO: ${affiliate.name}\n\n` +
-   802	                `💰 Comissão atual: ${affiliate.commission}%\n` +
-   803	                `💳 PIX atual: ${currentPix}\n\n` +
-   804	                `Digite a nova comissão (0-100):`,
-   805	                affiliate.commission
-   806	            );
-   807	
-   808	            if (editData === null) return;
-   809	
-   810	            const commission = parseInt(editData);
-   811	
-   812	            if (isNaN(commission) || commission < 0 || commission > 100) {
-   813	                alert('❌ Comissão inválida! Digite um valor entre 0 e 100.');
-   814	                return;
-   815	            }
-   816	
-   817	            const updatePix = confirm('💳 Deseja atualizar a chave PIX também?');
-   818	            
-   819	            if (updatePix) {
-   820	                const newPixKey = prompt(
-   821	                    `💳 PIX atual: ${currentPix}\n\nDigite a nova chave PIX:`,
-   822	                    affiliate.pixKey || ''
-   823	                );
-   824	                
-   825	                if (newPixKey && newPixKey.trim() !== '') {
-   826	                    affiliate.pixKey = newPixKey.trim();
-   827	                    
-   828	                    const pixType = prompt(
-   829	                        '📱 Selecione o tipo de chave PIX:\n\n' +
-   830	                        '1 - CPF\n' +
-   831	                        '2 - CNPJ\n' +
-   832	                        '3 - Email\n' +
-   833	                        '4 - Telefone\n' +
-   834	                        '5 - Chave Aleatória\n\n' +
-   835	                        'Digite o número:',
-   836	                        '1'
-   837	                    );
-   838	                    
-   839	                    const pixTypes = {
-   840	                        '1': 'cpf',
-   841	                        '2': 'cnpj',
-   842	                        '3': 'email',
-   843	                        '4': 'telefone',
-   844	                        '5': 'aleatoria'
-   845	                    };
-   846	                    
-   847	                    affiliate.pixType = pixTypes[pixType] || 'cpf';
-   848	                }
-   849	            }
-   850	
-   851	            try {
-   852	                const updateData = { commission: commission };
-   853	                
-   854	                if (updatePix && affiliate.pixKey) {
-   855	                    updateData.pixKey = affiliate.pixKey;
-   856	                    updateData.pixType = affiliate.pixType || 'cpf';
-   857	                }
-   858	                
-   859	                console.log('📝 Atualizando afiliado:', affiliateId, updateData);
-   860	                await db.collection('affiliates').doc(affiliateId).update(updateData);
-   861	                
-   862	                alert('✅ Afiliado atualizado com sucesso!');
-   863	                await updateStats();
-   864	                await renderAffiliates();
-   865	            } catch (error) {
-   866	                console.error('❌ Erro ao atualizar:', error);
-   867	                alert('❌ Erro ao atualizar afiliado: ' + error.message);
-   868	            }
-   869	        }
-   870	
-   871	        // Excluir afiliado
-   872	        async function deleteAffiliate(affiliateId) {
-   873	            if (!confirm('Tem certeza que deseja excluir este divulgador?')) return;
-   874	
-   875	            try {
-   876	                console.log('🗑️ Deletando afiliado:', affiliateId);
-   877	                await db.collection('affiliates').doc(affiliateId).delete();
-   878	                alert('✅ Divulgador excluído com sucesso!');
-   879	                await updateStats();
-   880	                await renderAffiliates();
-   881	            } catch (error) {
-   882	                console.error('❌ Erro ao deletar:', error);
-   883	                alert('❌ Erro ao excluir divulgador: ' + error.message);
-   884	            }
-   885	        }
-   886	
-   887	        // Logout
-   888	        function logout() {
-   889	            if (confirm('Deseja sair do painel administrativo?')) {
-   890	                localStorage.removeItem('kainow_admin_session');
-   891	                sessionStorage.removeItem('kainow_admin_session');
-   892	                window.location.href = 'login-admin.html';
-   893	            }
-   894	        }
-   895	
-   896	        // Preview do slug em tempo real
-   897	        document.getElementById('affiliate-slug').addEventListener('input', function(e) {
-   898	            let slug = e.target.value.toLowerCase().trim();
-   899	            slug = slug.replace(/[^a-z0-9-]/g, '');
-   900	            e.target.value = slug;
-   901	            
-   902	            const preview = document.getElementById('slug-preview');
-   903	            if (slug) {
-   904	                preview.textContent = slug;
-   905	                preview.classList.remove('text-gray-400');
-   906	                preview.classList.add('text-blue-600', 'font-bold');
-   907	            } else {
-   908	                preview.textContent = 'seu-nome';
-   909	                preview.classList.add('text-gray-400');
-   910	                preview.classList.remove('text-blue-600', 'font-bold');
-   911	            }
-   912	        });
-   913	
-   914	        // Inicializar
-   915	        updateStats();
-   916	        renderAffiliates();
-   917	        
-   918	        console.log('🚀 Gerenciador de Afiliados v3.1 carregado!');
-   919	        console.log('📅 Timestamp:', new Date().toISOString());
-   920	        console.log('🔗 Domínio dos links: kainow.com.br');
-   921	        
-   922	        const versionBanner = document.createElement('div');
-   923	        versionBanner.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-2xl z-50';
-   924	        versionBanner.innerHTML = `
-   925	            <div class="flex items-center space-x-3">
-   926	                <i class="fas fa-check-circle text-2xl"></i>
-   927	                <div>
-   928	                    <p class="font-bold">Versão 3.1 Carregada!</p>
-   929	                    <p class="text-xs">Salva no Firebase ✅</p>
-   930	                </div>
-   931	            </div>
-   932	        `;
-   933	        document.body.appendChild(versionBanner);
-   934	        setTimeout(() => versionBanner.remove(), 5000);
-   935	
-   936	        window.addEventListener('DOMContentLoaded', async function() {
-   937	            console.log('🚀 Página carregada, buscando afiliados do Firestore...');
-   938	            await updateStats();
-   939	            await renderAffiliates();
-   940	        });
-   941	    </script>
-   942	    
-   943	    <script src="../js/admin-auth.js"></script>
-   944	    <script>
-   945	        checkAdminAuth();
-   946	    </script>
-   947	</body>
-   948	</html>
-   949	
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Gerenciador de Afiliados - KaiNow Admin v3.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gray-50">
+    <header class="bg-white shadow-lg border-b-4 border-blue-500">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='dashboard-admin.html'" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Gerenciar Afiliados</h1>
+                    <p class="text-sm text-gray-600">Criar afiliados e gerar links</p>
+                </div>
+            </div>
+            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                <i class="fas fa-sign-out-alt mr-2"></i>Sair
+            </button>
+        </div>
+    </header>
+    <div class="container mx-auto px-4 py-8">
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-users-cog text-blue-600 mr-3"></i>Gerenciador de Afiliados
+                        <span class="text-sm bg-green-500 text-white px-2 py-1 rounded ml-2">v3.0</span>
+                    </h2>
+                    <p class="text-gray-600">Crie divulgadores, gere links e gerencie comissões</p>
+                </div>
+                <button onclick="location.reload(true)" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition">
+                    <i class="fas fa-sync-alt mr-2"></i>Forçar Atualização
+                </button>
+            </div>
+        </div>
+        <div class="grid md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Total Afiliados</p>
+                        <h3 class="text-3xl font-bold text-blue-600" id="total-affiliates">0</h3>
+                    </div>
+                    <i class="fas fa-users text-4xl text-blue-600 opacity-20"></i>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Links Gerados</p>
+                        <h3 class="text-3xl font-bold text-green-600" id="total-links">0</h3>
+                    </div>
+                    <i class="fas fa-link text-4xl text-green-600 opacity-20"></i>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Comissão Padrão</p>
+                        <h3 class="text-3xl font-bold text-amber-600">20%</h3>
+                    </div>
+                    <i class="fas fa-percentage text-4xl text-amber-600 opacity-20"></i>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Plataforma</p>
+                        <h3 class="text-3xl font-bold text-purple-600">80%</h3>
+                    </div>
+                    <i class="fas fa-building text-4xl text-purple-600 opacity-20"></i>
+                </div>
+            </div>
+        </div>
+        <div class="mb-6">
+            <button onclick="openNewAffiliateModal()" class="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-3 rounded-lg font-bold hover:shadow-xl transition">
+                <i class="fas fa-user-plus mr-2"></i>Novo Divulgador
+            </button>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-list mr-2"></i>Divulgadores Cadastrados
+            </h3>
+            <div id="affiliates-list" class="space-y-4"></div>
+        </div>
+    </div>
+    <div id="new-affiliate-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-user-plus text-blue-600 mr-2"></i>Novo Divulgador
+                </h3>
+                <button onclick="closeNewAffiliateModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="affiliate-form" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Nome do Divulgador</label>
+                    <input type="text" id="affiliate-name" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Email</label>
+                    <input type="email" id="affiliate-email" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Telefone/WhatsApp</label>
+                    <input type="tel" id="affiliate-phone" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm" placeholder="(00) 00000-0000">
+                </div>
+                <div class="bg-green-50 border border-green-300 rounded-lg p-3">
+                    <label class="block text-xs font-bold text-gray-700 mb-1">
+                        <i class="fab fa-pix text-green-600 mr-1"></i>Chave PIX
+                    </label>
+                    <select id="affiliate-pix-type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none mb-2 text-sm">
+                        <option value="cpf">CPF</option>
+                        <option value="cnpj">CNPJ</option>
+                        <option value="email">Email</option>
+                        <option value="telefone">Telefone</option>
+                        <option value="aleatoria">Chave Aleatória</option>
+                    </select>
+                    <input type="text" id="affiliate-pix" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm" placeholder="Digite a chave PIX">
+                    <p class="text-xs text-gray-600 mt-1">
+                        <i class="fas fa-info-circle mr-1"></i>Comissões via esta chave
+                    </p>
+                </div>
+                <div class="bg-blue-50 border border-blue-300 rounded-lg p-3">
+                    <label class="block text-xs font-bold text-gray-700 mb-1">
+                        <i class="fas fa-link text-blue-600 mr-1"></i>Nome/Apelido no Link (Opcional)
+                    </label>
+                    <input type="text" id="affiliate-slug" placeholder="Ex: joaosilva" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm" pattern="[a-z0-9-]+" maxlength="30">
+                    <p class="text-xs text-gray-600 mt-1">
+                        <i class="fas fa-info-circle mr-1"></i>Apenas letras minúsculas, números e hífen. Deixe vazio para gerar automaticamente.
+                    </p>
+                    <p class="text-xs text-blue-600 mt-1">Ex: ...?ref=<span id="slug-preview">joaosilva</span></p>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Comissão (%)</label>
+                    <input type="number" id="affiliate-commission" value="20" min="0" max="100" required class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm">
+                    <p class="text-xs text-gray-500 mt-1">Padrão: 20% para divulgador, 80% para plataforma</p>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-3 rounded-lg font-bold hover:shadow-xl transition text-sm">
+                    <i class="fas fa-save mr-2"></i>Criar Divulgador
+                </button>
+            </form>
+        </div>
+    </div>
+    <div id="affiliate-links-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-link text-blue-600 mr-2"></i>Links de Divulgação
+                </h3>
+                <button onclick="closeLinksModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="affiliate-info" class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 rounded-xl mb-4"></div>
+            <div id="products-links" class="space-y-3"></div>
+        </div>
+    </div>
+    <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-key text-blue-600 mr-2"></i>Credenciais de Acesso
+                </h3>
+                <button onclick="closeLoginModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="login-info" class="space-y-4"></div>
+            <div class="mt-4 flex space-x-2">
+                <button onclick="copyLoginCredentials()" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-lg transition text-sm">
+                    <i class="fas fa-copy mr-1"></i>Copiar
+                </button>
+                <button onclick="sendWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition text-sm">
+                    <i class="fab fa-whatsapp mr-1"></i>WhatsApp
+                </button>
+                <button onclick="closeLoginModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition text-sm">Fechar</button>
+            </div>
+        </div>
+    </div>
+    <script>
+const products=[{id:'mulher',name:'KaiNow Mulher',price:'49,90',color:'pink',icon:'fa-venus'},{id:'senior',name:'KaiNow Sênior',price:'59,90',color:'amber',icon:'fa-user-shield'},{id:'farma',name:'KaiNow Farma',price:'19,90',color:'green',icon:'fa-pills'},{id:'acolher',name:'KaiNow Acolher',price:'24,90',color:'blue',icon:'fa-hands-holding-child'},{id:'orienta',name:'KaiNow Orienta',price:'19,90',color:'purple',icon:'fa-lightbulb'},{id:'vivaleve',name:'KaiNow Viva Leve',price:'24,90',color:'teal',icon:'fa-spa'}];
+const firebaseConfig={apiKey:"AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",authDomain:"kainowsaude.firebaseapp.com",projectId:"kainowsaude",storageBucket:"kainowsaude.firebasestorage.app",messagingSenderId:"230049250523",appId:"1:230049250523:web:ce16ada5c4e5488e64e0fe"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+console.log('🔥 Firebase inicializado');
+async function loadAffiliates(){try{console.log('📡 Carregando afiliados do Firestore...');const snapshot=await db.collection('affiliates').get();const affiliates=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));console.log(`✅ ${affiliates.length} afiliados carregados`);return affiliates}catch(error){console.error('❌ Erro ao carregar afiliados:',error);return[]}}
+function saveAffiliates(affiliates){console.warn('⚠️ saveAffiliates() está obsoleta. Use Firestore diretamente.')}
+async function updateStats(){const affiliates=await loadAffiliates();document.getElementById('total-affiliates').textContent=affiliates.length;document.getElementById('total-links').textContent=affiliates.length*products.length}
+async function renderAffiliates(){const affiliates=await loadAffiliates();const container=document.getElementById('affiliates-list');if(affiliates.length===0){container.innerHTML=`<div class="text-center py-12 text-gray-500"><i class="fas fa-users text-6xl mb-4 opacity-20"></i><p class="text-lg">Nenhum divulgador cadastrado ainda</p><button onclick="openNewAffiliateModal()" class="mt-4 text-blue-600 hover:underline"><i class="fas fa-plus mr-2"></i>Cadastrar primeiro divulgador</button></div>`;return}
+container.innerHTML=affiliates.map(affiliate=>`<div class="border-2 border-gray-200 rounded-xl p-6 hover:border-blue-600 transition"><div class="flex justify-between items-start"><div class="flex items-start space-x-4"><div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-full w-16 h-16 flex items-center justify-center text-white text-2xl font-bold">${affiliate.name.charAt(0).toUpperCase()}</div><div><h4 class="text-xl font-bold text-gray-800">${affiliate.name}</h4><p class="text-gray-600"><i class="fas fa-envelope mr-2"></i>${affiliate.email}</p><p class="text-gray-600"><i class="fas fa-phone mr-2"></i>${affiliate.phone}</p>${affiliate.pixKey?`<p class="text-green-600 font-semibold mt-1"><i class="fab fa-pix mr-2"></i>PIX: ${affiliate.pixKey} <span class="text-xs text-gray-500">(${affiliate.pixType})</span></p>`:''}<div class="mt-2"><span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold"><i class="fas fa-percentage mr-1"></i>${affiliate.commission}% comissão</span>${affiliate.slug?`<span class="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-bold ml-2"><i class="fas fa-link mr-1"></i>ref=${affiliate.slug}</span>`:`<span class="inline-block bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-bold ml-2">ID: ${affiliate.id}</span>`}</div></div></div><div class="flex flex-col gap-2"><button onclick="showLogin('${affiliate.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition"><i class="fas fa-key mr-2"></i>Ver Login</button><button onclick="showLinks('${affiliate.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition"><i class="fas fa-link mr-2"></i>Ver Links</button><button onclick="editCommission('${affiliate.id}')" class="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition"><i class="fas fa-edit mr-2"></i>Editar</button><button onclick="deleteAffiliate('${affiliate.id}')" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition"><i class="fas fa-trash mr-2"></i>Excluir</button></div></div></div>`).join('')}
+function openNewAffiliateModal(){document.getElementById('new-affiliate-modal').classList.remove('hidden')}
+function closeNewAffiliateModal(){document.getElementById('new-affiliate-modal').classList.add('hidden');document.getElementById('affiliate-form').reset()}
+document.getElementById('affiliate-form').addEventListener('submit',async function(e){e.preventDefault();console.log('🚀 Formulário submetido!');const name=document.getElementById('affiliate-name').value;const email=document.getElementById('affiliate-email').value;const phone=document.getElementById('affiliate-phone').value;const pixType=document.getElementById('affiliate-pix-type').value;const pixKey=document.getElementById('affiliate-pix').value;const commission=parseInt(document.getElementById('affiliate-commission').value);let slug=document.getElementById('affiliate-slug').value.toLowerCase().trim();console.log('📝 Dados do formulário:',{name,email,phone,pixKey,commission});const submitButton=e.target.querySelector('button[type="submit"]');submitButton.disabled=true;submitButton.innerHTML='<i class="fas fa-spinner fa-spin mr-2"></i> Criando...';try{console.log('🔄 Carregando afiliados...');const affiliates=await loadAffiliates();console.log('✅ Afiliados carregados:',affiliates.length);if(slug){slug=slug.replace(/[^a-z0-9-]/g,'');if(affiliates.some(a=>a.slug===slug)){alert('❌ Este nome/apelido já está em uso! Escolha outro.');submitButton.disabled=false;submitButton.innerHTML='<i class="fas fa-save mr-2"></i> Criar Divulgador';return}}else{slug=name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').substring(0,30);let slugCounter=1;let finalSlug=slug;while(affiliates.some(a=>a.slug===finalSlug)){finalSlug=slug+slugCounter;slugCounter++}slug=finalSlug}const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');const defaultPassword='kainow'+Math.random().toString(36).slice(-6);const affiliate={slug:slug,name:name,email:email,phone:phone,pixType:pixType,pixKey:pixKey,commission:commission,username:username,password:defaultPassword,passwordChanged:false,createdAt:new Date().toISOString(),sales:[],totalEarned:0,status:'active'};console.log('💾 Salvando no Firebase...');const docRef=await db.collection('affiliates').add(affiliate);console.log('✅ Criado com ID:',docRef.id);alert('✅ Divulgador cadastrado com sucesso!\n\n🔐 CREDENCIAIS DE ACESSO:\n👤 Usuário: '+affiliate.username+'\n🔑 Senha: '+affiliate.password+'\n\n🔗 Link personalizado: ?ref='+affiliate.slug+'\n\n🌐 Login: https://kainow.com.br/afiliado/login.html\n\n💰 Comissões via PIX: '+pixKey+'\n\n⚠️ IMPORTANTE: Envie estas credenciais para o divulgador!');closeNewAffiliateModal();document.getElementById('affiliate-form').reset();await renderAffiliates();await updateStats()}catch(error){console.error('❌ Erro ao criar afiliado:',error);alert('❌ Erro ao criar afiliado: '+error.message)}finally{submitButton.disabled=false;submitButton.innerHTML='<i class="fas fa-save mr-2"></i> Criar Divulgador'}});
+let currentAffiliate=null;
+async function showLogin(affiliateId){const affiliates=await loadAffiliates();const affiliate=affiliates.find(a=>a.id===affiliateId);if(!affiliate)return;currentAffiliate=affiliate;const passwordStatus=affiliate.passwordChanged?'<span class="text-green-600"><i class="fas fa-check-circle mr-2"></i>Senha já foi alterada</span>':'<span class="text-yellow-600"><i class="fas fa-exclamation-triangle mr-2"></i>Senha padrão (não alterada)</span>';const loginInfoHtml=`<div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-xl"><div class="flex items-center space-x-3 mb-3"><div class="bg-white text-blue-600 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold">${affiliate.name.charAt(0).toUpperCase()}</div><div><h4 class="text-lg font-bold">${affiliate.name}</h4><p class="opacity-90 text-sm">${affiliate.email}</p></div></div><div class="grid grid-cols-2 gap-3 text-xs"><div><p class="opacity-75">Telefone:</p><p class="font-bold">${affiliate.phone}</p></div><div><p class="opacity-75">ID:</p><p class="font-bold">${affiliate.id}</p></div><div><p class="opacity-75">Comissão:</p><p class="font-bold">${affiliate.commission}%</p></div><div><p class="opacity-75">PIX:</p><p class="font-bold">${affiliate.pixKey||'Não cadastrado'}</p></div></div></div><div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4"><h5 class="text-base font-bold text-gray-800 mb-3"><i class="fas fa-key text-blue-600 mr-2"></i>Credenciais de Login</h5><div class="space-y-2"><div class="bg-white p-3 rounded-lg border border-gray-200"><label class="block text-xs font-bold text-gray-600 mb-1">USUÁRIO</label><div class="flex items-center justify-between"><span class="text-base font-bold text-gray-800">${affiliate.username||'Não gerado'}</span><button onclick="copyToClipboard('${affiliate.username}')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition"><i class="fas fa-copy"></i></button></div></div><div class="bg-white p-3 rounded-lg border border-gray-200"><label class="block text-xs font-bold text-gray-600 mb-1">SENHA</label><div class="flex items-center justify-between"><span class="text-base font-bold text-gray-800 font-mono">${affiliate.password||'Não gerada'}</span><button onclick="copyToClipboard('${affiliate.password}')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition"><i class="fas fa-copy"></i></button></div></div><div class="bg-white p-3 rounded-lg border border-gray-200"><label class="block text-xs font-bold text-gray-600 mb-1">LINK</label><div class="flex items-center justify-between gap-2"><span class="text-xs text-blue-600 truncate">https://kainow.com.br/afiliado/login.html</span><button onclick="copyToClipboard('https://kainow.com.br/afiliado/login.html')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition flex-shrink-0"><i class="fas fa-copy"></i></button></div></div></div><div class="mt-3 p-2 bg-white rounded-lg border-l-4 border-${affiliate.passwordChanged?'green':'yellow'}-500"><p class="text-xs font-bold">${passwordStatus}</p></div></div><div class="bg-green-50 border-2 border-green-200 rounded-xl p-4"><h5 class="text-base font-bold text-gray-800 mb-3"><i class="fas fa-comment-dots text-green-600 mr-2"></i>Mensagem Pronta para Enviar</h5><div class="bg-white p-3 rounded-lg border-2 border-gray-200"><pre id="whatsapp-message" class="text-xs text-gray-700 whitespace-pre-wrap font-sans">🎉 Olá ${affiliate.name}!
+
+Você foi cadastrado como divulgador da KaiNow Saúde!
+
+🔐 CREDENCIAIS DE ACESSO:
+👤 Usuário: ${affiliate.username}
+🔑 Senha: ${affiliate.password}
+
+🌐 Acesse seu painel:
+https://kainow.com.br/afiliado/login.html
+
+💰 Sua comissão: ${affiliate.commission}%
+💳 Recebimento PIX: ${affiliate.pixKey||'A cadastrar'}
+
+⚠️ IMPORTANTE: Troque sua senha no primeiro acesso!
+
+Qualquer dúvida, estou à disposição! 😊</pre></div></div>`;document.getElementById('login-info').innerHTML=loginInfoHtml;document.getElementById('login-modal').classList.remove('hidden')}
+function closeLoginModal(){document.getElementById('login-modal').classList.add('hidden');currentAffiliate=null}
+function copyToClipboard(text){if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>{alert('✅ Copiado para área de transferência!')}).catch(err=>{alert('❌ Erro ao copiar: '+err)})}else{const textarea=document.createElement('textarea');textarea.value=text;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);alert('✅ Copiado!')}}
+function copyLoginCredentials(){if(!currentAffiliate)return;const text=`🔐 CREDENCIAIS DE ACESSO\n\n👤 Usuário: ${currentAffiliate.username}\n🔑 Senha: ${currentAffiliate.password}\n🌐 Link: https://kainow.com.br/afiliado/login.html`;copyToClipboard(text)}
+function sendWhatsApp(){if(!currentAffiliate)return;const message=`🎉 Olá ${currentAffiliate.name}!\n\nVocê foi cadastrado como divulgador da KaiNow Saúde!\n\n🔐 CREDENCIAIS DE ACESSO:\n👤 Usuário: ${currentAffiliate.username}\n🔑 Senha: ${currentAffiliate.password}\n\n🌐 Acesse seu painel:\nhttps://kainow.com.br/afiliado/login.html\n\n💰 Sua comissão: ${currentAffiliate.commission}%\n💳 Recebimento PIX: ${currentAffiliate.pixKey||'A cadastrar'}\n\n⚠️ IMPORTANTE: Troque sua senha no primeiro acesso!\n\nQualquer dúvida, estou à disposição! 😊`;const phone=currentAffiliate.phone.replace(/\D/g,'');const whatsappUrl=`https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;window.open(whatsappUrl,'_blank')}
+async function showLinks(affiliateId){const affiliates=await loadAffiliates();const affiliate=affiliates.find(a=>a.id===affiliateId);if(!affiliate)return;const infoHtml=`<div class="flex justify-between items-start"><div><h4 class="text-lg font-bold">${affiliate.name}</h4><p class="opacity-90 mb-2 text-sm">${affiliate.email}</p>${affiliate.pixKey?`<div class="bg-white bg-opacity-20 rounded-lg px-3 py-1.5 inline-block"><p class="text-xs font-semibold"><i class="fab fa-pix mr-1"></i>PIX: ${affiliate.pixKey}</p><p class="text-xs opacity-80">Tipo: ${affiliate.pixType.toUpperCase()}</p></div>`:''}</div><div class="text-right"><p class="text-2xl font-black">${affiliate.commission}%</p><p class="text-xs opacity-90">comissão</p></div></div>`;const linksHtml=products.map(product=>{const refParam=affiliate.slug||affiliate.username;const affiliateLink=`https://kainow.com.br/programa-${product.id}.html?ref=${refParam}`;return`<div class="border-2 border-${product.color}-200 bg-${product.color}-50 rounded-xl p-4"><div class="flex items-center mb-3"><div class="bg-gradient-to-r from-${product.color}-500 to-${product.color}-600 rounded-full w-10 h-10 flex items-center justify-center text-white mr-3 text-sm"><i class="fas ${product.icon}"></i></div><div><h5 class="text-base font-bold text-gray-800">${product.name}</h5><p class="text-sm text-gray-600">R$ ${product.price}/mês</p></div></div><div class="bg-white p-3 rounded-lg mb-2"><p class="text-xs text-gray-600 mb-1 font-bold">Link:</p><div class="flex items-center gap-2"><input type="text" value="${affiliateLink}" readonly class="flex-1 px-2 py-1.5 bg-gray-50 border border-gray-300 rounded text-xs" id="link-${product.id}-${affiliateId}"><button onclick="copyLink('link-${product.id}-${affiliateId}')" class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-opacity-90 transition text-xs"><i class="fas fa-copy"></i></button></div></div><div class="grid grid-cols-2 gap-2"><div class="bg-green-100 p-2 rounded-lg"><p class="text-xs text-gray-700 mb-0.5"><i class="fab fa-pix mr-1"></i>Divulgador</p><p class="text-base font-bold text-green-700">R$ ${(parseFloat(product.price.replace(',','.'))*affiliate.commission/100).toFixed(2).replace('.',',')}</p>${affiliate.pixKey?`<p class="text-xs text-gray-600 mt-0.5 truncate">↪ ${affiliate.pixKey}</p>`:''}</div><div class="bg-purple-100 p-2 rounded-lg"><p class="text-xs text-gray-700 mb-0.5">Plataforma</p><p class="text-base font-bold text-purple-700">R$ ${(parseFloat(product.price.replace(',','.'))*(100-affiliate.commission)/100).toFixed(2).replace('.',',')}</p></div></div></div>`}).join('');document.getElementById('affiliate-info').innerHTML=infoHtml;document.getElementById('products-links').innerHTML=linksHtml;document.getElementById('affiliate-links-modal').classList.remove('hidden')}
+function closeLinksModal(){document.getElementById('affiliate-links-modal').classList.add('hidden')}
+function copyLink(inputId){const input=document.getElementById(inputId);input.select();document.execCommand('copy');alert('✅ Link copiado para área de transferência!')}
+async function editCommission(affiliateId){const affiliates=await loadAffiliates();const affiliate=affiliates.find(a=>a.id===affiliateId);if(!affiliate)return;const currentPix=affiliate.pixKey||'Não cadastrado';const editData=prompt(`📝 EDITAR AFILIADO: ${affiliate.name}\n\n💰 Comissão atual: ${affiliate.commission}%\n💳 PIX atual: ${currentPix}\n\nDigite a nova comissão (0-100):`,affiliate.commission);if(editData===null)return;const commission=parseInt(editData);if(isNaN(commission)||commission<0||commission>100){alert('❌ Comissão inválida! Digite um valor entre 0 e 100.');return}const updatePix=confirm('💳 Deseja atualizar a chave PIX também?');if(updatePix){const newPixKey=prompt(`💳 PIX atual: ${currentPix}\n\nDigite a nova chave PIX:`,affiliate.pixKey||'');if(newPixKey&&newPixKey.trim()!==''){affiliate.pixKey=newPixKey.trim();const pixType=prompt('📱 Selecione o tipo de chave PIX:\n\n1 - CPF\n2 - CNPJ\n3 - Email\n4 - Telefone\n5 - Chave Aleatória\n\nDigite o número:','1');const pixTypes={'1':'cpf','2':'cnpj','3':'email','4':'telefone','5':'aleatoria'};affiliate.pixType=pixTypes[pixType]||'cpf'}}try{const updateData={commission:commission};if(updatePix&&affiliate.pixKey){updateData.pixKey=affiliate.pixKey;updateData.pixType=affiliate.pixType||'cpf'}console.log('📝 Atualizando afiliado:',affiliateId,updateData);await db.collection('affiliates').doc(affiliateId).update(updateData);alert('✅ Afiliado atualizado com sucesso!');await updateStats();await renderAffiliates()}catch(error){console.error('❌ Erro ao atualizar:',error);alert('❌ Erro ao atualizar afiliado: '+error.message)}}
+async function deleteAffiliate(affiliateId){if(!confirm('Tem certeza que deseja excluir este divulgador?'))return;try{console.log('🗑️ Deletando afiliado:',affiliateId);await db.collection('affiliates').doc(affiliateId).delete();alert('✅ Divulgador excluído com sucesso!');await updateStats();await renderAffiliates()}catch(error){console.error('❌ Erro ao deletar:',error);alert('❌ Erro ao excluir divulgador: '+error.message)}}
+function logout(){if(confirm('Deseja sair do painel administrativo?')){localStorage.removeItem('kainow_admin_session');sessionStorage.removeItem('kainow_admin_session');window.location.href='login-admin.html'}}
+document.getElementById('affiliate-slug').addEventListener('input',function(e){let slug=e.target.value.toLowerCase().trim();slug=slug.replace(/[^a-z0-9-]/g,'');e.target.value=slug;const preview=document.getElementById('slug-preview');if(slug){preview.textContent=slug;preview.classList.remove('text-gray-400');preview.classList.add('text-blue-600','font-bold')}else{preview.textContent='seu-nome';preview.classList.add('text-gray-400');preview.classList.remove('text-blue-600','font-bold')}});
+updateStats();renderAffiliates();console.log('🚀 Gerenciador de Afiliados v3.1 carregado!');console.log('📅 Timestamp:',new Date().toISOString());console.log('🔗 Domínio dos links: kainow.com.br');const versionBanner=document.createElement('div');versionBanner.className='fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-2xl z-50';versionBanner.innerHTML=`<div class="flex items-center space-x-3"><i class="fas fa-check-circle text-2xl"></i><div><p class="font-bold">Versão 3.1 Carregada!</p><p class="text-xs">Salva no Firebase ✅</p></div></div>`;document.body.appendChild(versionBanner);setTimeout(()=>versionBanner.remove(),5000);window.addEventListener('DOMContentLoaded',async function(){console.log('🚀 Página carregada, buscando afiliados do Firestore...');await updateStats();await renderAffiliates()});
+    </script>
+    <script src="../js/admin-auth.js"></script>
+    <script>checkAdminAuth();</script>
+</body>
+</html>
