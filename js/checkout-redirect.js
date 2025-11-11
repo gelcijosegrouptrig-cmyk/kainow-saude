@@ -30,48 +30,57 @@
     30	
     31	// Função para processar PIX Recorrente (usada nos programas)
     32	// 🆕 ATUALIZADO: Agora usa sistema de split com afiliados via Woovi
-    33	function handlePixRecorrente(program, value) {
-    34	    // Mapear nomes dos programas
-    35	    const programNames = {
-    36	        'mulher': 'KaiNow Mulher',
-    37	        'senior': 'KaiNow Sênior',
-    38	        'farma': 'KaiNow Farma',
-    39	        'acolher': 'KaiNow Acolher',
-    40	        'orienta': 'KaiNow Orienta',
-    41	        'vivaleve': 'KaiNow Viva Leve'
-    42	    };
-    43	    
-    44	    const programName = programNames[program] || 'KaiNow';
-    45	    
-    46	    // Verificar se tem afiliado rastreado
-    47	    const affiliate = window.KaiNowAffiliate ? window.KaiNowAffiliate.getSavedAffiliate() : null;
-    48	    
-    49	    if (affiliate && affiliate.id) {
-    50	        console.log('✅ Afiliado detectado:', affiliate.id);
-    51	        console.log('💰 Pagamento será dividido: 80% empresa + 20% afiliado');
-    52	        
-    53	        // Usar novo sistema de pagamento com split
-    54	        if (typeof window.criarCobrancaComAfiliado === 'function') {
-    55	            const valueInCents = Math.round(value * 100); // Converter para centavos
-    56	            console.log('🚀 Chamando criarCobrancaComAfiliado()');
-    57	            window.criarCobrancaComAfiliado({
-    58	                id: program,
-    59	                name: programName,
-    60	                value: valueInCents
-    61	            });
-    62	            return; // Importante: sair da função aqui!
-    63	        } else {
-    64	            console.error('❌ Sistema de pagamento com afiliado não carregado!');
-    65	            console.error('❌ window.criarCobrancaComAfiliado não existe');
-    66	            alert('Erro ao processar pagamento. Recarregue a página.');
-    67	            return;
-    68	        }
-    69	    } else {
-    70	        console.log('📝 Nenhum afiliado detectado, usando checkout padrão');
-    71	        // Redirecionar para página de cadastro sem afiliado
-    72	        redirectToCheckout(program, value, programName);
-    73	    }
-    74	}
+// Função para processar PIX Recorrente (usada nos programas)
+// 🆕 ATUALIZADO: Agora usa sistema de split com afiliados via Woovi
+function handlePixRecorrente(program, value) {
+    // Mapear nomes dos programas
+    const programNames = {
+        'mulher': 'KaiNow Mulher',
+        'senior': 'KaiNow Sênior',
+        'farma': 'KaiNow Farma',
+        'acolher': 'KaiNow Acolher',
+        'orienta': 'KaiNow Orienta',
+        'vivaleve': 'KaiNow Viva Leve'
+    };
+    
+    const programName = programNames[program] || 'KaiNow';
+    
+    // Verificar se tem afiliado rastreado
+    const affiliate = window.KaiNowAffiliate ? window.KaiNowAffiliate.getSavedAffiliate() : null;
+    
+    if (affiliate && affiliate.id) {
+        console.log('✅ Afiliado detectado:', affiliate.id);
+        console.log('💰 Pagamento será dividido: 80% empresa + 20% afiliado');
+        
+        // AGUARDAR função estar disponível (máximo 2 segundos)
+        let tentativas = 0;
+        const intervalo = setInterval(() => {
+            if (typeof window.criarCobrancaComAfiliado === 'function') {
+                clearInterval(intervalo);
+                const valueInCents = Math.round(value * 100);
+                console.log('🚀 Chamando criarCobrancaComAfiliado()');
+                window.criarCobrancaComAfiliado({
+                    id: program,
+                    name: programName,
+                    value: valueInCents
+                });
+            } else {
+                tentativas++;
+                if (tentativas > 20) { // 20 x 100ms = 2 segundos
+                    clearInterval(intervalo);
+                    console.error('❌ Timeout: função não carregou');
+                    alert('Erro ao carregar sistema de pagamento. Recarregue a página.');
+                }
+            }
+        }, 100);
+        
+        return; // Importante: não continuar
+    } else {
+        console.log('📝 Nenhum afiliado detectado, usando checkout padrão');
+        redirectToCheckout(program, value, programName);
+    }
+}
+
     75	
     76	// Função para abrir checkout em modal (alternativa)
     77	// 🆕 ATUALIZADO: Modal agora abre página de cadastro
