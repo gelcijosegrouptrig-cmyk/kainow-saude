@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Teste Firestore - gelcisilva252</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #ff0; margin-bottom: 20px; font-size: 2rem; }
+        .log { padding: 10px; margin: 5px 0; border-left: 4px solid #0f0; }
+        .log.error { border-color: #f00; color: #f00; }
+        .log.warning { border-color: #ff0; color: #ff0; }
+        .log.success { border-color: #0f0; color: #0f0; }
+        .log.info { border-color: #0ff; color: #0ff; }
+        .log.title { border-color: #f0f; color: #f0f; font-weight: bold; font-size: 1.2rem; }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-family: 'Courier New', monospace;
+        }
+        button:hover { background: #ff0; }
+        button:disabled { background: #666; cursor: not-allowed; }
+        .separator { border-top: 2px solid #0f0; margin: 20px 0; }
+        pre { background: #111; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 TESTE FIRESTORE - gelcisilva252</h1>
+        <div id="output"></div>
+        <div id="buttons" style="display: none; margin-top: 20px;">
+            <button onclick="mostrarInstrucoes()">🔧 CORRIGIR REGRAS FIRESTORE</button>
+            <button onclick="criarAfiliadoAgora()">✅ CRIAR AFILIADO AGORA</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const output = document.getElementById('output');
+        const buttons = document.getElementById('buttons');
+        let db;
+        let problemasEncontrados = [];
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = 'log ' + type;
+            div.textContent = msg;
+            output.appendChild(div);
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function sep() {
+            const div = document.createElement('div');
+            div.className = 'separator';
+            output.appendChild(div);
+        }
+
+        async function executarTestes() {
+            try {
+                log('═══════════════════════════════════════════════', 'title');
+                log('🔥 DIAGNÓSTICO FIRESTORE - gelcisilva252', 'title');
+                log('═══════════════════════════════════════════════', 'title');
+                log('Hora: ' + new Date().toLocaleString('pt-BR'));
+                sep();
+
+                // TESTE 1: Firebase
+                log('\n[TESTE 1/5] Configurando Firebase...', 'title');
+                
+                const config = {
+                    apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+                    authDomain: "kainowsaude.firebaseapp.com",
+                    projectId: "kainowsaude",
+                    storageBucket: "kainowsaude.firebasestorage.app",
+                    messagingSenderId: "230049250523",
+                    appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+                };
+
+                firebase.initializeApp(config);
+                db = firebase.firestore();
+                log('✅ Firebase inicializado!', 'success');
+                log('Project ID: ' + config.projectId, 'info');
+                sep();
+
+                // TESTE 2: Listar todos
+                log('\n[TESTE 2/5] Listando TODOS os afiliados...', 'title');
+                log('Executando: db.collection("affiliates").get()', 'info');
+                
+                let todosAfiliados = null;
+                try {
+                    todosAfiliados = await db.collection('affiliates').get();
+                    log('✅ Query executada com sucesso!', 'success');
+                    log('Total de documentos: ' + todosAfiliados.size, 'success');
+                    
+                    if (todosAfiliados.size === 0) {
+                        log('⚠️ PROBLEMA: Coleção está VAZIA!', 'warning');
+                        problemasEncontrados.push('VAZIO');
+                    } else {
+                        log('\nAfiliados encontrados:', 'info');
+                        todosAfiliados.forEach((doc, i) => {
+                            const d = doc.data();
+                            log(`  ${i+1}. "${d.username}" - ${d.name}`, 'info');
+                        });
+                    }
+                } catch (e) {
+                    log('❌ ERRO: ' + e.message, 'error');
+                    log('Código: ' + e.code, 'error');
+                    if (e.code === 'permission-denied') {
+                        log('🚨 PROBLEMA: PERMISSÕES BLOQUEADAS!', 'error');
+                        problemasEncontrados.push('PERMISSAO');
+                    }
+                }
+                sep();
+
+                // TESTE 3: Buscar gelcisilva252
+                log('\n[TESTE 3/5] Buscando "gelcisilva252"...', 'title');
+                log('Executando: where("username", "==", "gelcisilva252")', 'info');
+                
+                try {
+                    const q = db.collection('affiliates').where('username', '==', 'gelcisilva252').limit(1);
+                    const snap = await q.get();
+                    
+                    if (snap.empty) {
+                        log('❌ NÃO ENCONTRADO!', 'error');
+                        log('O afiliado "gelcisilva252" não existe no Firestore.', 'error');
+                        problemasEncontrados.push('NAO_EXISTE');
+                    } else {
+                        const doc = snap.docs[0];
+                        const d = doc.data();
+                        log('✅ ENCONTRADO!', 'success');
+                        log('\nDados:', 'success');
+                        log('  ID: ' + doc.id, 'success');
+                        log('  Username: ' + d.username, 'success');
+                        log('  Senha: ' + d.password, 'success');
+                        log('  Nome: ' + d.name, 'success');
+                        log('  Email: ' + d.email, 'success');
+                    }
+                } catch (e) {
+                    log('❌ ERRO: ' + e.message, 'error');
+                    if (e.code === 'permission-denied') {
+                        log('🚨 PERMISSÕES BLOQUEADAS!', 'error');
+                        problemasEncontrados.push('PERMISSAO');
+                    }
+                }
+                sep();
+
+                // TESTE 4: Testar escrita
+                log('\n[TESTE 4/5] Testando permissão de ESCRITA...', 'title');
+                
+                try {
+                    const testDoc = await db.collection('affiliates').add({
+                        test: true,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    log('✅ Escrita permitida!', 'success');
+                    await testDoc.delete();
+                    log('🗑️ Documento de teste removido', 'info');
+                } catch (e) {
+                    log('❌ ERRO ao escrever: ' + e.message, 'error');
+                    if (e.code === 'permission-denied') {
+                        log('🚨 ESCRITA BLOQUEADA!', 'error');
+                        problemasEncontrados.push('PERMISSAO_ESCRITA');
+                    }
+                }
+                sep();
+
+                // RESULTADO FINAL
+                log('\n═══════════════════════════════════════════════', 'title');
+                log('🎯 RESULTADO FINAL', 'title');
+                log('═══════════════════════════════════════════════', 'title');
+                
+                if (problemasEncontrados.length === 0) {
+                    log('\n🎉 TUDO OK! Sistema funcionando!', 'success');
+                    log('Você pode fazer login normalmente.', 'success');
+                } else {
+                    log('\n⚠️ PROBLEMAS ENCONTRADOS:', 'warning');
+                    problemasEncontrados.forEach(p => {
+                        if (p === 'PERMISSAO' || p === 'PERMISSAO_ESCRITA') {
+                            log('  • Regras do Firestore bloqueadas', 'error');
+                        } else if (p === 'NAO_EXISTE') {
+                            log('  • Afiliado gelcisilva252 não existe', 'error');
+                        } else if (p === 'VAZIO') {
+                            log('  • Nenhum afiliado cadastrado', 'warning');
+                        }
+                    });
+                    
+                    log('\n💡 SOLUÇÕES DISPONÍVEIS:', 'info');
+                    buttons.style.display = 'block';
+                    
+                    if (problemasEncontrados.includes('PERMISSAO')) {
+                        log('  1. Clique em "CORRIGIR REGRAS FIRESTORE"', 'info');
+                    }
+                    if (problemasEncontrados.includes('NAO_EXISTE')) {
+                        log('  2. Clique em "CRIAR AFILIADO AGORA"', 'info');
+                    }
+                }
+
+            } catch (err) {
+                log('\n❌ ERRO CRÍTICO:', 'error');
+                log(err.message, 'error');
+                console.error(err);
+            }
+        }
+
+        function mostrarInstrucoes() {
+            log('\n\n═══════════════════════════════════════════════', 'title');
+            log('🔧 CORRIGIR REGRAS DO FIRESTORE', 'title');
+            log('═══════════════════════════════════════════════', 'title');
+            
+            log('\n📋 PASSO A PASSO:', 'warning');
+            log('\n1. Abra: https://console.firebase.google.com', 'info');
+            log('2. Selecione o projeto: kainowsaude', 'info');
+            log('3. Menu lateral → "Firestore Database"', 'info');
+            log('4. Clique na aba "Regras" (Rules)', 'info');
+            log('5. Cole este código:', 'info');
+            
+            const pre = document.createElement('pre');
+            pre.style.color = '#0f0';
+            pre.style.background = '#111';
+            pre.textContent = `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}`;
+            output.appendChild(pre);
+            
+            log('\n6. Clique em "Publicar" (Publish)', 'info');
+            log('7. Aguarde 2 minutos', 'info');
+            log('8. Recarregue esta página (F5)', 'info');
+        }
+
+        async function criarAfiliadoAgora() {
+            log('\n\n═══════════════════════════════════════════════', 'title');
+            log('✅ CRIANDO gelcisilva252', 'title');
+            log('═══════════════════════════════════════════════', 'title');
+            
+            try {
+                const dados = {
+                    username: 'gelcisilva252',
+                    password: 'kainowipxujp',
+                    name: 'Gelci Silva',
+                    email: 'gelci.silva252@gmail.com',
+                    cpf: '000.000.000-00',
+                    phone: '11982142014',
+                    pixKey: '11013430794',
+                    commission: 20,
+                    active: true,
+                    sales: 0,
+                    totalCommission: 0,
+                    created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: null
+                };
+                
+                log('\n💾 Salvando no Firestore...', 'info');
+                const docRef = await db.collection('affiliates').add(dados);
+                
+                log('✅ CRIADO COM SUCESSO!', 'success');
+                log('ID: ' + docRef.id, 'success');
+                
+                log('\n🔑 CREDENCIAIS:', 'success');
+                log('Username: gelcisilva252', 'success');
+                log('Senha: kainowipxujp', 'success');
+                
+                log('\n🔍 Verificando...', 'info');
+                const verify = await db.collection('affiliates').where('username', '==', 'gelcisilva252').get();
+                
+                if (!verify.empty) {
+                    log('✅ CONFIRMADO! Afiliado existe!', 'success');
+                    log('\n🎉 AGORA VOCÊ PODE FAZER LOGIN!', 'success');
+                    log('Link: afiliado/login.html', 'info');
+                } else {
+                    log('⚠️ Aguarde 30 segundos e tente fazer login', 'warning');
+                }
+                
+            } catch (e) {
+                log('❌ ERRO: ' + e.message, 'error');
+                if (e.code === 'permission-denied') {
+                    log('🚨 Sem permissão! Corrija as regras primeiro.', 'error');
+                }
+            }
+        }
+
+        executarTestes();
+    </script>
+</body>
+</html>

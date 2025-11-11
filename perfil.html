@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - KaiNow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-link { @apply flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-all duration-200; }
+        .sidebar-link.active { @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700; }
+        .tab { @apply px-6 py-3 font-semibold text-gray-600 hover:text-blue-600 transition border-b-2 border-transparent; }
+        .tab.active { @apply text-blue-600 border-blue-600; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="toggleMobileMenu()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-xl z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <i class="fas fa-heartbeat mr-2"></i>KaiNow Saúde
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">Área do Paciente</p>
+        </div>
+        <nav class="p-4 space-y-2">
+            <a href="dashboard.html" class="sidebar-link">
+                <i class="fas fa-home w-6"></i><span>Home</span>
+            </a>
+            <a href="agendamentos.html" class="sidebar-link">
+                <i class="fas fa-calendar-alt w-6"></i><span>Agendamentos</span>
+            </a>
+            <a href="prontuarios.html" class="sidebar-link">
+                <i class="fas fa-file-medical w-6"></i><span>Prontuários</span>
+            </a>
+            <a href="historico.html" class="sidebar-link">
+                <i class="fas fa-history w-6"></i><span>Histórico</span>
+            </a>
+            <a href="perfil.html" class="sidebar-link active">
+                <i class="fas fa-user-circle w-6"></i><span>Perfil</span>
+            </a>
+        </nav>
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
+            <button onclick="logout()" class="w-full flex items-center justify-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition font-semibold">
+                <i class="fas fa-sign-out-alt mr-2"></i>Sair
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="md:ml-64 min-h-screen">
+        <header class="bg-white shadow-sm sticky top-0 z-30">
+            <div class="flex items-center justify-between px-4 md:px-8 py-4">
+                <button onclick="toggleMobileMenu()" class="md:hidden text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                <div class="flex-1">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">Meu Perfil</h2>
+                    <p class="text-sm text-gray-500">Gerencie seus dados e preferências</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8">
+            <!-- Header do Perfil -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-8 mb-8 text-white">
+                <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                    <div class="relative">
+                        <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center text-blue-600 text-4xl font-bold shadow-lg">
+                            <span id="profile-initial">U</span>
+                        </div>
+                        <button class="absolute bottom-0 right-0 bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-blue-50 transition">
+                            <i class="fas fa-camera text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="text-center md:text-left flex-1">
+                        <h3 class="text-2xl font-bold mb-1" id="profile-name">Nome do Usuário</h3>
+                        <p class="text-blue-100 mb-2" id="profile-email">email@exemplo.com</p>
+                        <div class="flex flex-wrap gap-2 justify-center md:justify-start">
+                            <span class="bg-white/20 px-3 py-1 rounded-full text-sm font-semibold">Paciente Ativo</span>
+                            <span class="bg-green-500 px-3 py-1 rounded-full text-sm font-semibold">✓ Verificado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
+                <div class="border-b border-gray-200">
+                    <div class="flex overflow-x-auto">
+                        <button onclick="showTab('dados')" id="tab-dados" class="tab active">
+                            <i class="fas fa-user mr-2"></i>Dados Pessoais
+                        </button>
+                        <button onclick="showTab('seguranca')" id="tab-seguranca" class="tab">
+                            <i class="fas fa-lock mr-2"></i>Segurança
+                        </button>
+                        <button onclick="showTab('planos')" id="tab-planos" class="tab">
+                            <i class="fas fa-heart-pulse mr-2"></i>Meus Planos
+                        </button>
+                        <button onclick="showTab('preferencias')" id="tab-preferencias" class="tab">
+                            <i class="fas fa-cog mr-2"></i>Preferências
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab: Dados Pessoais -->
+                <div id="content-dados" class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Informações Pessoais</h3>
+                    <form class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo</label>
+                                <input type="text" id="input-nome" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Seu nome completo">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">CPF</label>
+                                <input type="text" id="input-cpf" class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" placeholder="000.000.000-00" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">E-mail</label>
+                                <input type="email" id="input-email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="seu@email.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Telefone</label>
+                                <input type="tel" id="input-telefone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="(00) 00000-0000">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Data de Nascimento</label>
+                                <input type="date" id="input-data-nascimento" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Sexo</label>
+                                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option>Selecione</option>
+                                    <option>Masculino</option>
+                                    <option>Feminino</option>
+                                    <option>Outro</option>
+                                    <option>Prefiro não informar</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Endereço</label>
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-3" placeholder="CEP">
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-3" placeholder="Rua">
+                            <div class="grid grid-cols-3 gap-3">
+                                <input type="text" class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Número">
+                                <input type="text" class="col-span-2 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Complemento">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-4 rounded-lg font-bold text-lg transition shadow-lg">
+                            <i class="fas fa-save mr-2"></i>Salvar Alterações
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tab: Segurança -->
+                <div id="content-seguranca" class="p-6 hidden">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Segurança da Conta</h3>
+                    
+                    <!-- Alterar Senha -->
+                    <div class="mb-8">
+                        <h4 class="font-bold text-gray-800 mb-4">Alterar Senha</h4>
+                        <form class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Senha Atual</label>
+                                <input type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Digite sua senha atual">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Nova Senha</label>
+                                <input type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Digite a nova senha">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Confirmar Nova Senha</label>
+                                <input type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Confirme a nova senha">
+                            </div>
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                                <i class="fas fa-key mr-2"></i>Alterar Senha
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Autenticação em 2 Fatores -->
+                    <div class="border-t pt-8">
+                        <h4 class="font-bold text-gray-800 mb-4">Autenticação em Dois Fatores (2FA)</h4>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold text-gray-800">Status: Desativado</p>
+                                <p class="text-sm text-gray-600">Adicione uma camada extra de segurança</p>
+                            </div>
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                                Ativar 2FA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Meus Planos -->
+                <div id="content-planos" class="p-6 hidden">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Planos Contratados</h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Plano 1 -->
+                        <div class="border border-pink-200 rounded-xl p-6 bg-gradient-to-r from-pink-50 to-purple-50">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <i class="fas fa-heart text-pink-600 text-2xl mr-3"></i>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">KaiNow Mulher</h4>
+                                        <p class="text-sm text-gray-600">Saúde feminina integral</p>
+                                    </div>
+                                </div>
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">Ativo</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-gray-600">Valor Mensal</p>
+                                    <p class="text-xl font-bold text-gray-800">R$ 49,90</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Próxima Renovação</p>
+                                    <p class="text-xl font-bold text-gray-800">15/12/2025</p>
+                                </div>
+                            </div>
+                            <button class="text-pink-600 hover:text-pink-700 font-semibold text-sm">
+                                <i class="fas fa-times-circle mr-1"></i>Cancelar Plano
+                            </button>
+                        </div>
+
+                        <!-- Plano 2 -->
+                        <div class="border border-green-200 rounded-xl p-6 bg-gradient-to-r from-green-50 to-emerald-50">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <i class="fas fa-pills text-green-600 text-2xl mr-3"></i>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">KaiNow Farma</h4>
+                                        <p class="text-sm text-gray-600">Descontos em medicamentos</p>
+                                    </div>
+                                </div>
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">Ativo</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-gray-600">Valor Mensal</p>
+                                    <p class="text-xl font-bold text-gray-800">R$ 19,90</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Próxima Renovação</p>
+                                    <p class="text-xl font-bold text-gray-800">15/12/2025</p>
+                                </div>
+                            </div>
+                            <button class="text-green-600 hover:text-green-700 font-semibold text-sm">
+                                <i class="fas fa-times-circle mr-1"></i>Cancelar Plano
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Adicionar Plano -->
+                    <div class="mt-6 text-center">
+                        <a href="index.html#produtos" class="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-lg font-bold transition shadow-lg">
+                            <i class="fas fa-plus-circle mr-2"></i>Adicionar Novo Plano
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tab: Preferências -->
+                <div id="content-preferencias" class="p-6 hidden">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Preferências</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- Notificações -->
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-4">Notificações</h4>
+                            <div class="space-y-3">
+                                <label class="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">E-mail</p>
+                                        <p class="text-sm text-gray-600">Receber notificações por e-mail</p>
+                                    </div>
+                                    <input type="checkbox" checked class="w-5 h-5 text-blue-600 rounded">
+                                </label>
+                                <label class="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">SMS</p>
+                                        <p class="text-sm text-gray-600">Receber lembretes por SMS</p>
+                                    </div>
+                                    <input type="checkbox" checked class="w-5 h-5 text-blue-600 rounded">
+                                </label>
+                                <label class="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">WhatsApp</p>
+                                        <p class="text-sm text-gray-600">Receber atualizações via WhatsApp</p>
+                                    </div>
+                                    <input type="checkbox" class="w-5 h-5 text-blue-600 rounded">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Privacidade -->
+                        <div class="border-t pt-6">
+                            <h4 class="font-bold text-gray-800 mb-4">Privacidade</h4>
+                            <div class="space-y-3">
+                                <label class="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Compartilhar dados com médicos</p>
+                                        <p class="text-sm text-gray-600">Permite o acesso ao histórico completo</p>
+                                    </div>
+                                    <input type="checkbox" checked class="w-5 h-5 text-blue-600 rounded">
+                                </label>
+                                <label class="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Perfil público</p>
+                                        <p class="text-sm text-gray-600">Outros usuários podem ver seu perfil</p>
+                                    </div>
+                                    <input type="checkbox" class="w-5 h-5 text-blue-600 rounded">
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                            <i class="fas fa-save mr-2"></i>Salvar Preferências
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Função para trocar tabs
+        function showTab(tabName) {
+            // Esconder todos os conteúdos
+            document.querySelectorAll('[id^="content-"]').forEach(el => el.classList.add('hidden'));
+            // Remover active de todas as tabs
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            
+            // Mostrar conteúdo selecionado
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            // Ativar tab selecionada
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // Carregar dados do perfil
+        document.addEventListener('DOMContentLoaded', function() {
+            // Usar chave correta da sessão (igual a auth.js e dashboard.js)
+            const SESSION_KEY = 'kainow_user_session';
+            const user = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}');
+            console.log('👤 Perfil - Usuário carregado:', user);
+            if (user.nome) {
+                document.getElementById('profile-name').textContent = user.nome;
+                document.getElementById('input-nome').value = user.nome;
+                document.getElementById('profile-initial').textContent = user.nome.charAt(0).toUpperCase();
+            }
+            if (user.email) {
+                document.getElementById('profile-email').textContent = user.email;
+                document.getElementById('input-email').value = user.email;
+            }
+            if (user.cpf) {
+                document.getElementById('input-cpf').value = user.cpf;
+            }
+            if (user.telefone) {
+                document.getElementById('input-telefone').value = user.telefone;
+            }
+            if (user.dataNascimento) {
+                document.getElementById('input-data-nascimento').value = user.dataNascimento;
+            }
+        });
+    </script>
+</body>
+</html>

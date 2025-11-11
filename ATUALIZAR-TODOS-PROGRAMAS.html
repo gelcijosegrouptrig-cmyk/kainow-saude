@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Todos os Programas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">
+            🔧 Atualizar Sistema de PIX em Todos os Programas
+        </h1>
+        
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+            <h2 class="font-bold text-yellow-800 mb-2">⚠️ IMPORTANTE</h2>
+            <p class="text-yellow-700">
+                Esta página serve como referência para atualizar manualmente os arquivos de programa.
+                Copie e cole o código abaixo <strong>ANTES</strong> da tag <code>&lt;/body&gt;</code> em cada arquivo.
+            </p>
+        </div>
+
+        <div class="space-y-6">
+            <!-- Código a Adicionar -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    📝 Código para Adicionar (antes do &lt;/body&gt;)
+                </h3>
+                
+                <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto text-sm"><code>&lt;!-- Sistema de Redirecionamento para Checkout --&gt;
+&lt;script src="js/checkout-redirect.js"&gt;&lt;/script&gt;
+
+&lt;!-- Sistema de Rastreamento de Afiliados --&gt;
+&lt;script src="js/affiliate-tracker.js"&gt;&lt;/script&gt;
+
+&lt;script&gt;
+    // Mostrar banner de afiliado se houver referência na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const affiliateRef = urlParams.get('ref');
+    
+    if (affiliateRef) {
+        console.log('🎯 Programa acessado via afiliado:', affiliateRef);
+        
+        // Opcional: Mostrar banner de afiliado
+        const banner = document.createElement('div');
+        banner.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-xl z-50';
+        banner.innerHTML = `
+            &lt;div class="flex items-center gap-2"&gt;
+                &lt;i class="fas fa-user-check"&gt;&lt;/i&gt;
+                &lt;span class="font-semibold"&gt;Indicado por: ${affiliateRef}&lt;/span&gt;
+            &lt;/div&gt;
+        `;
+        document.body.appendChild(banner);
+        
+        // Remover banner após 5 segundos
+        setTimeout(() => {
+            banner.style.opacity = '0';
+            banner.style.transition = 'opacity 0.5s';
+            setTimeout(() => banner.remove(), 500);
+        }, 5000);
+    }
+&lt;/script&gt;</code></pre>
+
+                <button onclick="copyCode()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-copy mr-2"></i> Copiar Código
+                </button>
+            </div>
+
+            <!-- Lista de Arquivos -->
+            <div class="bg-blue-50 rounded-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    ✅ Arquivos que Precisam ser Atualizados
+                </h3>
+                
+                <ul class="space-y-2">
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" checked disabled class="w-5 h-5">
+                        <span class="text-green-600 font-semibold">programa-mulher.html</span>
+                        <span class="text-sm text-gray-600">(✅ JÁ CORRIGIDO)</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span>programa-senior.html</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span>programa-farma.html</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span>programa-acolher.html</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span>programa-orienta.html</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span>programa-vivaleve.html</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Código Antigo a Remover -->
+            <div class="bg-red-50 rounded-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    🗑️ Código Antigo para REMOVER (se existir)
+                </h3>
+                
+                <pre class="bg-gray-800 text-red-400 p-4 rounded-lg overflow-x-auto text-sm"><code>&lt;script&gt;
+    // Função para processar PIX Recorrente
+    function handlePixRecorrente(program, value) {
+        alert(`🎉 Processando assinatura PIX Recorrente...`);
+        // window.location.href = ...
+    }
+&lt;/script&gt;
+
+&lt;!-- Sistema de Rastreamento de Afiliados --&gt;
+&lt;script src="js/affiliate-tracker.js"&gt;&lt;/script&gt;</code></pre>
+
+                <p class="mt-4 text-sm text-red-700">
+                    <strong>Remover:</strong> qualquer função <code>handlePixRecorrente</code> local, 
+                    pois agora ela vem do arquivo <code>checkout-redirect.js</code>
+                </p>
+            </div>
+
+            <!-- Passo a Passo -->
+            <div class="bg-green-50 rounded-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    📋 Passo a Passo
+                </h3>
+                
+                <ol class="space-y-3 list-decimal list-inside">
+                    <li>Abrir arquivo (ex: <code>programa-senior.html</code>)</li>
+                    <li>Procurar pela tag <code>&lt;/body&gt;</code></li>
+                    <li>Deletar código antigo de <code>handlePixRecorrente</code> (se existir)</li>
+                    <li>Adicionar o código novo ANTES do <code>&lt;/body&gt;</code></li>
+                    <li>Salvar arquivo</li>
+                    <li>Testar: abrir <code>programa-senior.html?ref=teste</code></li>
+                    <li>Verificar se aparece banner "Indicado por: teste"</li>
+                    <li>Clicar em "Assinar com PIX"</li>
+                    <li>Verificar se redireciona para checkout com <code>?ref=teste</code></li>
+                </ol>
+            </div>
+
+            <!-- Teste Rápido -->
+            <div class="bg-purple-50 rounded-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    🧪 Teste Rápido
+                </h3>
+                
+                <p class="text-gray-700 mb-4">
+                    Após atualizar os arquivos, testar com:
+                </p>
+                
+                <div class="space-y-2">
+                    <a href="programa-mulher.html?ref=teste123" target="_blank" 
+                       class="block bg-white p-3 rounded border hover:shadow-md">
+                        <strong>programa-mulher.html?ref=teste123</strong>
+                        <span class="text-sm text-gray-600 ml-2">(✅ Já funciona)</span>
+                    </a>
+                    <a href="programa-senior.html?ref=teste123" target="_blank" 
+                       class="block bg-white p-3 rounded border hover:shadow-md">
+                        <strong>programa-senior.html?ref=teste123</strong>
+                    </a>
+                    <a href="programa-farma.html?ref=teste123" target="_blank" 
+                       class="block bg-white p-3 rounded border hover:shadow-md">
+                        <strong>programa-farma.html?ref=teste123</strong>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCode() {
+            const code = document.querySelector('pre code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ Código copiado! Cole antes da tag </body> nos arquivos de programa.');
+            });
+        }
+    </script>
+</body>
+</html>

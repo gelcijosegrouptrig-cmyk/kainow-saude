@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Afiliado - Kainow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card-glow {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .success-box {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .error-box {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .info-box {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .data-table {
+            width: 100%;
+            background: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        .data-table th {
+            background: #667eea;
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        .data-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-2xl card-glow p-8">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-search text-purple-600 mr-3"></i>
+                        Buscar Afiliado
+                    </h1>
+                    <p class="text-gray-600">
+                        Encontre afiliados por username, email, CPF ou nome
+                    </p>
+                </div>
+                <button 
+                    onclick="window.location.href='dashboard-admin.html'"
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition"
+                >
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </button>
+            </div>
+
+            <!-- Tipo de busca -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de Busca
+                </label>
+                <select id="searchType" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <option value="username">Username</option>
+                    <option value="email">Email</option>
+                    <option value="cpf">CPF</option>
+                    <option value="name">Nome</option>
+                    <option value="all">Listar TODOS os afiliados</option>
+                </select>
+            </div>
+
+            <!-- Campo de busca -->
+            <div id="searchFieldContainer" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Valor de Busca
+                </label>
+                <div class="flex gap-3">
+                    <input 
+                        type="text" 
+                        id="searchValue" 
+                        placeholder="Digite o valor para buscar..."
+                        class="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                    <button 
+                        onclick="buscarAfiliado()"
+                        class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-3 rounded-lg transition font-medium shadow-lg"
+                    >
+                        <i class="fas fa-search mr-2"></i>Buscar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="hidden text-center py-8">
+                <i class="fas fa-spinner fa-spin text-4xl text-purple-600 mb-3"></i>
+                <p class="text-gray-600">Buscando no Firestore...</p>
+            </div>
+
+            <!-- Resultado -->
+            <div id="resultado"></div>
+
+            <!-- Informações do Sistema -->
+            <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+                <h3 class="font-semibold text-blue-800 mb-2">
+                    <i class="fas fa-info-circle mr-2"></i>Dicas de Uso
+                </h3>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• Para buscar "gelcisilva252", selecione "Username" e digite exatamente</li>
+                    <li>• A busca por nome é case-insensitive (ignora maiúsculas/minúsculas)</li>
+                    <li>• Use "Listar TODOS" para ver todos os afiliados cadastrados</li>
+                    <li>• CPF pode ser buscado com ou sem pontuação</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Configuração Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Atualizar UI baseado no tipo de busca
+        document.getElementById('searchType').addEventListener('change', function() {
+            const searchFieldContainer = document.getElementById('searchFieldContainer');
+            if (this.value === 'all') {
+                searchFieldContainer.classList.add('hidden');
+            } else {
+                searchFieldContainer.classList.remove('hidden');
+                const placeholder = {
+                    'username': 'Digite o username (ex: gelcisilva252)',
+                    'email': 'Digite o email completo',
+                    'cpf': 'Digite o CPF (com ou sem pontuação)',
+                    'name': 'Digite o nome ou parte do nome'
+                };
+                document.getElementById('searchValue').placeholder = placeholder[this.value];
+            }
+        });
+
+        // Função principal de busca
+        async function buscarAfiliado() {
+            const searchType = document.getElementById('searchType').value;
+            const searchValue = document.getElementById('searchValue').value.trim();
+            const loading = document.getElementById('loading');
+            const resultado = document.getElementById('resultado');
+
+            // Validação
+            if (searchType !== 'all' && !searchValue) {
+                resultado.innerHTML = `
+                    <div class="error-box">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Por favor, digite um valor para buscar!
+                    </div>
+                `;
+                return;
+            }
+
+            // Mostrar loading
+            loading.classList.remove('hidden');
+            resultado.innerHTML = '';
+
+            try {
+                let query;
+                let affiliates = [];
+
+                if (searchType === 'all') {
+                    // Buscar todos
+                    const snapshot = await db.collection('affiliates').get();
+                    affiliates = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } else if (searchType === 'name') {
+                    // Busca por nome (busca todos e filtra localmente)
+                    const snapshot = await db.collection('affiliates').get();
+                    const searchLower = searchValue.toLowerCase();
+                    affiliates = snapshot.docs
+                        .map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }))
+                        .filter(aff => aff.name && aff.name.toLowerCase().includes(searchLower));
+                } else {
+                    // Busca exata por campo específico
+                    query = db.collection('affiliates').where(searchType, '==', searchValue);
+                    const snapshot = await query.get();
+                    affiliates = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                }
+
+                loading.classList.add('hidden');
+
+                if (affiliates.length === 0) {
+                    resultado.innerHTML = `
+                        <div class="error-box">
+                            <i class="fas fa-times-circle mr-2"></i>
+                            <strong>Nenhum afiliado encontrado!</strong>
+                            <p class="mt-2 text-sm">Critério de busca: ${searchType} = "${searchValue}"</p>
+                            <p class="mt-2 text-sm">Isso significa que o afiliado NÃO FOI CRIADO no Firestore.</p>
+                        </div>
+                        <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <h4 class="font-semibold text-yellow-800 mb-2">O que fazer?</h4>
+                            <ul class="text-sm text-yellow-700 space-y-1">
+                                <li>1. Verifique se digitou corretamente</li>
+                                <li>2. Tente buscar por outro campo (email, cpf, nome)</li>
+                                <li>3. Use "Listar TODOS" para ver quais afiliados existem</li>
+                                <li>4. Se necessário, crie o afiliado novamente</li>
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    // Mostrar resultados
+                    let html = `
+                        <div class="success-box">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <strong>Encontrado${affiliates.length > 1 ? 's' : ''} ${affiliates.length} afiliado${affiliates.length > 1 ? 's' : ''}!</strong>
+                        </div>
+                    `;
+
+                    affiliates.forEach((aff, index) => {
+                        html += `
+                            <div class="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-xl font-bold text-gray-800">
+                                        ${aff.name || 'Sem nome'}
+                                    </h3>
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium ${aff.active ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}">
+                                        ${aff.active ? 'Ativo' : 'Inativo'}
+                                    </span>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">ID Firestore</p>
+                                        <p class="font-mono text-sm text-gray-800 bg-white px-2 py-1 rounded">${aff.id}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Username</p>
+                                        <p class="font-semibold text-gray-800">${aff.username || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Senha</p>
+                                        <p class="font-mono text-sm text-gray-800 bg-white px-2 py-1 rounded">${aff.password || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Email</p>
+                                        <p class="text-sm text-gray-800">${aff.email || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">CPF</p>
+                                        <p class="text-sm text-gray-800">${aff.cpf || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Telefone</p>
+                                        <p class="text-sm text-gray-800">${aff.phone || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Chave PIX</p>
+                                        <p class="text-sm text-gray-800">${aff.pixKey || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Comissão</p>
+                                        <p class="font-semibold text-green-600">${aff.commission || 0}%</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Vendas</p>
+                                        <p class="font-semibold text-gray-800">${aff.sales || 0}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Comissão Total</p>
+                                        <p class="font-semibold text-green-600">R$ ${(aff.totalCommission || 0).toFixed(2)}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Criado em</p>
+                                        <p class="text-sm text-gray-800">${formatDate(aff.created_at)}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Último Login</p>
+                                        <p class="text-sm text-gray-800">${formatDate(aff.lastLogin)}</p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 flex gap-3">
+                                    <button 
+                                        onclick="testarLogin('${aff.username}', '${aff.password}')"
+                                        class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
+                                    >
+                                        <i class="fas fa-sign-in-alt mr-2"></i>Testar Login
+                                    </button>
+                                    <button 
+                                        onclick="copiarCredenciais('${aff.username}', '${aff.password}')"
+                                        class="flex-1 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition"
+                                    >
+                                        <i class="fas fa-copy mr-2"></i>Copiar Credenciais
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    resultado.innerHTML = html;
+                }
+
+            } catch (error) {
+                loading.classList.add('hidden');
+                resultado.innerHTML = `
+                    <div class="error-box">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        <strong>Erro ao buscar!</strong>
+                        <p class="mt-2 text-sm">${error.message}</p>
+                    </div>
+                `;
+                console.error('Erro completo:', error);
+            }
+        }
+
+        // Formatar data
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Nunca';
+            
+            let date;
+            if (timestamp.toDate) {
+                date = timestamp.toDate();
+            } else if (timestamp instanceof Date) {
+                date = timestamp;
+            } else {
+                return 'Data inválida';
+            }
+
+            return date.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Testar login
+        function testarLogin(username, password) {
+            const loginUrl = `../afiliado/login.html?test=1&u=${encodeURIComponent(username)}&p=${encodeURIComponent(password)}`;
+            window.open(loginUrl, '_blank');
+        }
+
+        // Copiar credenciais
+        function copiarCredenciais(username, password) {
+            const texto = `Username: ${username}\nSenha: ${password}`;
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('✅ Credenciais copiadas para a área de transferência!');
+            });
+        }
+
+        // Permitir busca com Enter
+        document.getElementById('searchValue').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                buscarAfiliado();
+            }
+        });
+    </script>
+</body>
+</html>

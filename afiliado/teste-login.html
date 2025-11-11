@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Login - gelcisilva252</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            line-height: 1.8;
+        }
+        .log { padding: 10px; margin: 5px 0; border-left: 4px solid #0f0; }
+        .error { color: #f00; border-color: #f00; }
+        .success { color: #0f0; border-color: #0f0; }
+        .info { color: #0ff; border-color: #0ff; }
+        .warning { color: #ff0; border-color: #ff0; }
+        button { 
+            background: #0f0; 
+            color: #000; 
+            border: none; 
+            padding: 15px 30px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 TESTE DE LOGIN - gelcisilva252</h1>
+    <div id="output"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = 'log ' + type;
+            div.textContent = msg;
+            output.appendChild(div);
+        }
+
+        async function testar() {
+            log('═══════════════════════════════════════', 'info');
+            log('🔍 TESTE DE LOGIN - gelcisilva252', 'info');
+            log('═══════════════════════════════════════', 'info');
+
+            // 1. Verificar sessão
+            log('\n[1/4] Verificando sessão...', 'info');
+            const sessionLS = localStorage.getItem('kainow_affiliate_session');
+            const sessionSS = sessionStorage.getItem('kainow_affiliate_session');
+            
+            if (!sessionLS && !sessionSS) {
+                log('❌ NENHUMA SESSÃO ENCONTRADA!', 'error');
+                log('Você precisa fazer login primeiro em: afiliado/login.html', 'warning');
+                return;
+            }
+
+            const session = JSON.parse(sessionLS || sessionSS);
+            log('✅ Sessão encontrada!', 'success');
+            log('Username: ' + session.username, 'success');
+            log('Nome: ' + session.name, 'success');
+            log('Email: ' + session.email, 'success');
+
+            // 2. Configurar Firebase
+            log('\n[2/4] Configurando Firebase...', 'info');
+            const config = {
+                apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+                authDomain: "kainowsaude.firebaseapp.com",
+                projectId: "kainowsaude",
+                storageBucket: "kainowsaude.firebasestorage.app",
+                messagingSenderId: "230049250523",
+                appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+            };
+            firebase.initializeApp(config);
+            const db = firebase.firestore();
+            log('✅ Firebase configurado!', 'success');
+
+            // 3. Buscar no Firestore
+            log('\n[3/4] Buscando no Firestore...', 'info');
+            log('Buscando por username: "' + session.username + '"', 'info');
+
+            try {
+                const query = db.collection('affiliates')
+                    .where('username', '==', session.username)
+                    .limit(1);
+                
+                const snapshot = await query.get();
+                
+                log('Query executada!', 'info');
+                log('Documentos encontrados: ' + snapshot.size, 'info');
+                log('Está vazio? ' + (snapshot.empty ? 'SIM' : 'NÃO'), 'info');
+
+                if (snapshot.empty) {
+                    log('\n❌ AFILIADO NÃO ENCONTRADO!', 'error');
+                    log('O username "' + session.username + '" não existe no Firestore.', 'error');
+                    
+                    // Listar todos
+                    log('\n[EXTRA] Listando TODOS os afiliados...', 'warning');
+                    const all = await db.collection('affiliates').get();
+                    log('Total de afiliados no Firestore: ' + all.size, 'warning');
+                    
+                    if (all.size > 0) {
+                        log('\nUsernames no Firestore:', 'warning');
+                        all.forEach((doc, i) => {
+                            const d = doc.data();
+                            log((i+1) + '. "' + d.username + '" - ' + d.name, 'warning');
+                        });
+                    }
+                    
+                    log('\n🔧 PROBLEMA: Username na sessão é diferente do Firestore!', 'error');
+                    
+                } else {
+                    log('\n✅ AFILIADO ENCONTRADO!', 'success');
+                    const doc = snapshot.docs[0];
+                    const data = doc.data();
+                    
+                    log('\n📄 DADOS DO FIRESTORE:', 'success');
+                    log('ID: ' + doc.id, 'success');
+                    log('Username: ' + data.username, 'success');
+                    log('Senha: ' + data.password, 'success');
+                    log('Nome: ' + data.name, 'success');
+                    log('Email: ' + data.email, 'success');
+                    log('Comissão: ' + data.commission + '%', 'success');
+                    log('Ativo: ' + (data.active ? 'Sim' : 'Não'), 'success');
+                    
+                    log('\n🎉 TUDO CERTO! O dashboard deve funcionar!', 'success');
+                }
+
+            } catch (error) {
+                log('\n❌ ERRO AO BUSCAR:', 'error');
+                log('Mensagem: ' + error.message, 'error');
+                log('Código: ' + error.code, 'error');
+                
+                if (error.code === 'permission-denied') {
+                    log('\n🚨 PROBLEMA: Permissões do Firestore bloqueadas!', 'error');
+                }
+            }
+
+            // 4. Conclusão
+            log('\n[4/4] Conclusão', 'info');
+            log('═══════════════════════════════════════', 'info');
+        }
+
+        testar();
+    </script>
+</body>
+</html>

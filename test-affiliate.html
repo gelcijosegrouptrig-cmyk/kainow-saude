@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Rastreamento de Afiliado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold mb-6 text-blue-600">
+            🔍 Teste de Rastreamento de Afiliado
+        </h1>
+
+        <div class="space-y-6">
+            <!-- Status Atual -->
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">📊 Status Atual:</h2>
+                <div id="status" class="space-y-2">
+                    <p class="text-gray-600">Carregando...</p>
+                </div>
+            </div>
+
+            <!-- Teste Manual -->
+            <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">🧪 Testar Manualmente:</h2>
+                <div class="flex gap-4">
+                    <input 
+                        type="text" 
+                        id="testRef" 
+                        placeholder="AFF1762769339920"
+                        class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg"
+                    >
+                    <button 
+                        onclick="testAffiliate()"
+                        class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-bold"
+                    >
+                        Salvar Referência
+                    </button>
+                </div>
+            </div>
+
+            <!-- Link de Teste -->
+            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">🔗 Links de Teste:</h2>
+                <div class="space-y-3">
+                    <a href="?ref=AFF1762769339920" class="block bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg text-center font-bold">
+                        Testar Link: ?ref=AFF1762769339920
+                    </a>
+                    <a href="programa-mulher.html?ref=AFF1762769339920" class="block bg-pink-500 hover:bg-pink-600 text-white px-4 py-3 rounded-lg text-center font-bold">
+                        Ir para Programa Mulher com Ref
+                    </a>
+                </div>
+            </div>
+
+            <!-- Console Log -->
+            <div class="bg-gray-50 border-2 border-gray-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">📝 Console Log:</h2>
+                <div id="console" class="bg-black text-green-400 p-4 rounded font-mono text-sm max-h-64 overflow-y-auto">
+                    <p>Aguardando logs...</p>
+                </div>
+            </div>
+
+            <!-- Limpar Dados -->
+            <div class="bg-red-50 border-2 border-red-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">🗑️ Limpar Dados:</h2>
+                <button 
+                    onclick="clearAll()"
+                    class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-bold"
+                >
+                    Limpar Todos os Dados
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/affiliate-tracker.js"></script>
+    
+    <script>
+        // Capturar console.log original
+        const originalLog = console.log;
+        const consoleDiv = document.getElementById('console');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const p = document.createElement('p');
+            p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            p.className = 'mb-1';
+            consoleDiv.appendChild(p);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+
+        // Função para atualizar status
+        function updateStatus() {
+            const statusDiv = document.getElementById('status');
+            
+            // Verificar URL atual
+            const urlParams = new URLSearchParams(window.location.search);
+            const refParam = urlParams.get('ref');
+            
+            // Verificar localStorage
+            const savedRef = localStorage.getItem('kainow_affiliate_ref');
+            const savedRefData = savedRef ? JSON.parse(savedRef) : null;
+            
+            // Verificar cookie
+            const cookies = document.cookie.split(';').map(c => c.trim());
+            const refCookie = cookies.find(c => c.startsWith('kainow_ref='));
+            const cookieValue = refCookie ? refCookie.split('=')[1] : null;
+            
+            // Verificar conversões
+            const conversions = localStorage.getItem('kainow_conversions');
+            const conversionsData = conversions ? JSON.parse(conversions) : [];
+            
+            // Verificar afiliados cadastrados
+            const affiliates = localStorage.getItem('kainow_affiliates');
+            const affiliatesData = affiliates ? JSON.parse(affiliates) : [];
+            
+            statusDiv.innerHTML = `
+                <div class="space-y-3">
+                    <div>
+                        <strong class="text-blue-600">Parâmetro URL (?ref):</strong>
+                        <span class="ml-2 ${refParam ? 'text-green-600 font-bold' : 'text-red-600'}">
+                            ${refParam || '❌ Não encontrado'}
+                        </span>
+                    </div>
+                    
+                    <div>
+                        <strong class="text-blue-600">LocalStorage (kainow_affiliate_ref):</strong>
+                        <pre class="mt-2 bg-gray-100 p-3 rounded text-xs overflow-x-auto">${savedRef ? savedRef : '❌ Vazio'}</pre>
+                    </div>
+                    
+                    <div>
+                        <strong class="text-blue-600">Cookie (kainow_ref):</strong>
+                        <span class="ml-2 ${cookieValue ? 'text-green-600 font-bold' : 'text-red-600'}">
+                            ${cookieValue || '❌ Não encontrado'}
+                        </span>
+                    </div>
+                    
+                    <div>
+                        <strong class="text-blue-600">Conversões Registradas:</strong>
+                        <span class="ml-2 font-bold">${conversionsData.length} conversões</span>
+                        ${conversionsData.length > 0 ? `
+                            <pre class="mt-2 bg-gray-100 p-3 rounded text-xs overflow-x-auto max-h-32">${JSON.stringify(conversionsData, null, 2)}</pre>
+                        ` : ''}
+                    </div>
+                    
+                    <div>
+                        <strong class="text-blue-600">Afiliados Cadastrados:</strong>
+                        <span class="ml-2 font-bold">${affiliatesData.length} afiliados</span>
+                        ${affiliatesData.length > 0 ? `
+                            <div class="mt-2 space-y-2">
+                                ${affiliatesData.map(aff => `
+                                    <div class="bg-gray-100 p-2 rounded text-sm">
+                                        <strong>${aff.name}</strong> - ${aff.id} (${aff.commission}%)
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="pt-4 border-t-2 border-blue-200">
+                        <strong class="text-blue-600">Função Global:</strong>
+                        <span class="ml-2 ${window.KaiNowAffiliate ? 'text-green-600 font-bold' : 'text-red-600'}">
+                            ${window.KaiNowAffiliate ? '✅ KaiNowAffiliate está disponível' : '❌ KaiNowAffiliate não encontrado'}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Função para testar afiliado
+        function testAffiliate() {
+            const testRef = document.getElementById('testRef').value;
+            if (!testRef) {
+                alert('Digite um ID de afiliado!');
+                return;
+            }
+            
+            console.log('🧪 Testando afiliado:', testRef);
+            
+            // Simular salvamento
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 30);
+
+            const affiliateData = {
+                id: testRef,
+                timestamp: new Date().toISOString(),
+                expiry: expiryDate.toISOString(),
+                page: window.location.pathname
+            };
+
+            localStorage.setItem('kainow_affiliate_ref', JSON.stringify(affiliateData));
+            document.cookie = `kainow_ref=${testRef}; expires=${expiryDate.toUTCString()}; path=/`;
+            
+            console.log('✅ Referência salva!');
+            updateStatus();
+        }
+
+        // Função para limpar tudo
+        function clearAll() {
+            if (!confirm('Limpar TODOS os dados de afiliados?')) return;
+            
+            localStorage.removeItem('kainow_affiliate_ref');
+            localStorage.removeItem('kainow_conversions');
+            document.cookie = 'kainow_ref=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            
+            console.log('🗑️ Todos os dados limpos!');
+            updateStatus();
+        }
+
+        // Atualizar status ao carregar
+        updateStatus();
+        
+        // Atualizar status a cada 2 segundos
+        setInterval(updateStatus, 2000);
+    </script>
+</body>
+</html>

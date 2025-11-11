@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Hash - KaiNow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- bcrypt.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen p-8">
+
+    <div class="container mx-auto max-w-4xl">
+        
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-key text-blue-600 mr-3"></i>
+                Teste de Hash de Senha (bcrypt)
+            </h1>
+            <p class="text-gray-600">Ferramenta para testar hash e verificação de senhas</p>
+        </div>
+
+        <!-- Card: Gerar Hash -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-lock text-green-600 mr-2"></i>
+                1. Gerar Hash de Senha
+            </h2>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Digite uma senha:
+                    </label>
+                    <input 
+                        type="text" 
+                        id="senha-input"
+                        placeholder="Ex: minhaSenha123"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
+                    >
+                </div>
+
+                <button 
+                    onclick="gerarHash()"
+                    class="bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-4 rounded-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all"
+                >
+                    <i class="fas fa-magic mr-2"></i>
+                    Gerar Hash
+                </button>
+
+                <div id="hash-result" class="hidden">
+                    <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 mt-4">
+                        <h3 class="font-bold text-gray-800 mb-2">Hash Gerado:</h3>
+                        <div class="bg-white p-4 rounded-lg border border-green-300 font-mono text-sm break-all" id="hash-output"></div>
+                        <button 
+                            onclick="copiarHash()"
+                            class="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm"
+                        >
+                            <i class="fas fa-copy mr-1"></i> Copiar Hash
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Verificar Hash -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-check-circle text-blue-600 mr-2"></i>
+                2. Verificar Senha com Hash
+            </h2>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Senha para verificar:
+                    </label>
+                    <input 
+                        type="text" 
+                        id="senha-verificar"
+                        placeholder="Digite a senha original"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Hash armazenado:
+                    </label>
+                    <textarea 
+                        id="hash-verificar"
+                        placeholder="Cole o hash aqui (começa com $2a$ ou $2b$)"
+                        rows="3"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none font-mono text-sm"
+                    ></textarea>
+                </div>
+
+                <button 
+                    onclick="verificarHash()"
+                    class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all"
+                >
+                    <i class="fas fa-search mr-2"></i>
+                    Verificar
+                </button>
+
+                <div id="verificacao-result" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- Card: Informações -->
+        <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl shadow-xl p-8 text-white">
+            <h2 class="text-2xl font-bold mb-4">
+                <i class="fas fa-info-circle mr-2"></i>
+                Informações sobre bcrypt
+            </h2>
+            <ul class="space-y-2 text-sm">
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle mt-1 mr-3"></i>
+                    <span><strong>Rounds:</strong> Usa 10 rounds (balanceado entre segurança e performance)</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle mt-1 mr-3"></i>
+                    <span><strong>Salt:</strong> Cada hash tem um salt único automático</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle mt-1 mr-3"></i>
+                    <span><strong>Irreversível:</strong> Impossível descobrir a senha original a partir do hash</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle mt-1 mr-3"></i>
+                    <span><strong>Mesma senha = hashes diferentes:</strong> Por causa do salt aleatório</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle mt-1 mr-3"></i>
+                    <span><strong>Verificação:</strong> Use bcrypt.compareSync() para comparar</span>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        let ultimoHash = '';
+
+        // Gerar Hash
+        function gerarHash() {
+            const senha = document.getElementById('senha-input').value;
+            
+            if (!senha) {
+                alert('❌ Digite uma senha primeiro!');
+                return;
+            }
+
+            console.log('🔐 Gerando hash para senha:', senha);
+            
+            // Gerar hash (10 rounds)
+            const hash = bcrypt.hashSync(senha, 10);
+            ultimoHash = hash;
+            
+            console.log('✅ Hash gerado:', hash);
+
+            // Mostrar resultado
+            document.getElementById('hash-output').textContent = hash;
+            document.getElementById('hash-result').classList.remove('hidden');
+        }
+
+        // Copiar Hash
+        function copiarHash() {
+            const hash = document.getElementById('hash-output').textContent;
+            navigator.clipboard.writeText(hash).then(() => {
+                alert('✅ Hash copiado para a área de transferência!');
+            });
+        }
+
+        // Verificar Hash
+        function verificarHash() {
+            const senha = document.getElementById('senha-verificar').value;
+            const hash = document.getElementById('hash-verificar').value.trim();
+            
+            if (!senha || !hash) {
+                alert('❌ Preencha senha e hash!');
+                return;
+            }
+
+            console.log('🔍 Verificando senha com hash...');
+            console.log('Senha:', senha);
+            console.log('Hash:', hash);
+
+            // Verificar
+            try {
+                const resultado = bcrypt.compareSync(senha, hash);
+                
+                const resultDiv = document.getElementById('verificacao-result');
+                resultDiv.classList.remove('hidden');
+
+                if (resultado) {
+                    console.log('✅ Senha CORRETA!');
+                    resultDiv.innerHTML = `
+                        <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 mt-4">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-600 text-4xl"></i>
+                                <div>
+                                    <h3 class="font-bold text-green-800 text-xl">✅ Senha CORRETA!</h3>
+                                    <p class="text-green-700">A senha corresponde ao hash</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    console.log('❌ Senha INCORRETA!');
+                    resultDiv.innerHTML = `
+                        <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6 mt-4">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-times-circle text-red-600 text-4xl"></i>
+                                <div>
+                                    <h3 class="font-bold text-red-800 text-xl">❌ Senha INCORRETA!</h3>
+                                    <p class="text-red-700">A senha NÃO corresponde ao hash</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Erro ao verificar:', error);
+                alert('❌ Erro: Hash inválido ou formato incorreto');
+            }
+        }
+
+        console.log('✅ Página de teste de hash carregada');
+        console.log('bcrypt disponível:', typeof bcrypt !== 'undefined');
+    </script>
+
+</body>
+</html>

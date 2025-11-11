@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KaiNow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen flex items-center justify-center p-4">
+    
+    <!-- Container Principal -->
+    <div class="w-full max-w-md">
+        
+        <!-- Logo e Título -->
+        <div class="text-center mb-8">
+            <div class="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white w-20 h-20 rounded-full flex items-center justify-center mb-4 shadow-lg">
+                <i class="fas fa-heartbeat text-4xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">KaiNow Saúde</h1>
+            <p class="text-gray-600">Área do Cliente</p>
+        </div>
+
+        <!-- Card de Login -->
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                <i class="fas fa-sign-in-alt text-blue-600 mr-2"></i>
+                Entrar na sua conta
+            </h2>
+
+            <!-- Formulário de Login -->
+            <form id="login-form" class="space-y-6">
+                
+                <!-- Email ou CPF -->
+                <div>
+                    <label for="login-identifier" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2 text-blue-600"></i>
+                        Email ou CPF
+                    </label>
+                    <input 
+                        type="text" 
+                        id="login-identifier" 
+                        required
+                        placeholder="seu@email.com ou 000.000.000-00"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none transition-colors"
+                    >
+                </div>
+
+                <!-- Senha -->
+                <div>
+                    <label for="login-password" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2 text-blue-600"></i>
+                        Senha
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="login-password" 
+                            required
+                            placeholder="••••••••"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none transition-colors"
+                        >
+                        <button 
+                            type="button"
+                            onclick="togglePassword()"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                            <i class="fas fa-eye" id="toggle-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lembrar-me -->
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            id="remember-me"
+                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        >
+                        <span class="ml-2 text-sm text-gray-600">Lembrar-me</span>
+                    </label>
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800 font-semibold">
+                        Esqueci a senha
+                    </a>
+                </div>
+
+                <!-- Botão de Login -->
+                <button 
+                    type="submit"
+                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
+                >
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    Entrar
+                </button>
+
+            </form>
+
+            <!-- Mensagem de Erro -->
+            <div id="error-message" class="hidden mt-4 bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span id="error-text"></span>
+                </div>
+            </div>
+
+            <!-- Mensagem de Sucesso -->
+            <div id="success-message" class="hidden mt-4 bg-green-50 border-2 border-green-200 text-green-700 px-4 py-3 rounded-xl">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span id="success-text"></span>
+                </div>
+            </div>
+
+            <!-- Separador -->
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-4 bg-white text-gray-500">ou</span>
+                </div>
+            </div>
+
+            <!-- Link para Cadastro -->
+            <div class="text-center">
+                <p class="text-gray-600 mb-3">Ainda não tem uma conta?</p>
+                <a 
+                    href="../index.html#programas" 
+                    class="inline-block w-full py-3 border-2 border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+                >
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Assinar um Programa
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-6 text-sm text-gray-600">
+            <p>
+                <i class="fas fa-shield-alt mr-1"></i>
+                Sua conexão é segura e seus dados protegidos
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- bcrypt.js para verificação de hash -->
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+
+    <script>
+        // ==========================================
+        // CONFIGURAÇÃO FIREBASE
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "357388398918",
+            appId: "1:357388398918:web:d82727f837f69c8f9ccfed"
+        };
+
+        // Inicializar Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        console.log('✅ Firebase inicializado para Login de Cliente');
+
+        // ==========================================
+        // FUNÇÃO TOGGLE PASSWORD
+        // ==========================================
+        function togglePassword() {
+            const passwordInput = document.getElementById('login-password');
+            const toggleIcon = document.getElementById('toggle-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // ==========================================
+        // FUNÇÃO MOSTRAR ERRO
+        // ==========================================
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            const successDiv = document.getElementById('success-message');
+            
+            successDiv.classList.add('hidden');
+            errorText.textContent = message;
+            errorDiv.classList.remove('hidden');
+            
+            // Auto-hide após 5 segundos
+            setTimeout(() => {
+                errorDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // ==========================================
+        // FUNÇÃO MOSTRAR SUCESSO
+        // ==========================================
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            const successText = document.getElementById('success-text');
+            const errorDiv = document.getElementById('error-message');
+            
+            errorDiv.classList.add('hidden');
+            successText.textContent = message;
+            successDiv.classList.remove('hidden');
+        }
+
+        // ==========================================
+        // FUNÇÃO BUSCAR CLIENTE
+        // ==========================================
+        async function buscarCliente(identifier) {
+            console.log('🔍 Buscando cliente:', identifier);
+            
+            // Normalizar entrada (remover pontos e traços se for CPF)
+            const normalizedIdentifier = identifier.replace(/[.\-]/g, '');
+            
+            try {
+                // Tentar buscar por email
+                let snapshot = await db.collection('clientes')
+                    .where('email', '==', identifier.toLowerCase())
+                    .limit(1)
+                    .get();
+                
+                if (!snapshot.empty) {
+                    console.log('✅ Cliente encontrado por email');
+                    return snapshot.docs[0];
+                }
+                
+                // Tentar buscar por CPF (sem formatação)
+                snapshot = await db.collection('clientes')
+                    .where('cpf', '==', normalizedIdentifier)
+                    .limit(1)
+                    .get();
+                
+                if (!snapshot.empty) {
+                    console.log('✅ Cliente encontrado por CPF');
+                    return snapshot.docs[0];
+                }
+                
+                // Tentar buscar por CPF (com formatação)
+                snapshot = await db.collection('clientes')
+                    .where('cpf', '==', identifier)
+                    .limit(1)
+                    .get();
+                
+                if (!snapshot.empty) {
+                    console.log('✅ Cliente encontrado por CPF formatado');
+                    return snapshot.docs[0];
+                }
+                
+                console.log('❌ Cliente não encontrado');
+                return null;
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar cliente:', error);
+                throw error;
+            }
+        }
+
+        // ==========================================
+        // FUNÇÃO LOGIN
+        // ==========================================
+        async function fazerLogin(identifier, password) {
+            try {
+                console.log('🔐 Tentando fazer login...');
+                
+                // Buscar cliente
+                const clienteDoc = await buscarCliente(identifier);
+                
+                if (!clienteDoc) {
+                    showError('Email ou CPF não encontrado. Verifique seus dados.');
+                    return false;
+                }
+                
+                const clienteData = clienteDoc.data();
+                const clienteId = clienteDoc.id;
+                
+                console.log('👤 Cliente encontrado:', clienteData.nome);
+                
+                // Verificar senha (com bcrypt hash)
+                console.log('🔐 Verificando senha com bcrypt...');
+                const senhaCorreta = bcrypt.compareSync(password, clienteData.senha);
+                
+                if (!senhaCorreta) {
+                    console.log('❌ Senha incorreta');
+                    showError('Senha incorreta. Tente novamente.');
+                    return false;
+                }
+                
+                console.log('✅ Senha correta');
+                
+                // Verificar status do cliente
+                if (clienteData.status !== 'ativo') {
+                    if (clienteData.status === 'aguardando_pagamento') {
+                        showError('Seu pagamento ainda não foi confirmado. Aguarde a confirmação ou entre em contato com o suporte.');
+                        return false;
+                    } else {
+                        showError('Sua conta está inativa. Entre em contato com o suporte.');
+                        return false;
+                    }
+                }
+                
+                // Login bem-sucedido!
+                console.log('✅ Login bem-sucedido!');
+                
+                // Salvar sessão
+                const sessionData = {
+                    id: clienteId,
+                    nome: clienteData.nome,
+                    email: clienteData.email,
+                    cpf: clienteData.cpf,
+                    telefone: clienteData.telefone,
+                    programa: clienteData.programa,
+                    programaNome: clienteData.programaNome,
+                    valorMensal: clienteData.valorMensal,
+                    dataCadastro: clienteData.dataCadastro,
+                    loginTime: new Date().toISOString()
+                };
+                
+                // Usar localStorage ou sessionStorage
+                const rememberMe = document.getElementById('remember-me').checked;
+                if (rememberMe) {
+                    localStorage.setItem('kainow_cliente_session', JSON.stringify(sessionData));
+                } else {
+                    sessionStorage.setItem('kainow_cliente_session', JSON.stringify(sessionData));
+                }
+                
+                showSuccess('Login realizado com sucesso! Redirecionando...');
+                
+                // Redirecionar para dashboard
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+                
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Erro no login:', error);
+                showError('Erro ao fazer login. Tente novamente mais tarde.');
+                return false;
+            }
+        }
+
+        // ==========================================
+        // HANDLER DO FORMULÁRIO
+        // ==========================================
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const identifier = document.getElementById('login-identifier').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            if (!identifier || !password) {
+                showError('Por favor, preencha todos os campos.');
+                return;
+            }
+            
+            // Desabilitar botão durante login
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Entrando...';
+            
+            // Fazer login
+            await fazerLogin(identifier, password);
+            
+            // Reabilitar botão
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+        });
+
+        // ==========================================
+        // VERIFICAR SE JÁ ESTÁ LOGADO
+        // ==========================================
+        window.addEventListener('load', function() {
+            const sessionData = localStorage.getItem('kainow_cliente_session') || 
+                               sessionStorage.getItem('kainow_cliente_session');
+            
+            if (sessionData) {
+                console.log('✅ Sessão ativa encontrada, redirecionando...');
+                window.location.href = 'dashboard.html';
+            }
+        });
+
+        console.log('✅ Sistema de Login de Cliente carregado');
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Login + Redirecionamento Automático</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-cyan-50 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full">
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-4">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center animate-pulse">
+                        <i class="fas fa-rocket text-white text-3xl"></i>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">🚀 Login Automático + Redirecionamento</h1>
+                <p class="text-gray-600">Fazendo login e indo para página principal...</p>
+            </div>
+
+            <!-- Progress -->
+            <div class="space-y-4" id="progress-container">
+                <!-- Itens de progresso serão adicionados aqui -->
+            </div>
+
+            <!-- Countdown -->
+            <div id="countdown" class="hidden mt-8 text-center">
+                <div class="text-6xl font-bold text-blue-600 mb-4" id="countdown-number">3</div>
+                <p class="text-gray-600">Redirecionando para index.html...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        let step = 0;
+
+        function addProgress(emoji, text, status = 'loading') {
+            step++;
+            const container = document.getElementById('progress-container');
+            const id = `progress-${step}`;
+            
+            const colors = {
+                loading: 'bg-blue-50 border-blue-300 text-blue-700',
+                success: 'bg-green-50 border-green-300 text-green-700',
+                error: 'bg-red-50 border-red-300 text-red-700'
+            };
+            
+            const icons = {
+                loading: 'fa-spinner fa-spin',
+                success: 'fa-check-circle',
+                error: 'fa-times-circle'
+            };
+            
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = `p-4 rounded-lg border-2 ${colors[status]} transition-all duration-300`;
+            div.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i class="fas ${icons[status]} text-2xl"></i>
+                    <div class="flex-1">
+                        <span class="font-semibold">${emoji} ${text}</span>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(div);
+            return id;
+        }
+
+        function updateProgress(id, emoji, text, status) {
+            const div = document.getElementById(id);
+            if (!div) return;
+            
+            const colors = {
+                loading: 'bg-blue-50 border-blue-300 text-blue-700',
+                success: 'bg-green-50 border-green-300 text-green-700',
+                error: 'bg-red-50 border-red-300 text-red-700'
+            };
+            
+            const icons = {
+                loading: 'fa-spinner fa-spin',
+                success: 'fa-check-circle',
+                error: 'fa-times-circle'
+            };
+            
+            div.className = `p-4 rounded-lg border-2 ${colors[status]} transition-all duration-300`;
+            div.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i class="fas ${icons[status]} text-2xl"></i>
+                    <div class="flex-1">
+                        <span class="font-semibold">${emoji} ${text}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function executarLoginERedirecionamento() {
+            try {
+                // Passo 1: Verificar sistema
+                const p1 = addProgress('🔍', 'Verificando sistema...', 'loading');
+                await new Promise(r => setTimeout(r, 500));
+                
+                if (typeof realizarLogin !== 'function') {
+                    updateProgress(p1, '❌', 'Erro: auth.js não carregado!', 'error');
+                    throw new Error('auth.js não está disponível');
+                }
+                
+                updateProgress(p1, '✅', 'Sistema verificado com sucesso!', 'success');
+                await new Promise(r => setTimeout(r, 300));
+
+                // Passo 2: Fazer login
+                const p2 = addProgress('🔑', 'Fazendo login automaticamente...', 'loading');
+                await new Promise(r => setTimeout(r, 500));
+                
+                const resultado = await realizarLogin('111.444.777-35', 'teste123');
+                
+                if (!resultado.success) {
+                    updateProgress(p2, '❌', 'Erro no login!', 'error');
+                    throw new Error('Login falhou');
+                }
+                
+                updateProgress(p2, '✅', 'Login realizado com sucesso!', 'success');
+                await new Promise(r => setTimeout(r, 300));
+
+                // Passo 3: Verificar sessão
+                const p3 = addProgress('💾', 'Verificando sessão no localStorage...', 'loading');
+                await new Promise(r => setTimeout(r, 500));
+                
+                const sessao = obterSessao();
+                
+                if (!sessao) {
+                    updateProgress(p3, '❌', 'Erro: sessão não foi salva!', 'error');
+                    throw new Error('Sessão não encontrada');
+                }
+                
+                updateProgress(p3, '✅', `Sessão salva: ${sessao.nome}`, 'success');
+                await new Promise(r => setTimeout(r, 300));
+
+                // Passo 4: Confirmar login
+                const p4 = addProgress('🎯', 'Confirmando estado de login...', 'loading');
+                await new Promise(r => setTimeout(r, 500));
+                
+                const logado = estaLogado();
+                
+                if (!logado) {
+                    updateProgress(p4, '❌', 'Erro: estaLogado() retorna false!', 'error');
+                    throw new Error('Estado de login incorreto');
+                }
+                
+                updateProgress(p4, '✅', 'Confirmado: usuário está logado!', 'success');
+                await new Promise(r => setTimeout(r, 500));
+
+                // Passo 5: Redirecionar
+                addProgress('🚀', 'Redirecionando para index.html...', 'success');
+                await new Promise(r => setTimeout(r, 500));
+
+                // Mostrar countdown
+                document.getElementById('countdown').classList.remove('hidden');
+                
+                // Countdown 3, 2, 1
+                for (let i = 3; i >= 1; i--) {
+                    document.getElementById('countdown-number').textContent = i;
+                    await new Promise(r => setTimeout(r, 1000));
+                }
+                
+                // Redirecionar!
+                console.log('🚀 Redirecionando para index.html...');
+                window.location.href = 'index.html';
+
+            } catch (error) {
+                console.error('❌ Erro:', error);
+                addProgress('💥', `Erro: ${error.message}`, 'error');
+            }
+        }
+
+        // Iniciar automaticamente
+        window.addEventListener('load', () => {
+            console.log('🚀 Página carregada! Iniciando em 1 segundo...');
+            setTimeout(() => {
+                executarLoginERedirecionamento();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Agendamentos - KaiNow Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .menu-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .menu-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .appointment-row {
+            transition: all 0.3s;
+        }
+        .appointment-row:hover {
+            background: #f8fafc;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-confirmed {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        .search-box input {
+            padding-left: 3rem;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .calendar-day:hover {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+        .calendar-day.has-appointments {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+        .calendar-day.today {
+            background: #3b82f6;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 text-white fixed h-full">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fas fa-user-shield"></i>
+                    KaiNow Admin
+                </h1>
+            </div>
+            
+            <nav class="p-4 space-y-2">
+                <a href="dashboard.html" class="menu-link">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span class="ml-3">Dashboard</span>
+                </a>
+                <a href="programas.html" class="menu-link">
+                    <i class="fas fa-heartbeat w-5"></i>
+                    <span class="ml-3">Programas</span>
+                </a>
+                <a href="especialidades.html" class="menu-link">
+                    <i class="fas fa-stethoscope w-5"></i>
+                    <span class="ml-3">Especialidades</span>
+                </a>
+                <a href="precos.html" class="menu-link">
+                    <i class="fas fa-dollar-sign w-5"></i>
+                    <span class="ml-3">Preços</span>
+                </a>
+                <a href="usuarios.html" class="menu-link">
+                    <i class="fas fa-users w-5"></i>
+                    <span class="ml-3">Usuários</span>
+                </a>
+                <a href="agendamentos.html" class="menu-link active">
+                    <i class="fas fa-calendar-check w-5"></i>
+                    <span class="ml-3">Agendamentos</span>
+                </a>
+                <a href="relatorios.html" class="menu-link">
+                    <i class="fas fa-chart-bar w-5"></i>
+                    <span class="ml-3">Relatórios</span>
+                </a>
+                <a href="configuracoes.html" class="menu-link">
+                    <i class="fas fa-cog w-5"></i>
+                    <span class="ml-3">Configurações</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white border-opacity-20">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium" id="admin-name">Admin</p>
+                        <p class="text-xs opacity-75">Administrador</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                            <i class="fas fa-calendar-check text-blue-600"></i>
+                            Gerenciador de Agendamentos
+                        </h2>
+                        <p class="text-gray-600 mt-2">Gerencie todas as consultas e agendamentos</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="switchView('list')" id="btn-list-view" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold transition">
+                            <i class="fas fa-list mr-2"></i>Lista
+                        </button>
+                        <button onclick="switchView('calendar')" id="btn-calendar-view" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold transition">
+                            <i class="fas fa-calendar mr-2"></i>Calendário
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Total de Agendamentos</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-1" id="total-appointments">2,458</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-check text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Confirmados</p>
+                            <p class="text-3xl font-bold text-green-600 mt-1" id="confirmed-appointments">1,847</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Pendentes</p>
+                            <p class="text-3xl font-bold text-yellow-600 mt-1" id="pending-appointments">342</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Hoje</p>
+                            <p class="text-3xl font-bold text-purple-600 mt-1" id="today-appointments">42</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-day text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List View -->
+            <div id="list-view">
+                <!-- Search and Filters -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+                    <div class="flex gap-4 items-center flex-wrap">
+                        <div class="flex-1 search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-input" placeholder="Buscar por paciente, médico ou especialidade..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="all">Todos os status</option>
+                            <option value="confirmed">Confirmados</option>
+                            <option value="pending">Pendentes</option>
+                            <option value="completed">Concluídos</option>
+                            <option value="cancelled">Cancelados</option>
+                        </select>
+                        <input type="date" id="date-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <select id="sort-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="date">Ordenar por data</option>
+                            <option value="patient">Ordenar por paciente</option>
+                            <option value="specialty">Ordenar por especialidade</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Appointments Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Data/Hora</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Paciente</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Especialidade</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Médico</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Tipo</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointments-table" class="divide-y divide-gray-200">
+                            <!-- Table rows will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="empty-state" class="hidden text-center py-12">
+                    <i class="fas fa-calendar-times text-gray-300 text-6xl mb-4"></i>
+                    <p class="text-gray-500 text-lg">Nenhum agendamento encontrado</p>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendar-view" class="hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800" id="calendar-month">Janeiro 2025</h3>
+                        <div class="flex gap-2">
+                            <button onclick="previousMonth()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button onclick="nextMonth()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="calendar-grid mb-4">
+                        <div class="text-center font-semibold text-gray-600 py-2">Dom</div>
+                        <div class="text-center font-semibold text-gray-600 py-2">Seg</div>
+                        <div class="text-center font-semibold text-gray-600 py-2">Ter</div>
+                        <div class="text-center font-semibold text-gray-600 py-2">Qua</div>
+                        <div class="text-center font-semibold text-gray-600 py-2">Qui</div>
+                        <div class="text-center font-semibold text-gray-600 py-2">Sex</div>
+                        <div class="text-center font-semibold text-gray-600 py-2">Sáb</div>
+                    </div>
+
+                    <div id="calendar-days" class="calendar-grid">
+                        <!-- Calendar days will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for View/Edit Appointment -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-calendar-check text-blue-600 mr-2"></i>
+                    Detalhes do Agendamento
+                </h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div id="appointment-details" class="space-y-4">
+                <!-- Appointment details will be loaded here -->
+            </div>
+
+            <div class="flex gap-3 pt-6 border-t mt-6">
+                <button onclick="confirmAppointment()" id="btn-confirm" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition">
+                    <i class="fas fa-check mr-2"></i>
+                    Confirmar
+                </button>
+                <button onclick="cancelAppointment()" id="btn-cancel" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-semibold transition">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancelar
+                </button>
+                <button onclick="closeModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Voltar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication Check
+        function checkAuth() {
+            const adminSession = localStorage.getItem('kainow_admin_session');
+            if (!adminSession) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            try {
+                const session = JSON.parse(adminSession);
+                document.getElementById('admin-name').textContent = session.username;
+                return session;
+            } catch (e) {
+                console.error('Erro ao carregar sessão:', e);
+                window.location.href = 'login.html';
+                return null;
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                localStorage.removeItem('kainow_admin_session');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Generate Mock Appointments
+        function generateMockAppointments() {
+            const existingAppointments = localStorage.getItem('kainow_admin_appointments');
+            if (existingAppointments) {
+                return JSON.parse(existingAppointments);
+            }
+
+            const patients = ['João Silva', 'Maria Santos', 'Pedro Costa', 'Ana Oliveira', 'Carlos Ferreira', 'Juliana Lima', 'Fernando Almeida', 'Beatriz Souza'];
+            const doctors = ['Dr. Roberto Alves', 'Dra. Patricia Mendes', 'Dr. Lucas Martins', 'Dra. Camila Rocha', 'Dr. Eduardo Silva'];
+            const specialties = ['Cardiologia', 'Dermatologia', 'Ginecologia', 'Pediatria', 'Ortopedia', 'Oftalmologia', 'Neurologia'];
+            const types = ['Presencial', 'Telemedicina'];
+            const statuses = ['confirmed', 'confirmed', 'confirmed', 'pending', 'completed', 'cancelled'];
+            
+            const appointments = [];
+            for (let i = 1; i <= 100; i++) {
+                const date = new Date(2025, 0, Math.floor(Math.random() * 31) + 1);
+                const hour = 8 + Math.floor(Math.random() * 10);
+                const minute = ['00', '30'][Math.floor(Math.random() * 2)];
+                date.setHours(hour, minute);
+                
+                appointments.push({
+                    id: `appointment-${i}`,
+                    patient: patients[Math.floor(Math.random() * patients.length)],
+                    doctor: doctors[Math.floor(Math.random() * doctors.length)],
+                    specialty: specialties[Math.floor(Math.random() * specialties.length)],
+                    type: types[Math.floor(Math.random() * types.length)],
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    date: date.toISOString(),
+                    notes: 'Consulta de rotina'
+                });
+            }
+            
+            localStorage.setItem('kainow_admin_appointments', JSON.stringify(appointments));
+            return appointments;
+        }
+
+        let allAppointments = [];
+        let currentAppointmentId = null;
+        let currentMonth = new Date();
+
+        // Load Appointments
+        function loadAppointments() {
+            allAppointments = generateMockAppointments();
+            applyFilters();
+        }
+
+        // Apply Filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const dateFilter = document.getElementById('date-filter').value;
+            const sortBy = document.getElementById('sort-select').value;
+            
+            let filtered = allAppointments.filter(appointment => {
+                const matchesSearch = appointment.patient.toLowerCase().includes(searchTerm) ||
+                                    appointment.doctor.toLowerCase().includes(searchTerm) ||
+                                    appointment.specialty.toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
+                
+                let matchesDate = true;
+                if (dateFilter) {
+                    const filterDate = new Date(dateFilter);
+                    const appointmentDate = new Date(appointment.date);
+                    matchesDate = filterDate.toDateString() === appointmentDate.toDateString();
+                }
+                
+                return matchesSearch && matchesStatus && matchesDate;
+            });
+            
+            // Sort
+            if (sortBy === 'date') {
+                filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+            } else if (sortBy === 'patient') {
+                filtered.sort((a, b) => a.patient.localeCompare(b.patient));
+            } else if (sortBy === 'specialty') {
+                filtered.sort((a, b) => a.specialty.localeCompare(b.specialty));
+            }
+            
+            renderTable(filtered);
+            updateStats(allAppointments);
+        }
+
+        // Render Table
+        function renderTable(appointments) {
+            const tbody = document.getElementById('appointments-table');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (appointments.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            tbody.innerHTML = appointments.slice(0, 50).map(appointment => {
+                const statusClass = appointment.status === 'confirmed' ? 'badge-confirmed' : 
+                                  appointment.status === 'pending' ? 'badge-pending' : 
+                                  appointment.status === 'completed' ? 'badge-completed' : 'badge-cancelled';
+                const statusText = appointment.status === 'confirmed' ? 'Confirmado' : 
+                                 appointment.status === 'pending' ? 'Pendente' : 
+                                 appointment.status === 'completed' ? 'Concluído' : 'Cancelado';
+                
+                const date = new Date(appointment.date);
+                
+                return `
+                    <tr class="appointment-row">
+                        <td class="px-6 py-4">
+                            <div>
+                                <p class="font-semibold text-gray-800">${date.toLocaleDateString('pt-BR')}</p>
+                                <p class="text-sm text-gray-600">${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="font-semibold text-gray-800">${appointment.patient}</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="text-gray-600">${appointment.specialty}</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="text-gray-600">${appointment.doctor}</p>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="text-sm ${appointment.type === 'Telemedicina' ? 'text-blue-600' : 'text-gray-600'}">
+                                <i class="fas fa-${appointment.type === 'Telemedicina' ? 'video' : 'hospital'} mr-1"></i>
+                                ${appointment.type}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="badge ${statusClass}">${statusText}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="viewAppointment('${appointment.id}')" 
+                                class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Update Stats
+        function updateStats(appointments) {
+            const confirmed = appointments.filter(a => a.status === 'confirmed').length;
+            const pending = appointments.filter(a => a.status === 'pending').length;
+            const today = appointments.filter(a => {
+                const date = new Date(a.date);
+                const now = new Date();
+                return date.toDateString() === now.toDateString();
+            }).length;
+            
+            document.getElementById('total-appointments').textContent = appointments.length;
+            document.getElementById('confirmed-appointments').textContent = confirmed;
+            document.getElementById('pending-appointments').textContent = pending;
+            document.getElementById('today-appointments').textContent = today;
+        }
+
+        // View Appointment
+        function viewAppointment(appointmentId) {
+            currentAppointmentId = appointmentId;
+            const appointment = allAppointments.find(a => a.id === appointmentId);
+            
+            if (!appointment) return;
+            
+            const statusClass = appointment.status === 'confirmed' ? 'badge-confirmed' : 
+                              appointment.status === 'pending' ? 'badge-pending' : 
+                              appointment.status === 'completed' ? 'badge-completed' : 'badge-cancelled';
+            const statusText = appointment.status === 'confirmed' ? 'Confirmado' : 
+                             appointment.status === 'pending' ? 'Pendente' : 
+                             appointment.status === 'completed' ? 'Concluído' : 'Cancelado';
+            
+            const date = new Date(appointment.date);
+            
+            document.getElementById('appointment-details').innerHTML = `
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Data</label>
+                            <p class="text-gray-800 text-lg">${date.toLocaleDateString('pt-BR')}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Horário</label>
+                            <p class="text-gray-800 text-lg">${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Paciente</label>
+                        <p class="text-gray-800 text-lg">${appointment.patient}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Especialidade</label>
+                            <p class="text-gray-800">${appointment.specialty}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Médico</label>
+                            <p class="text-gray-800">${appointment.doctor}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo de Consulta</label>
+                            <p class="text-gray-800">${appointment.type}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                            <span class="badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Observações</label>
+                        <p class="text-gray-600">${appointment.notes}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Update buttons visibility
+            const btnConfirm = document.getElementById('btn-confirm');
+            const btnCancel = document.getElementById('btn-cancel');
+            
+            if (appointment.status === 'pending') {
+                btnConfirm.classList.remove('hidden');
+                btnCancel.textContent = 'Cancelar Agendamento';
+            } else if (appointment.status === 'confirmed') {
+                btnConfirm.classList.add('hidden');
+                btnCancel.textContent = 'Cancelar Agendamento';
+            } else {
+                btnConfirm.classList.add('hidden');
+                btnCancel.classList.add('hidden');
+            }
+            
+            document.getElementById('appointmentModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('appointmentModal').classList.remove('show');
+            currentAppointmentId = null;
+        }
+
+        // Confirm Appointment
+        function confirmAppointment() {
+            if (!currentAppointmentId) return;
+            
+            const appointmentIndex = allAppointments.findIndex(a => a.id === currentAppointmentId);
+            if (appointmentIndex === -1) return;
+            
+            allAppointments[appointmentIndex].status = 'confirmed';
+            localStorage.setItem('kainow_admin_appointments', JSON.stringify(allAppointments));
+            showNotification('Agendamento confirmado com sucesso!', 'success');
+            closeModal();
+            applyFilters();
+        }
+
+        // Cancel Appointment
+        function cancelAppointment() {
+            if (!currentAppointmentId) return;
+            
+            if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
+            
+            const appointmentIndex = allAppointments.findIndex(a => a.id === currentAppointmentId);
+            if (appointmentIndex === -1) return;
+            
+            allAppointments[appointmentIndex].status = 'cancelled';
+            localStorage.setItem('kainow_admin_appointments', JSON.stringify(allAppointments));
+            showNotification('Agendamento cancelado!', 'success');
+            closeModal();
+            applyFilters();
+        }
+
+        // Switch View
+        function switchView(view) {
+            if (view === 'list') {
+                document.getElementById('list-view').classList.remove('hidden');
+                document.getElementById('calendar-view').classList.add('hidden');
+                document.getElementById('btn-list-view').classList.remove('bg-gray-200', 'text-gray-700');
+                document.getElementById('btn-list-view').classList.add('bg-blue-600', 'text-white');
+                document.getElementById('btn-calendar-view').classList.remove('bg-blue-600', 'text-white');
+                document.getElementById('btn-calendar-view').classList.add('bg-gray-200', 'text-gray-700');
+            } else {
+                document.getElementById('list-view').classList.add('hidden');
+                document.getElementById('calendar-view').classList.remove('hidden');
+                document.getElementById('btn-calendar-view').classList.remove('bg-gray-200', 'text-gray-700');
+                document.getElementById('btn-calendar-view').classList.add('bg-blue-600', 'text-white');
+                document.getElementById('btn-list-view').classList.remove('bg-blue-600', 'text-white');
+                document.getElementById('btn-list-view').classList.add('bg-gray-200', 'text-gray-700');
+                renderCalendar();
+            }
+        }
+
+        // Render Calendar
+        function renderCalendar() {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            document.getElementById('calendar-month').textContent = `${monthNames[month]} ${year}`;
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            const calendarDays = document.getElementById('calendar-days');
+            calendarDays.innerHTML = '';
+            
+            // Empty cells before first day
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                calendarDays.appendChild(emptyCell);
+            }
+            
+            // Days
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dayAppointments = allAppointments.filter(a => {
+                    const aDate = new Date(a.date);
+                    return aDate.toDateString() === date.toDateString();
+                });
+                
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+                
+                if (date.toDateString() === today.toDateString()) {
+                    dayCell.classList.add('today');
+                }
+                
+                if (dayAppointments.length > 0) {
+                    dayCell.classList.add('has-appointments');
+                }
+                
+                dayCell.innerHTML = `
+                    <span class="text-lg">${day}</span>
+                    ${dayAppointments.length > 0 ? `<span class="text-xs mt-1">${dayAppointments.length} agendamentos</span>` : ''}
+                `;
+                
+                calendarDays.appendChild(dayCell);
+            }
+        }
+
+        function previousMonth() {
+            currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+            renderCalendar();
+        }
+
+        // Show Notification
+        function showNotification(message, type = 'success') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${colors[type]}`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fas ${icons[type]}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Event Listeners
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+        document.getElementById('status-filter').addEventListener('change', applyFilters);
+        document.getElementById('date-filter').addEventListener('change', applyFilters);
+        document.getElementById('sort-select').addEventListener('change', applyFilters);
+
+        // Initialize
+        checkAuth();
+        loadAppointments();
+
+        // Close modal on outside click
+        document.getElementById('appointmentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

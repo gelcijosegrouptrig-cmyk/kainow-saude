@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Preços - KaiNow Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .menu-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .menu-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .price-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        .price-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+        .price-input {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .history-item {
+            border-left: 3px solid #3b82f6;
+            padding-left: 1rem;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 text-white fixed h-full">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fas fa-user-shield"></i>
+                    KaiNow Admin
+                </h1>
+            </div>
+            
+            <nav class="p-4 space-y-2">
+                <a href="dashboard.html" class="menu-link">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span class="ml-3">Dashboard</span>
+                </a>
+                <a href="programas.html" class="menu-link">
+                    <i class="fas fa-heartbeat w-5"></i>
+                    <span class="ml-3">Programas</span>
+                </a>
+                <a href="especialidades.html" class="menu-link">
+                    <i class="fas fa-stethoscope w-5"></i>
+                    <span class="ml-3">Especialidades</span>
+                </a>
+                <a href="precos.html" class="menu-link active">
+                    <i class="fas fa-dollar-sign w-5"></i>
+                    <span class="ml-3">Preços</span>
+                </a>
+                <a href="usuarios.html" class="menu-link">
+                    <i class="fas fa-users w-5"></i>
+                    <span class="ml-3">Usuários</span>
+                </a>
+                <a href="agendamentos.html" class="menu-link">
+                    <i class="fas fa-calendar-check w-5"></i>
+                    <span class="ml-3">Agendamentos</span>
+                </a>
+                <a href="relatorios.html" class="menu-link">
+                    <i class="fas fa-chart-bar w-5"></i>
+                    <span class="ml-3">Relatórios</span>
+                </a>
+                <a href="configuracoes.html" class="menu-link">
+                    <i class="fas fa-cog w-5"></i>
+                    <span class="ml-3">Configurações</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white border-opacity-20">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium" id="admin-name">Admin</p>
+                        <p class="text-xs opacity-75">Administrador</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                            <i class="fas fa-dollar-sign text-blue-600"></i>
+                            Gerenciador de Preços
+                        </h2>
+                        <p class="text-gray-600 mt-2">Gerencie os preços de programas e serviços</p>
+                    </div>
+                    <button onclick="saveAllPrices()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 shadow-lg">
+                        <i class="fas fa-save"></i>
+                        Salvar Todas as Alterações
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Menor Preço</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">R$ <span id="min-price">19,90</span></p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-arrow-down text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Maior Preço</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">R$ <span id="max-price">59,90</span></p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-arrow-up text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Preço Médio</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">R$ <span id="avg-price">40,48</span></p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Receita Mensal Estimada</p>
+                            <p class="text-2xl font-bold text-purple-600 mt-1">R$ <span id="estimated-revenue">34,285</span></p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-money-bill-wave text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="mb-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-2 inline-flex">
+                    <button onclick="switchTab('programs')" id="tab-programs" class="tab-button px-6 py-2 rounded-lg font-semibold transition bg-blue-600 text-white">
+                        <i class="fas fa-heartbeat mr-2"></i>Programas
+                    </button>
+                    <button onclick="switchTab('services')" id="tab-services" class="tab-button px-6 py-2 rounded-lg font-semibold transition text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-hand-holding-medical mr-2"></i>Serviços Adicionais
+                    </button>
+                    <button onclick="switchTab('discounts')" id="tab-discounts" class="tab-button px-6 py-2 rounded-lg font-semibold transition text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-tags mr-2"></i>Descontos
+                    </button>
+                </div>
+            </div>
+
+            <!-- Programs Tab -->
+            <div id="content-programs" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="programs-grid">
+                    <!-- Programs will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Services Tab -->
+            <div id="content-services" class="tab-content hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <i class="fas fa-hand-holding-medical text-blue-600"></i>
+                        Serviços Adicionais
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold text-gray-800">Consulta Presencial</p>
+                                <p class="text-sm text-gray-600">Consulta em consultório físico</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="number" step="0.01" value="150.00" 
+                                    class="w-32 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold"
+                                    id="service-presencial">
+                                <span class="text-gray-600">/ consulta</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold text-gray-800">Telemedicina Avulsa</p>
+                                <p class="text-sm text-gray-600">Consulta online sem assinatura</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="number" step="0.01" value="80.00" 
+                                    class="w-32 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold"
+                                    id="service-telemedicina">
+                                <span class="text-gray-600">/ consulta</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold text-gray-800">Exames Laboratoriais</p>
+                                <p class="text-sm text-gray-600">Desconto médio em exames</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="number" step="1" value="30" min="0" max="100"
+                                    class="w-32 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold"
+                                    id="service-exames">
+                                <span class="text-gray-600">% de desconto</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold text-gray-800">Medicamentos</p>
+                                <p class="text-sm text-gray-600">Desconto em farmácias parceiras</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="number" step="1" value="70" min="0" max="100"
+                                    class="w-32 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold"
+                                    id="service-medicamentos">
+                                <span class="text-gray-600">% de desconto</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold text-gray-800">Visita Domiciliar</p>
+                                <p class="text-sm text-gray-600">Atendimento em casa</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="number" step="0.01" value="200.00" 
+                                    class="w-32 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold"
+                                    id="service-domiciliar">
+                                <span class="text-gray-600">/ visita</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discounts Tab -->
+            <div id="content-discounts" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                            <i class="fas fa-percent text-green-600"></i>
+                            Descontos por Período
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Assinatura Anual</p>
+                                        <p class="text-sm text-gray-600">Pagamento à vista de 12 meses</p>
+                                    </div>
+                                    <input type="number" step="1" value="20" min="0" max="100"
+                                        class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold text-green-600"
+                                        id="discount-annual">
+                                </div>
+                                <p class="text-xs text-gray-500">Desconto aplicado sobre o valor total</p>
+                            </div>
+
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Assinatura Semestral</p>
+                                        <p class="text-sm text-gray-600">Pagamento à vista de 6 meses</p>
+                                    </div>
+                                    <input type="number" step="1" value="10" min="0" max="100"
+                                        class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold text-green-600"
+                                        id="discount-semestral">
+                                </div>
+                                <p class="text-xs text-gray-500">Desconto aplicado sobre o valor total</p>
+                            </div>
+
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Assinatura Trimestral</p>
+                                        <p class="text-sm text-gray-600">Pagamento à vista de 3 meses</p>
+                                    </div>
+                                    <input type="number" step="1" value="5" min="0" max="100"
+                                        class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold text-green-600"
+                                        id="discount-trimestral">
+                                </div>
+                                <p class="text-xs text-gray-500">Desconto aplicado sobre o valor total</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                            <i class="fas fa-users text-purple-600"></i>
+                            Descontos por Grupo
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Plano Família</p>
+                                        <p class="text-sm text-gray-600">3 ou mais membros</p>
+                                    </div>
+                                    <input type="number" step="1" value="15" min="0" max="100"
+                                        class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold text-purple-600"
+                                        id="discount-family">
+                                </div>
+                                <p class="text-xs text-gray-500">Desconto por membro adicional</p>
+                            </div>
+
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Plano Empresarial</p>
+                                        <p class="text-sm text-gray-600">10 ou mais funcionários</p>
+                                    </div>
+                                    <input type="number" step="1" value="25" min="0" max="100"
+                                        class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold text-purple-600"
+                                        id="discount-corporate">
+                                </div>
+                                <p class="text-xs text-gray-500">Desconto para empresas</p>
+                            </div>
+
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Estudante</p>
+                                        <p class="text-sm text-gray-600">Com comprovante de matrícula</p>
+                                    </div>
+                                    <input type="number" step="1" value="15" min="0" max="100"
+                                        class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold text-purple-600"
+                                        id="discount-student">
+                                </div>
+                                <p class="text-xs text-gray-500">Desconto para estudantes</p>
+                            </div>
+
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Primeiro Mês</p>
+                                        <p class="text-sm text-gray-600">Desconto de boas-vindas</p>
+                                    </div>
+                                    <input type="number" step="1" value="50" min="0" max="100"
+                                        class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-right font-bold text-purple-600"
+                                        id="discount-first-month">
+                                </div>
+                                <p class="text-xs text-gray-500">Desconto para novos assinantes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price History -->
+            <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    <i class="fas fa-history text-blue-600"></i>
+                    Histórico de Alterações de Preços
+                </h3>
+                
+                <div id="price-history" class="space-y-4">
+                    <!-- History items will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Authentication Check
+        function checkAuth() {
+            const adminSession = localStorage.getItem('kainow_admin_session');
+            if (!adminSession) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            try {
+                const session = JSON.parse(adminSession);
+                document.getElementById('admin-name').textContent = session.username;
+                return session;
+            } catch (e) {
+                console.error('Erro ao carregar sessão:', e);
+                window.location.href = 'login.html';
+                return null;
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                localStorage.removeItem('kainow_admin_session');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('text-gray-600', 'hover:bg-gray-100');
+            });
+            document.getElementById('tab-' + tabName).classList.remove('text-gray-600', 'hover:bg-gray-100');
+            document.getElementById('tab-' + tabName).classList.add('bg-blue-600', 'text-white');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+        }
+
+        // Load Programs
+        function loadPrograms() {
+            const programs = JSON.parse(localStorage.getItem('kainow_programs') || '[]');
+            const grid = document.getElementById('programs-grid');
+            
+            if (programs.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-8">Nenhum programa cadastrado</div>';
+                return programs;
+            }
+            
+            const colorClasses = {
+                pink: 'bg-pink-50 border-pink-200 text-pink-600',
+                blue: 'bg-blue-50 border-blue-200 text-blue-600',
+                green: 'bg-green-50 border-green-200 text-green-600',
+                purple: 'bg-purple-50 border-purple-200 text-purple-600',
+                orange: 'bg-orange-50 border-orange-200 text-orange-600',
+                red: 'bg-red-50 border-red-200 text-red-600',
+                yellow: 'bg-yellow-50 border-yellow-200 text-yellow-600'
+            };
+            
+            grid.innerHTML = programs.map(program => `
+                <div class="price-card bg-white">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg ${colorClasses[program.color]} flex items-center justify-center border-2">
+                            <i class="fas ${program.icon} text-xl"></i>
+                        </div>
+                        <span class="text-xs text-gray-500">${program.subscribers || 0} assinantes</span>
+                    </div>
+                    
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">${program.name}</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-xs text-gray-600 mb-2">Preço Mensal (R$)</label>
+                        <input type="number" step="0.01" min="0" value="${program.price.toFixed(2)}"
+                            data-program-id="${program.id}"
+                            class="price-input w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            onchange="markAsChanged(this)">
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 space-y-1">
+                        <p>Receita mensal: <span class="font-bold text-gray-800">R$ ${(program.price * (program.subscribers || 0)).toFixed(2)}</span></p>
+                        <p>Última atualização: <span class="font-bold text-gray-800">${new Date().toLocaleDateString('pt-BR')}</span></p>
+                    </div>
+                </div>
+            `).join('');
+            
+            return programs;
+        }
+
+        // Mark Input as Changed
+        function markAsChanged(input) {
+            input.classList.add('border-orange-400', 'bg-orange-50');
+        }
+
+        // Save All Prices
+        function saveAllPrices() {
+            const programs = JSON.parse(localStorage.getItem('kainow_programs') || '[]');
+            const priceInputs = document.querySelectorAll('.price-input');
+            const priceHistory = JSON.parse(localStorage.getItem('kainow_price_history') || '[]');
+            
+            let changesCount = 0;
+            
+            priceInputs.forEach(input => {
+                const programId = input.dataset.programId;
+                const newPrice = parseFloat(input.value);
+                const program = programs.find(p => p.id === programId);
+                
+                if (program && program.price !== newPrice) {
+                    priceHistory.push({
+                        programId: programId,
+                        programName: program.name,
+                        oldPrice: program.price,
+                        newPrice: newPrice,
+                        date: new Date().toISOString(),
+                        admin: document.getElementById('admin-name').textContent
+                    });
+                    
+                    program.price = newPrice;
+                    changesCount++;
+                    
+                    input.classList.remove('border-orange-400', 'bg-orange-50');
+                }
+            });
+            
+            if (changesCount > 0) {
+                localStorage.setItem('kainow_programs', JSON.stringify(programs));
+                localStorage.setItem('kainow_price_history', JSON.stringify(priceHistory));
+                showNotification(`${changesCount} preço(s) atualizado(s) com sucesso!`, 'success');
+                loadPrograms();
+                loadPriceHistory();
+                updateStats();
+            } else {
+                showNotification('Nenhuma alteração de preço foi feita', 'info');
+            }
+        }
+
+        // Load Price History
+        function loadPriceHistory() {
+            const history = JSON.parse(localStorage.getItem('kainow_price_history') || '[]');
+            const container = document.getElementById('price-history');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhum histórico de alteração disponível</p>';
+                return;
+            }
+            
+            const recentHistory = history.slice(-10).reverse();
+            
+            container.innerHTML = recentHistory.map(item => {
+                const date = new Date(item.date);
+                const priceChange = item.newPrice - item.oldPrice;
+                const percentChange = ((priceChange / item.oldPrice) * 100).toFixed(1);
+                
+                return `
+                    <div class="history-item">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="font-semibold text-gray-800">${item.programName}</p>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    De <span class="font-bold">R$ ${item.oldPrice.toFixed(2)}</span> 
+                                    para <span class="font-bold">R$ ${item.newPrice.toFixed(2)}</span>
+                                    <span class="ml-2 ${priceChange > 0 ? 'text-red-600' : 'text-green-600'}">
+                                        (${priceChange > 0 ? '+' : ''}${percentChange}%)
+                                    </span>
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-user mr-1"></i>${item.admin}
+                                    <i class="fas fa-calendar ml-3 mr-1"></i>${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR')}
+                                </p>
+                            </div>
+                            <i class="fas fa-${priceChange > 0 ? 'arrow-up text-red-500' : 'arrow-down text-green-500'}"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update Stats
+        function updateStats() {
+            const programs = JSON.parse(localStorage.getItem('kainow_programs') || '[]');
+            
+            if (programs.length === 0) return;
+            
+            const prices = programs.map(p => p.price);
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+            const revenue = programs.reduce((sum, p) => sum + (p.price * (p.subscribers || 0)), 0);
+            
+            document.getElementById('min-price').textContent = minPrice.toFixed(2);
+            document.getElementById('max-price').textContent = maxPrice.toFixed(2);
+            document.getElementById('avg-price').textContent = avgPrice.toFixed(2);
+            document.getElementById('estimated-revenue').textContent = revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        }
+
+        // Show Notification
+        function showNotification(message, type = 'success') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${colors[type]}`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fas ${icons[type]}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initialize
+        checkAuth();
+        loadPrograms();
+        loadPriceHistory();
+        updateStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "kainow-saude",
+  "version": "1.0.1",
+  "description": "Sistema completo de telemedicina - KaiNow Saúde",
+  "scripts": {
+    "build:css": "tailwindcss -i ./css/input.css -o ./css/output.css --minify",
+    "watch:css": "tailwindcss -i ./css/input.css -o ./css/output.css --watch",
+    "dev": "npm run watch:css",
+    "build": "npm run build:css"
+  },
+  "keywords": [
+    "telemedicina",
+    "saúde",
+    "healthcare"
+  ],
+  "author": "KaiNow Saúde",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

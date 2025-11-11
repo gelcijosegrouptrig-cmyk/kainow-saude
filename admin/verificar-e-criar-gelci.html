@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar e Criar gelcisilva252</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-500 to-pink-600 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">
+            🔍 Verificar e Criar: gelcisilva252
+        </h1>
+        
+        <div id="output" class="space-y-4"></div>
+        
+        <div id="action-buttons" class="mt-8 hidden">
+            <button 
+                id="btn-create"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-lg transition text-lg"
+            >
+                ✅ CRIAR AFILIADO AGORA
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const output = document.getElementById('output');
+        const actionButtons = document.getElementById('action-buttons');
+
+        function log(message, type = 'info') {
+            const colors = {
+                'info': 'bg-blue-50 border-blue-500 text-blue-800',
+                'success': 'bg-green-50 border-green-500 text-green-800',
+                'error': 'bg-red-50 border-red-500 text-red-800',
+                'warning': 'bg-yellow-50 border-yellow-500 text-yellow-800'
+            };
+            const colorClass = colors[type] || colors['info'];
+            
+            const div = document.createElement('div');
+            div.className = `p-4 ${colorClass} border-l-4 rounded`;
+            div.innerHTML = `<div class="whitespace-pre-wrap">${message}</div>`;
+            output.appendChild(div);
+        }
+
+        // Configurar Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function verificarECriar() {
+            try {
+                log('🚀 Iniciando verificação...', 'info');
+                
+                // 1. Buscar afiliado
+                log('\n🔍 Buscando "gelcisilva252" no Firestore...', 'info');
+                
+                const query = db.collection('affiliates')
+                    .where('username', '==', 'gelcisilva252')
+                    .limit(1);
+                
+                const snapshot = await query.get();
+                
+                if (!snapshot.empty) {
+                    // ENCONTROU!
+                    const doc = snapshot.docs[0];
+                    const data = doc.data();
+                    
+                    log('\n✅ AFILIADO ENCONTRADO!', 'success');
+                    log('\n📄 Dados completos:', 'success');
+                    log(`
+ID Firestore: ${doc.id}
+Username: ${data.username}
+Senha: ${data.password}
+Nome: ${data.name}
+Email: ${data.email}
+CPF: ${data.cpf}
+Telefone: ${data.phone}
+PIX: ${data.pixKey}
+Comissão: ${data.commission}%
+Ativo: ${data.active ? 'Sim' : 'Não'}
+Vendas: ${data.sales || 0}
+Comissão Total: R$ ${(data.totalCommission || 0).toFixed(2)}
+                    `, 'success');
+                    
+                    log('\n🎉 CONCLUSÃO: O afiliado existe!', 'success');
+                    log('\nVocê pode fazer login com:', 'success');
+                    log(`Username: ${data.username}`, 'success');
+                    log(`Senha: ${data.password}`, 'success');
+                    
+                    log('\n🔗 Testar login agora:', 'info');
+                    log(`<a href="../afiliado/login.html" class="text-blue-600 underline font-bold">Clique aqui para fazer login</a>`, 'info');
+                    
+                } else {
+                    // NÃO ENCONTROU!
+                    log('\n❌ AFILIADO NÃO ENCONTRADO!', 'error');
+                    log('\nO afiliado "gelcisilva252" não existe no Firestore.', 'warning');
+                    
+                    // Verificar se existem outros afiliados
+                    log('\n🔍 Verificando outros afiliados no sistema...', 'info');
+                    const allSnapshot = await db.collection('affiliates').get();
+                    
+                    if (allSnapshot.size > 0) {
+                        log(`\n📊 Encontrados ${allSnapshot.size} afiliado(s) no total:`, 'info');
+                        allSnapshot.forEach((doc, index) => {
+                            const data = doc.data();
+                            log(`\n${index + 1}. Username: "${data.username}" | Nome: ${data.name}`, 'info');
+                        });
+                        
+                        log('\n⚠️ O username "gelcisilva252" não está na lista acima.', 'warning');
+                    } else {
+                        log('\n⚠️ Não há NENHUM afiliado no Firestore!', 'warning');
+                    }
+                    
+                    // Mostrar botão de criar
+                    log('\n💡 SOLUÇÃO: Criar o afiliado agora!', 'warning');
+                    actionButtons.classList.remove('hidden');
+                }
+                
+            } catch (error) {
+                log('\n❌ ERRO:', 'error');
+                log(error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        // Criar afiliado
+        async function criarAfiliado() {
+            const btnCreate = document.getElementById('btn-create');
+            btnCreate.disabled = true;
+            btnCreate.innerHTML = '⏳ Criando...';
+            
+            try {
+                log('\n🚀 Criando afiliado "gelcisilva252"...', 'info');
+                
+                const dados = {
+                    username: 'gelcisilva252',
+                    password: 'kainowipxujp',
+                    name: 'Gelci Silva',
+                    email: 'gelci.silva252@gmail.com',
+                    cpf: '000.000.000-00',
+                    phone: '11982142014',
+                    pixKey: '11013430794',
+                    commission: 20,
+                    active: true,
+                    sales: 0,
+                    totalCommission: 0,
+                    created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: null
+                };
+                
+                log('\n📝 Dados do afiliado:', 'info');
+                log(JSON.stringify(dados, null, 2), 'info');
+                
+                // Criar no Firestore
+                log('\n💾 Salvando no Firestore...', 'info');
+                const docRef = await db.collection('affiliates').add(dados);
+                
+                log('\n✅ AFILIADO CRIADO COM SUCESSO!', 'success');
+                log(`\n📄 ID no Firestore: ${docRef.id}`, 'success');
+                
+                // Verificar se foi criado
+                log('\n🔍 Verificando criação...', 'info');
+                const verifySnapshot = await db.collection('affiliates')
+                    .where('username', '==', 'gelcisilva252')
+                    .get();
+                
+                if (!verifySnapshot.empty) {
+                    log('\n✅ CONFIRMADO! Afiliado existe no Firestore!', 'success');
+                    
+                    log('\n🎉 CREDENCIAIS:', 'success');
+                    log(`
+Username: gelcisilva252
+Senha: kainowipxujp
+                    `, 'success');
+                    
+                    log('\n🔗 Fazer login agora:', 'success');
+                    log(`<a href="../afiliado/login.html" class="text-blue-600 underline font-bold text-xl">➜ CLIQUE AQUI PARA FAZER LOGIN</a>`, 'success');
+                    
+                    btnCreate.innerHTML = '✅ CRIADO COM SUCESSO!';
+                    btnCreate.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    btnCreate.classList.add('bg-gray-400', 'cursor-not-allowed');
+                } else {
+                    log('\n⚠️ AVISO: Criado mas não encontrado na verificação.', 'warning');
+                    log('Aguarde 30 segundos e tente fazer login.', 'warning');
+                    btnCreate.innerHTML = '✅ Criado (aguarde 30s)';
+                }
+                
+            } catch (error) {
+                log('\n❌ ERRO ao criar:', 'error');
+                log(error.message, 'error');
+                console.error(error);
+                
+                btnCreate.disabled = false;
+                btnCreate.innerHTML = '🔄 TENTAR NOVAMENTE';
+            }
+        }
+
+        // Event listener
+        document.getElementById('btn-create').addEventListener('click', criarAfiliado);
+
+        // Iniciar verificação
+        verificarECriar();
+    </script>
+</body>
+</html>

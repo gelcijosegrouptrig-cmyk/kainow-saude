@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Teste Login → Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-3xl w-full">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-6">
+                    <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-bounce">
+                        <i class="fas fa-rocket text-white text-4xl"></i>
+                    </div>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">🚀 Teste Completo</h1>
+                <h2 class="text-xl text-gray-600 mb-2">Login → Dashboard</h2>
+                <p class="text-gray-500">Simulando o fluxo do Life Plus</p>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="space-y-4 mb-8" id="steps-container">
+                <!-- Steps serão adicionados aqui -->
+            </div>
+
+            <!-- Countdown -->
+            <div id="countdown-section" class="hidden">
+                <div class="text-center p-8 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border-2 border-green-200">
+                    <i class="fas fa-check-circle text-green-600 text-6xl mb-4"></i>
+                    <h3 class="text-2xl font-bold text-green-800 mb-2">✅ Login Realizado com Sucesso!</h3>
+                    <p class="text-green-600 mb-6">Redirecionando para sua área...</p>
+                    <div class="text-8xl font-bold text-green-600 mb-4" id="countdown-number">3</div>
+                    <p class="text-gray-600 text-lg">🏠 Abrindo Dashboard...</p>
+                </div>
+            </div>
+
+            <!-- Debug Info -->
+            <div class="mt-8 p-4 bg-gray-100 rounded-xl">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold text-gray-700">
+                        <i class="fas fa-code mr-2"></i>Debug Info
+                    </h4>
+                    <button onclick="toggleDebug()" class="text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-chevron-down" id="debug-icon"></i>
+                    </button>
+                </div>
+                <pre id="debug-content" class="text-xs text-gray-600 overflow-auto max-h-40 hidden"></pre>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <div class="fixed bottom-8 right-8 z-50">
+            <button onclick="refazerTeste()" class="bg-white text-gray-700 rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all hover:scale-110">
+                <i class="fas fa-redo text-2xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        let stepNumber = 0;
+        const debugLog = [];
+
+        function log(message, data = null) {
+            const timestamp = new Date().toLocaleTimeString('pt-BR');
+            const entry = { timestamp, message, data };
+            debugLog.push(entry);
+            updateDebug();
+            console.log(`[${timestamp}] ${message}`, data || '');
+        }
+
+        function updateDebug() {
+            document.getElementById('debug-content').textContent = 
+                JSON.stringify(debugLog, null, 2);
+        }
+
+        function toggleDebug() {
+            const content = document.getElementById('debug-content');
+            const icon = document.getElementById('debug-icon');
+            content.classList.toggle('hidden');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        function addStep(icon, title, description, status = 'loading') {
+            stepNumber++;
+            const container = document.getElementById('steps-container');
+            
+            const colors = {
+                loading: 'border-blue-300 bg-blue-50',
+                success: 'border-green-300 bg-green-50',
+                error: 'border-red-300 bg-red-50'
+            };
+            
+            const iconClass = {
+                loading: 'fa-spinner fa-spin text-blue-600',
+                success: 'fa-check-circle text-green-600',
+                error: 'fa-times-circle text-red-600'
+            };
+            
+            const textColor = {
+                loading: 'text-blue-800',
+                success: 'text-green-800',
+                error: 'text-red-800'
+            };
+            
+            const div = document.createElement('div');
+            div.id = `step-${stepNumber}`;
+            div.className = `border-2 rounded-xl p-6 ${colors[status]} transition-all duration-500 transform hover:scale-102`;
+            div.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        <i class="fas ${iconClass[status]} text-4xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-2xl">${icon}</span>
+                            <h3 class="text-xl font-bold ${textColor[status]}">${title}</h3>
+                        </div>
+                        <p class="text-gray-600">${description}</p>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(div);
+            div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            return stepNumber;
+        }
+
+        function updateStep(id, icon, title, description, status) {
+            const div = document.getElementById(`step-${id}`);
+            if (!div) return;
+            
+            const colors = {
+                loading: 'border-blue-300 bg-blue-50',
+                success: 'border-green-300 bg-green-50',
+                error: 'border-red-300 bg-red-50'
+            };
+            
+            const iconClass = {
+                loading: 'fa-spinner fa-spin text-blue-600',
+                success: 'fa-check-circle text-green-600',
+                error: 'fa-times-circle text-red-600'
+            };
+            
+            const textColor = {
+                loading: 'text-blue-800',
+                success: 'text-green-800',
+                error: 'text-red-800'
+            };
+            
+            div.className = `border-2 rounded-xl p-6 ${colors[status]} transition-all duration-500 transform hover:scale-102`;
+            div.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        <i class="fas ${iconClass[status]} text-4xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-2xl">${icon}</span>
+                            <h3 class="text-xl font-bold ${textColor[status]}">${title}</h3>
+                        </div>
+                        <p class="text-gray-600">${description}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function executarTesteCompleto() {
+            try {
+                log('🚀 Iniciando teste completo');
+
+                // Passo 1: Verificar sistema
+                const step1 = addStep('🔍', 'Verificando Sistema', 'Checando se auth.js está carregado...', 'loading');
+                log('Verificando disponibilidade das funções');
+                await new Promise(r => setTimeout(r, 800));
+                
+                if (typeof realizarLogin !== 'function') {
+                    updateStep(step1, '❌', 'Erro no Sistema', 'auth.js não foi carregado!', 'error');
+                    log('ERRO: auth.js não disponível');
+                    throw new Error('auth.js não está disponível');
+                }
+                
+                updateStep(step1, '✅', 'Sistema OK', 'Todas as funções estão disponíveis!', 'success');
+                log('Sistema verificado com sucesso');
+                await new Promise(r => setTimeout(r, 500));
+
+                // Passo 2: Limpar sessão antiga
+                const step2 = addStep('🧹', 'Limpando Dados', 'Removendo sessão anterior (se existir)...', 'loading');
+                log('Verificando sessão anterior');
+                await new Promise(r => setTimeout(r, 800));
+                
+                const sessaoAntiga = obterSessao();
+                if (sessaoAntiga) {
+                    log('Sessão anterior encontrada', sessaoAntiga);
+                    limparSessao();
+                    log('Sessão anterior removida');
+                }
+                
+                updateStep(step2, '✅', 'Dados Limpos', 'Pronto para novo login!', 'success');
+                await new Promise(r => setTimeout(r, 500));
+
+                // Passo 3: Fazer login
+                const step3 = addStep('🔑', 'Fazendo Login', 'Autenticando com CPF: 111.444.777-35...', 'loading');
+                log('Iniciando processo de login');
+                await new Promise(r => setTimeout(r, 1000));
+                
+                const resultado = await realizarLogin('111.444.777-35', 'teste123');
+                log('Login realizado', resultado);
+                
+                if (!resultado.success) {
+                    updateStep(step3, '❌', 'Falha no Login', 'Credenciais incorretas!', 'error');
+                    log('ERRO: Login falhou', resultado);
+                    throw new Error('Login falhou');
+                }
+                
+                updateStep(step3, '✅', 'Login Realizado', `Bem-vindo, ${resultado.usuario.nome}!`, 'success');
+                await new Promise(r => setTimeout(r, 500));
+
+                // Passo 4: Verificar sessão
+                const step4 = addStep('💾', 'Verificando Sessão', 'Confirmando dados no localStorage...', 'loading');
+                log('Verificando sessão salva');
+                await new Promise(r => setTimeout(r, 800));
+                
+                const sessao = obterSessao();
+                log('Sessão obtida', sessao);
+                
+                if (!sessao) {
+                    updateStep(step4, '❌', 'Erro na Sessão', 'Dados não foram salvos!', 'error');
+                    log('ERRO: Sessão não encontrada');
+                    throw new Error('Sessão não foi salva');
+                }
+                
+                updateStep(step4, '✅', 'Sessão Confirmada', `Dados salvos: ${sessao.nome}`, 'success');
+                await new Promise(r => setTimeout(r, 500));
+
+                // Passo 5: Verificar estado de login
+                const step5 = addStep('🎯', 'Confirmando Estado', 'Verificando estaLogado()...', 'loading');
+                log('Verificando estado de login');
+                await new Promise(r => setTimeout(r, 800));
+                
+                const logado = estaLogado();
+                log('Estado de login', { logado });
+                
+                if (!logado) {
+                    updateStep(step5, '❌', 'Estado Incorreto', 'estaLogado() retorna false!', 'error');
+                    log('ERRO: estaLogado() = false');
+                    throw new Error('Estado de login incorreto');
+                }
+                
+                updateStep(step5, '✅', 'Estado Confirmado', 'Usuário está logado!', 'success');
+                await new Promise(r => setTimeout(r, 500));
+
+                // Passo 6: Preparar redirecionamento
+                const step6 = addStep('🏠', 'Preparando Dashboard', 'Validando redirecionamento...', 'loading');
+                log('Preparando redirecionamento para dashboard');
+                await new Promise(r => setTimeout(r, 800));
+                
+                updateStep(step6, '✅', 'Dashboard Pronto', 'Tudo OK para redirecionar!', 'success');
+                log('Redirecionamento validado');
+                await new Promise(r => setTimeout(r, 1000));
+
+                // Mostrar countdown
+                document.getElementById('countdown-section').classList.remove('hidden');
+                log('Iniciando countdown');
+                
+                for (let i = 3; i >= 1; i--) {
+                    document.getElementById('countdown-number').textContent = i;
+                    log(`Countdown: ${i}`);
+                    await new Promise(r => setTimeout(r, 1000));
+                }
+                
+                // Redirecionar!
+                log('🚀 Redirecionando para dashboard.html');
+                window.location.href = 'dashboard.html';
+
+            } catch (error) {
+                log('ERRO FATAL', { message: error.message, stack: error.stack });
+                console.error('❌ Erro:', error);
+                addStep('💥', 'Erro Fatal', error.message, 'error');
+            }
+        }
+
+        function refazerTeste() {
+            limparSessao();
+            location.reload();
+        }
+
+        // Iniciar automaticamente
+        window.addEventListener('load', () => {
+            log('📄 Página carregada');
+            setTimeout(() => {
+                executarTesteCompleto();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

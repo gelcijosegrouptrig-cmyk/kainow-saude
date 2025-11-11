@@ -1,0 +1,110 @@
+/* =====================================================
+   🎨 KAINOW SAÚDE - ARQUIVO DE ENTRADA TAILWIND
+   ===================================================== */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================
+   COMPONENTES PERSONALIZADOS
+   ===================================================== */
+
+@layer components {
+  /* Links do menu */
+  .menu-link {
+    @apply px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg transition-all duration-200;
+  }
+  
+  /* Botões primários */
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105;
+  }
+  
+  /* Botões secundários */
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-300;
+  }
+  
+  /* Cards */
+  .card {
+    @apply bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300;
+  }
+  
+  /* Inputs */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-primary focus:outline-none transition;
+  }
+  
+  /* Gradiente de fundo */
+  .gradient-bg {
+    @apply bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500;
+  }
+  
+  /* Links da sidebar */
+  .sidebar-link {
+    @apply flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-all duration-200;
+  }
+  
+  .sidebar-link.active {
+    @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700;
+  }
+  
+  /* Stats cards */
+  .stat-card {
+    @apply bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300;
+  }
+}
+
+/* =====================================================
+   UTILITÁRIOS PERSONALIZADOS
+   ===================================================== */
+
+@layer utilities {
+  /* Animações personalizadas */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Scroll suave */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+}
+
+/* =====================================================
+   ESTILOS GLOBAIS
+   ===================================================== */
+
+@layer base {
+  body {
+    @apply font-sans bg-gray-50 text-gray-900;
+  }
+  
+  h1 {
+    @apply text-4xl font-bold;
+  }
+  
+  h2 {
+    @apply text-3xl font-bold;
+  }
+  
+  h3 {
+    @apply text-2xl font-semibold;
+  }
+  
+  a {
+    @apply transition-colors duration-200;
+  }
+}

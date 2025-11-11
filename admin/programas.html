@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Programas - KaiNow Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .menu-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .menu-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .program-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .program-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 text-white fixed h-full">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fas fa-user-shield"></i>
+                    KaiNow Admin
+                </h1>
+            </div>
+            
+            <nav class="p-4 space-y-2">
+                <a href="dashboard.html" class="menu-link">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span class="ml-3">Dashboard</span>
+                </a>
+                <a href="programas.html" class="menu-link active">
+                    <i class="fas fa-heartbeat w-5"></i>
+                    <span class="ml-3">Programas</span>
+                </a>
+                <a href="especialidades.html" class="menu-link">
+                    <i class="fas fa-stethoscope w-5"></i>
+                    <span class="ml-3">Especialidades</span>
+                </a>
+                <a href="precos.html" class="menu-link">
+                    <i class="fas fa-dollar-sign w-5"></i>
+                    <span class="ml-3">Preços</span>
+                </a>
+                <a href="usuarios.html" class="menu-link">
+                    <i class="fas fa-users w-5"></i>
+                    <span class="ml-3">Usuários</span>
+                </a>
+                <a href="agendamentos.html" class="menu-link">
+                    <i class="fas fa-calendar-check w-5"></i>
+                    <span class="ml-3">Agendamentos</span>
+                </a>
+                <a href="relatorios.html" class="menu-link">
+                    <i class="fas fa-chart-bar w-5"></i>
+                    <span class="ml-3">Relatórios</span>
+                </a>
+                <a href="configuracoes.html" class="menu-link">
+                    <i class="fas fa-cog w-5"></i>
+                    <span class="ml-3">Configurações</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white border-opacity-20">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium" id="admin-name">Admin</p>
+                        <p class="text-xs opacity-75">Administrador</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                            <i class="fas fa-heartbeat text-blue-600"></i>
+                            Gerenciador de Programas
+                        </h2>
+                        <p class="text-gray-600 mt-2">Gerencie todos os programas de saúde do sistema</p>
+                    </div>
+                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 shadow-lg">
+                        <i class="fas fa-plus"></i>
+                        Novo Programa
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Total de Programas</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-1" id="total-programs">6</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-heartbeat text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Programas Ativos</p>
+                            <p class="text-3xl font-bold text-green-600 mt-1" id="active-programs">6</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Programas Inativos</p>
+                            <p class="text-3xl font-bold text-red-600 mt-1" id="inactive-programs">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Total de Assinantes</p>
+                            <p class="text-3xl font-bold text-purple-600 mt-1" id="total-subscribers">847</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Programs Grid -->
+            <div id="programs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Programs will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Add/Edit Program -->
+    <div id="programModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-800" id="modal-title">
+                    <i class="fas fa-plus-circle text-blue-600 mr-2"></i>
+                    Novo Programa
+                </h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="programForm" class="space-y-4">
+                <input type="hidden" id="program-id">
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-tag text-gray-400 mr-1"></i>
+                        Nome do Programa
+                    </label>
+                    <input type="text" id="program-name" required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: KaiNow Mulher">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-dollar-sign text-gray-400 mr-1"></i>
+                        Preço Mensal (R$)
+                    </label>
+                    <input type="number" id="program-price" required step="0.01" min="0"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: 49.90">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-icons text-gray-400 mr-1"></i>
+                        Ícone (Font Awesome)
+                    </label>
+                    <input type="text" id="program-icon" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: fa-venus">
+                    <p class="text-xs text-gray-500 mt-1">Use nomes de ícones do Font Awesome (sem prefixo "fas")</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-palette text-gray-400 mr-1"></i>
+                        Cor do Tema
+                    </label>
+                    <select id="program-color" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="pink">Rosa (Pink)</option>
+                        <option value="blue">Azul (Blue)</option>
+                        <option value="green">Verde (Green)</option>
+                        <option value="purple">Roxo (Purple)</option>
+                        <option value="orange">Laranja (Orange)</option>
+                        <option value="red">Vermelho (Red)</option>
+                        <option value="yellow">Amarelo (Yellow)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-align-left text-gray-400 mr-1"></i>
+                        Descrição
+                    </label>
+                    <textarea id="program-description" required rows="4"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Descreva o programa e seus benefícios..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-list text-gray-400 mr-1"></i>
+                        Benefícios (um por linha)
+                    </label>
+                    <textarea id="program-benefits" rows="5"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Consultas ilimitadas&#10;Telemedicina 24/7&#10;Descontos em medicamentos"></textarea>
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="program-status" checked
+                            class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <span class="text-sm font-semibold text-gray-700">Programa Ativo</span>
+                    </label>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
+                        <i class="fas fa-save mr-2"></i>
+                        Salvar Programa
+                    </button>
+                    <button type="button" onclick="closeModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Authentication Check
+        function checkAuth() {
+            const adminSession = localStorage.getItem('kainow_admin_session');
+            if (!adminSession) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            try {
+                const session = JSON.parse(adminSession);
+                document.getElementById('admin-name').textContent = session.username;
+                return session;
+            } catch (e) {
+                console.error('Erro ao carregar sessão:', e);
+                window.location.href = 'login.html';
+                return null;
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                localStorage.removeItem('kainow_admin_session');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Initialize Programs Data
+        function initializePrograms() {
+            const existingPrograms = localStorage.getItem('kainow_programs');
+            
+            if (!existingPrograms) {
+                const defaultPrograms = [
+                    {
+                        id: 'kainow-mulher',
+                        name: 'KaiNow Mulher',
+                        price: 49.90,
+                        icon: 'fa-venus',
+                        color: 'pink',
+                        description: 'Programa completo de saúde focado no bem-estar feminino, com acompanhamento ginecológico, obstétrico e muito mais.',
+                        benefits: [
+                            'Consultas ilimitadas com ginecologista',
+                            'Telemedicina 24/7',
+                            'Acompanhamento pré-natal',
+                            'Descontos em exames',
+                            'Orientação nutricional'
+                        ],
+                        status: 'active',
+                        subscribers: 342
+                    },
+                    {
+                        id: 'kainow-senior',
+                        name: 'KaiNow Sênior',
+                        price: 59.90,
+                        icon: 'fa-user-shield',
+                        color: 'blue',
+                        description: 'Cuidado especial para a terceira idade, com acompanhamento geriátrico e suporte completo.',
+                        benefits: [
+                            'Consultas geriátricas ilimitadas',
+                            'Telemedicina 24/7',
+                            'Monitoramento de saúde',
+                            'Descontos em medicamentos',
+                            'Visitas domiciliares'
+                        ],
+                        status: 'active',
+                        subscribers: 187
+                    },
+                    {
+                        id: 'kainow-farma',
+                        name: 'KaiNow Farma',
+                        price: 29.90,
+                        icon: 'fa-pills',
+                        color: 'green',
+                        description: 'Descontos especiais em medicamentos e produtos farmacêuticos em toda rede credenciada.',
+                        benefits: [
+                            'Até 70% de desconto em medicamentos',
+                            'Entrega grátis',
+                            'Farmacêutico online',
+                            'Programa de fidelidade',
+                            'Rede nacional'
+                        ],
+                        status: 'active',
+                        subscribers: 523
+                    },
+                    {
+                        id: 'kainow-acolher',
+                        name: 'KaiNow Acolher',
+                        price: 39.90,
+                        icon: 'fa-heart',
+                        color: 'purple',
+                        description: 'Suporte psicológico e emocional com profissionais especializados em saúde mental.',
+                        benefits: [
+                            'Consultas com psicólogos',
+                            'Terapia online',
+                            'Grupos de apoio',
+                            'Atendimento 24/7',
+                            'Acompanhamento contínuo'
+                        ],
+                        status: 'active',
+                        subscribers: 218
+                    },
+                    {
+                        id: 'kainow-orienta',
+                        name: 'KaiNow Orienta',
+                        price: 19.90,
+                        icon: 'fa-book-medical',
+                        color: 'orange',
+                        description: 'Orientações médicas rápidas por telefone ou chat com profissionais de saúde.',
+                        benefits: [
+                            'Orientação médica 24/7',
+                            'Chat e telefone',
+                            'Sem limite de consultas',
+                            'Resposta em até 5 minutos',
+                            'Encaminhamentos quando necessário'
+                        ],
+                        status: 'active',
+                        subscribers: 412
+                    },
+                    {
+                        id: 'kainow-viva-leve',
+                        name: 'KaiNow Viva Leve',
+                        price: 44.90,
+                        icon: 'fa-running',
+                        color: 'yellow',
+                        description: 'Programa de qualidade de vida com foco em nutrição, atividade física e bem-estar.',
+                        benefits: [
+                            'Consultas com nutricionista',
+                            'Personal trainer online',
+                            'Planos alimentares personalizados',
+                            'Acompanhamento de metas',
+                            'Comunidade fitness'
+                        ],
+                        status: 'active',
+                        subscribers: 289
+                    }
+                ];
+                
+                localStorage.setItem('kainow_programs', JSON.stringify(defaultPrograms));
+                return defaultPrograms;
+            }
+            
+            return JSON.parse(existingPrograms);
+        }
+
+        // Load Programs
+        function loadPrograms() {
+            const programs = initializePrograms();
+            const grid = document.getElementById('programs-grid');
+            
+            if (programs.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fas fa-inbox text-gray-300 text-6xl mb-4"></i>
+                        <p class="text-gray-500 text-lg">Nenhum programa cadastrado</p>
+                        <button onclick="openModal()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+                            Adicionar Primeiro Programa
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            const colorClasses = {
+                pink: 'bg-pink-50 border-pink-200 text-pink-600',
+                blue: 'bg-blue-50 border-blue-200 text-blue-600',
+                green: 'bg-green-50 border-green-200 text-green-600',
+                purple: 'bg-purple-50 border-purple-200 text-purple-600',
+                orange: 'bg-orange-50 border-orange-200 text-orange-600',
+                red: 'bg-red-50 border-red-200 text-red-600',
+                yellow: 'bg-yellow-50 border-yellow-200 text-yellow-600'
+            };
+            
+            grid.innerHTML = programs.map(program => `
+                <div class="program-card bg-white">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-14 h-14 rounded-xl ${colorClasses[program.color]} flex items-center justify-center border-2">
+                            <i class="fas ${program.icon} text-2xl"></i>
+                        </div>
+                        <span class="badge ${program.status === 'active' ? 'badge-active' : 'badge-inactive'}">
+                            ${program.status === 'active' ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">${program.name}</h3>
+                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">${program.description}</p>
+                    
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-2xl font-bold text-gray-800">R$ ${program.price.toFixed(2)}</p>
+                            <p class="text-xs text-gray-500">por mês</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xl font-bold text-blue-600">${program.subscribers || 0}</p>
+                            <p class="text-xs text-gray-500">assinantes</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button onclick="editProgram('${program.id}')" 
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-semibold transition">
+                            <i class="fas fa-edit mr-1"></i>
+                            Editar
+                        </button>
+                        <button onclick="deleteProgram('${program.id}')" 
+                            class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold transition">
+                            <i class="fas fa-trash mr-1"></i>
+                            Excluir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateStats(programs);
+        }
+
+        // Update Stats
+        function updateStats(programs) {
+            const active = programs.filter(p => p.status === 'active').length;
+            const inactive = programs.length - active;
+            const totalSubscribers = programs.reduce((sum, p) => sum + (p.subscribers || 0), 0);
+            
+            document.getElementById('total-programs').textContent = programs.length;
+            document.getElementById('active-programs').textContent = active;
+            document.getElementById('inactive-programs').textContent = inactive;
+            document.getElementById('total-subscribers').textContent = totalSubscribers;
+        }
+
+        // Modal Functions
+        function openModal(programId = null) {
+            const modal = document.getElementById('programModal');
+            const form = document.getElementById('programForm');
+            const title = document.getElementById('modal-title');
+            
+            form.reset();
+            
+            if (programId) {
+                const programs = JSON.parse(localStorage.getItem('kainow_programs') || '[]');
+                const program = programs.find(p => p.id === programId);
+                
+                if (program) {
+                    title.innerHTML = '<i class="fas fa-edit text-blue-600 mr-2"></i>Editar Programa';
+                    document.getElementById('program-id').value = program.id;
+                    document.getElementById('program-name').value = program.name;
+                    document.getElementById('program-price').value = program.price;
+                    document.getElementById('program-icon').value = program.icon;
+                    document.getElementById('program-color').value = program.color;
+                    document.getElementById('program-description').value = program.description;
+                    document.getElementById('program-benefits').value = (program.benefits || []).join('\n');
+                    document.getElementById('program-status').checked = program.status === 'active';
+                }
+            } else {
+                title.innerHTML = '<i class="fas fa-plus-circle text-blue-600 mr-2"></i>Novo Programa';
+                document.getElementById('program-status').checked = true;
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('programModal');
+            modal.classList.remove('show');
+        }
+
+        // Edit Program
+        function editProgram(programId) {
+            openModal(programId);
+        }
+
+        // Delete Program
+        function deleteProgram(programId) {
+            if (!confirm('Tem certeza que deseja excluir este programa?')) {
+                return;
+            }
+            
+            const programs = JSON.parse(localStorage.getItem('kainow_programs') || '[]');
+            const updatedPrograms = programs.filter(p => p.id !== programId);
+            
+            localStorage.setItem('kainow_programs', JSON.stringify(updatedPrograms));
+            loadPrograms();
+            
+            // Show success message
+            showNotification('Programa excluído com sucesso!', 'success');
+        }
+
+        // Form Submit
+        document.getElementById('programForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const programId = document.getElementById('program-id').value;
+            const name = document.getElementById('program-name').value;
+            const price = parseFloat(document.getElementById('program-price').value);
+            const icon = document.getElementById('program-icon').value;
+            const color = document.getElementById('program-color').value;
+            const description = document.getElementById('program-description').value;
+            const benefitsText = document.getElementById('program-benefits').value;
+            const status = document.getElementById('program-status').checked ? 'active' : 'inactive';
+            
+            const benefits = benefitsText.split('\n').filter(b => b.trim() !== '');
+            
+            const programs = JSON.parse(localStorage.getItem('kainow_programs') || '[]');
+            
+            if (programId) {
+                // Update existing
+                const index = programs.findIndex(p => p.id === programId);
+                if (index !== -1) {
+                    programs[index] = {
+                        ...programs[index],
+                        name,
+                        price,
+                        icon,
+                        color,
+                        description,
+                        benefits,
+                        status
+                    };
+                }
+                showNotification('Programa atualizado com sucesso!', 'success');
+            } else {
+                // Create new
+                const newProgram = {
+                    id: 'program-' + Date.now(),
+                    name,
+                    price,
+                    icon,
+                    color,
+                    description,
+                    benefits,
+                    status,
+                    subscribers: 0
+                };
+                programs.push(newProgram);
+                showNotification('Programa criado com sucesso!', 'success');
+            }
+            
+            localStorage.setItem('kainow_programs', JSON.stringify(programs));
+            closeModal();
+            loadPrograms();
+        });
+
+        // Show Notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initialize
+        checkAuth();
+        loadPrograms();
+
+        // Close modal on outside click
+        document.getElementById('programModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

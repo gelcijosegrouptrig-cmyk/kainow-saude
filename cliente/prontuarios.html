@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prontuários - KaiNow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center">
+                        <i class="fas fa-heartbeat text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">KaiNow Saúde</h1>
+                        <p class="text-sm text-gray-600" id="header-nome">Cliente</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-blue-600 font-semibold">
+                        <i class="fas fa-home mr-1"></i> Início
+                    </a>
+                    <a href="agendamentos.html" class="text-gray-700 hover:text-blue-600 font-semibold">
+                        <i class="fas fa-calendar-alt mr-1"></i> Consultas
+                    </a>
+                    <a href="perfil.html" class="text-gray-700 hover:text-blue-600 font-semibold">
+                        <i class="fas fa-user mr-1"></i> Perfil
+                    </a>
+                    <button onclick="fazerLogout()" class="text-red-600 hover:text-red-800 font-semibold">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Sair
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-5xl">
+
+        <!-- Título -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-file-medical text-green-600 mr-3"></i>
+                Meus Prontuários
+            </h2>
+            <p class="text-gray-600">Histórico de consultas e registros médicos</p>
+        </div>
+
+        <!-- Informação sobre Prontuários -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            
+            <!-- Mensagem vazia -->
+            <div class="text-center py-12">
+                <i class="fas fa-folder-open text-6xl mb-4 text-gray-300"></i>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Nenhum prontuário disponível</h3>
+                <p class="text-gray-600 mb-6">Seus registros médicos aparecerão aqui após suas consultas</p>
+                
+                <a 
+                    href="agendamentos.html"
+                    class="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all"
+                >
+                    <i class="fas fa-calendar-plus mr-2"></i>
+                    Agendar Primeira Consulta
+                </a>
+            </div>
+
+            <!-- Exemplo de Prontuário (comentado) -->
+            <!--
+            <div class="border-l-4 border-green-600 bg-green-50 p-6 rounded-r-xl mb-4">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg mb-2">
+                            <i class="fas fa-stethoscope text-green-600 mr-2"></i>
+                            Consulta Cardiológica
+                        </h4>
+                        <p class="text-gray-600 mb-1">
+                            <i class="fas fa-user-md mr-2"></i>
+                            Dr. João Silva - Cardiologia
+                        </p>
+                        <p class="text-gray-600">
+                            <i class="fas fa-calendar mr-2"></i>
+                            10 de Janeiro de 2025
+                        </p>
+                    </div>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-eye mr-1"></i> Ver Detalhes
+                    </button>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h5 class="font-semibold text-gray-700 mb-2">Observações:</h5>
+                    <p class="text-gray-600 text-sm">
+                        Paciente apresenta pressão arterial controlada. Medicação mantida.
+                        Retorno em 3 meses para acompanhamento.
+                    </p>
+                </div>
+            </div>
+            -->
+
+        </div>
+
+    </main>
+
+    <script>
+        // Verificar autenticação
+        function verificarAuth() {
+            const sessionData = localStorage.getItem('kainow_cliente_session') || 
+                               sessionStorage.getItem('kainow_cliente_session');
+            
+            if (!sessionData) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            return JSON.parse(sessionData);
+        }
+
+        // Logout
+        function fazerLogout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                localStorage.removeItem('kainow_cliente_session');
+                sessionStorage.removeItem('kainow_cliente_session');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Carregar dados
+        window.addEventListener('load', function() {
+            const cliente = verificarAuth();
+            if (cliente) {
+                document.getElementById('header-nome').textContent = cliente.nome.split(' ')[0];
+            }
+        });
+    </script>
+
+</body>
+</html>

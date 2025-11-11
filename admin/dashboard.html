@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin | KaiNow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .menu-link {
+            @apply flex items-center px-4 py-3 text-gray-300 hover:bg-blue-700 hover:text-white rounded-lg transition-all duration-200 cursor-pointer;
+        }
+        .menu-link.active {
+            @apply bg-blue-600 text-white font-semibold;
+        }
+        .stat-card {
+            @apply bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-blue-900 to-blue-800 shadow-2xl z-50 transform transition-transform duration-300">
+        
+        <!-- Logo -->
+        <div class="p-6 border-b border-blue-700">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white w-12 h-12 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shield-halved text-2xl text-blue-600"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white">Admin Panel</h1>
+                    <p class="text-xs text-blue-200">KaiNow Saúde</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu -->
+        <nav class="p-4 space-y-2">
+            <a href="dashboard.html" class="menu-link active">
+                <i class="fas fa-home w-6"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="programas.html" class="menu-link">
+                <i class="fas fa-box w-6"></i>
+                <span>Programas</span>
+            </a>
+            <a href="especialidades.html" class="menu-link">
+                <i class="fas fa-stethoscope w-6"></i>
+                <span>Especialidades</span>
+            </a>
+            <a href="precos.html" class="menu-link">
+                <i class="fas fa-dollar-sign w-6"></i>
+                <span>Preços</span>
+            </a>
+            <a href="usuarios.html" class="menu-link">
+                <i class="fas fa-users w-6"></i>
+                <span>Usuários</span>
+            </a>
+            <a href="agendamentos.html" class="menu-link">
+                <i class="fas fa-calendar w-6"></i>
+                <span>Agendamentos</span>
+            </a>
+            <a href="relatorios.html" class="menu-link">
+                <i class="fas fa-chart-bar w-6"></i>
+                <span>Relatórios</span>
+            </a>
+            <a href="configuracoes.html" class="menu-link">
+                <i class="fas fa-cog w-6"></i>
+                <span>Configurações</span>
+            </a>
+        </nav>
+
+        <!-- User Info -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-blue-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                        <p class="text-white font-semibold text-sm" id="admin-name">Admin</p>
+                        <p class="text-blue-200 text-xs">Administrador</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="text-blue-200 hover:text-white transition">
+                    <i class="fas fa-sign-out-alt text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 p-8">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-chart-line mr-3 text-blue-600"></i>
+                Dashboard Administrativo
+            </h1>
+            <p class="text-gray-600">Visão geral do sistema KaiNow Saúde</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            
+            <!-- Card 1: Usuários -->
+            <div class="stat-card border-l-4 border-blue-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-2xl text-blue-600"></i>
+                    </div>
+                    <span class="text-green-500 text-sm font-semibold">+12%</span>
+                </div>
+                <h3 class="text-gray-600 text-sm font-semibold mb-1">Total de Usuários</h3>
+                <p class="text-3xl font-bold text-gray-800">1,284</p>
+            </div>
+
+            <!-- Card 2: Programas -->
+            <div class="stat-card border-l-4 border-green-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-box text-2xl text-green-600"></i>
+                    </div>
+                    <span class="text-green-500 text-sm font-semibold">6 ativos</span>
+                </div>
+                <h3 class="text-gray-600 text-sm font-semibold mb-1">Programas</h3>
+                <p class="text-3xl font-bold text-gray-800">6</p>
+            </div>
+
+            <!-- Card 3: Especialidades -->
+            <div class="stat-card border-l-4 border-purple-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-stethoscope text-2xl text-purple-600"></i>
+                    </div>
+                    <span class="text-green-500 text-sm font-semibold">38 ativas</span>
+                </div>
+                <h3 class="text-gray-600 text-sm font-semibold mb-1">Especialidades</h3>
+                <p class="text-3xl font-bold text-gray-800">38</p>
+            </div>
+
+            <!-- Card 4: Agendamentos -->
+            <div class="stat-card border-l-4 border-orange-500">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="bg-orange-100 w-12 h-12 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-calendar text-2xl text-orange-600"></i>
+                    </div>
+                    <span class="text-green-500 text-sm font-semibold">+8%</span>
+                </div>
+                <h3 class="text-gray-600 text-sm font-semibold mb-1">Agendamentos Hoje</h3>
+                <p class="text-3xl font-bold text-gray-800">42</p>
+            </div>
+
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-bolt mr-2 text-yellow-500"></i>
+                Ações Rápidas
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="programas.html" class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition cursor-pointer">
+                    <i class="fas fa-plus-circle text-3xl text-blue-600 mb-2"></i>
+                    <span class="text-sm font-semibold text-gray-700">Novo Programa</span>
+                </a>
+                <a href="especialidades.html" class="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition cursor-pointer">
+                    <i class="fas fa-plus-circle text-3xl text-green-600 mb-2"></i>
+                    <span class="text-sm font-semibold text-gray-700">Nova Especialidade</span>
+                </a>
+                <a href="precos.html" class="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition cursor-pointer">
+                    <i class="fas fa-edit text-3xl text-purple-600 mb-2"></i>
+                    <span class="text-sm font-semibold text-gray-700">Editar Preços</span>
+                </a>
+                <a href="usuarios.html" class="flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition cursor-pointer">
+                    <i class="fas fa-users text-3xl text-orange-600 mb-2"></i>
+                    <span class="text-sm font-semibold text-gray-700">Ver Usuários</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-clock mr-2 text-blue-600"></i>
+                Atividades Recentes
+            </h2>
+            <div class="space-y-4">
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                    <div class="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-user-plus text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-gray-800">Novo usuário cadastrado</p>
+                        <p class="text-xs text-gray-500">Maria Silva - há 5 minutos</p>
+                    </div>
+                </div>
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                    <div class="bg-green-100 w-10 h-10 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-calendar-check text-green-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-gray-800">Agendamento confirmado</p>
+                        <p class="text-xs text-gray-500">João Santos - Cardiologia - há 12 minutos</p>
+                    </div>
+                </div>
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                    <div class="bg-purple-100 w-10 h-10 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-box text-purple-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-gray-800">Nova assinatura de programa</p>
+                        <p class="text-xs text-gray-500">KaiNow Mulher - há 1 hora</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Verificar autenticação
+        function checkAuth() {
+            const adminSession = localStorage.getItem('kainow_admin_session');
+            if (!adminSession) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(adminSession);
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                localStorage.removeItem('kainow_admin_session');
+                localStorage.removeItem('kainow_admin_remember');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Carregar dados do admin
+        window.addEventListener('DOMContentLoaded', function() {
+            const admin = checkAuth();
+            if (admin) {
+                document.getElementById('admin-name').textContent = admin.username;
+            }
+        });
+    </script>
+
+</body>
+</html>

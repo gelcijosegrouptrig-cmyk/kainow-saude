@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🔄 Redirecionando para Versão Correta...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md text-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-4"></div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">
+            🔄 Limpando Cache...
+        </h1>
+        <p class="text-gray-600 mb-4">
+            Redirecionando para versão correta do gerenciador
+        </p>
+        <p class="text-xs text-gray-500">
+            Aguarde 2 segundos...
+        </p>
+    </div>
+
+    <script>
+        // Limpar cache e redirecionar
+        console.log('🧹 Limpando cache do gerenciador...');
+        
+        // Forçar limpeza do localStorage se necessário
+        const timestamp = new Date().getTime();
+        sessionStorage.setItem('force_reload', timestamp);
+        
+        // Redirecionar após 2 segundos
+        setTimeout(() => {
+            const url = `gerenciar-afiliados.html?v=${timestamp}&nocache=${Math.random()}`;
+            console.log('🔗 Redirecionando para:', url);
+            window.location.href = url;
+        }, 2000);
+    </script>
+</body>
+</html>

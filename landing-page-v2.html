@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="KaiNow Saúde - Telemedicina completa com 38 especialidades. Produtos de saúde especializados com atendimento 24/7. Cuide da sua saúde de onde estiver!">
+    <title>KaiNow Saúde - Produtos de Telemedicina e Saúde Digital | Atendimento 24/7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0066CC 0%, #00A8E8 50%, #00C9A7 100%);
+        }
+        
+        .product-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 25px 50px rgba(0, 102, 204, 0.25);
+            border-color: #0066CC;
+        }
+        
+        .benefit-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #0066CC, #00A8E8);
+            box-shadow: 0 10px 30px rgba(0, 102, 204, 0.3);
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #0066CC, #00C9A7);
+            border-radius: 2px;
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        .testimonial-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .testimonial-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 102, 204, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .whatsapp-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            background: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.5);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .whatsapp-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.7);
+        }
+        
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #0066CC, #00C9A7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .product-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #FF6B35, #FF8C42);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+            z-index: 10;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00C9A7;
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .step-number {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 2.5rem;
+            font-weight: 900;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .price-tag {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #0066CC, #00A8E8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .product-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/5511999999999?text=Olá! Gostaria de conhecer os produtos KaiNow Saúde" target="_blank" class="whatsapp-button">
+        <i class="fab fa-whatsapp text-white text-3xl"></i>
+    </a>
+
+    <!-- Header/Navbar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-heartbeat text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black text-gray-800">KaiNow</h1>
+                        <p class="text-xs text-gray-500 -mt-1">Saúde Digital</p>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#beneficios" class="nav-link text-gray-700 font-semibold hover:text-blue-600">Benefícios</a>
+                    <a href="#produtos" class="nav-link text-gray-700 font-semibold hover:text-blue-600">Produtos</a>
+                    <a href="#como-funciona" class="nav-link text-gray-700 font-semibold hover:text-blue-600">Como Funciona</a>
+                    <a href="#especialidades" class="nav-link text-gray-700 font-semibold hover:text-blue-600">Especialidades</a>
+                    <a href="#depoimentos" class="nav-link text-gray-700 font-semibold hover:text-blue-600">Depoimentos</a>
+                    <a href="#contato" class="nav-link text-gray-700 font-semibold hover:text-blue-600">Contato</a>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <a href="#produtos" class="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-6 py-3 rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105">
+                        Ver Produtos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient py-20 md:py-32 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 right-10 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-white">
+                    <div class="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-6">
+                        <i class="fas fa-star text-yellow-300 mr-2"></i>
+                        Mais de 10.000 pacientes atendidos
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-6xl font-black leading-tight mb-6">
+                        Saúde Completa na Palma da Mão
+                    </h1>
+                    
+                    <p class="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
+                        <strong>6 produtos especializados</strong> para cuidar de você e sua família. Telemedicina com <strong>atendimento 24/7</strong>.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                        <a href="#produtos" class="bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl transition-all transform hover:scale-105 text-center">
+                            <i class="fas fa-shopping-cart mr-2"></i>
+                            Conhecer Produtos
+                        </a>
+                        <a href="#como-funciona" class="bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-full font-bold text-lg border-2 border-white hover:bg-white/30 transition-all text-center">
+                            <i class="fas fa-play-circle mr-2"></i>
+                            Como Funciona
+                        </a>
+                    </div>
+                    
+                    <div class="flex items-center gap-8">
+                        <div>
+                            <div class="text-4xl font-black">6</div>
+                            <div class="text-sm text-white/80">Produtos</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-black">38</div>
+                            <div class="text-sm text-white/80">Especialidades</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-black">24/7</div>
+                            <div class="text-sm text-white/80">Atendimento</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hidden md:block relative">
+                    <div class="floating">
+                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop" 
+                             alt="Médica usando tablet" 
+                             class="rounded-3xl shadow-2xl">
+                    </div>
+                    <div class="absolute -bottom-10 -left-10 bg-white rounded-2xl p-6 shadow-xl">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-white text-2xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-black text-gray-800">98%</div>
+                                <div class="text-sm text-gray-600">Satisfação</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefícios Section -->
+    <section id="beneficios" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-4xl md:text-5xl font-black text-gray-800 mb-4">
+                    Por que Escolher a KaiNow?
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Revolucionamos o acesso à saúde com tecnologia de ponta e profissionais qualificados
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center bg-gradient-to-br from-blue-50 to-cyan-50 p-8 rounded-3xl hover:shadow-xl transition-all">
+                    <div class="benefit-icon mx-auto mb-6">
+                        <i class="fas fa-clock text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Atendimento 24/7</h3>
+                    <p class="text-gray-600">
+                        Acesso imediato a médicos especializados a qualquer hora do dia ou da noite
+                    </p>
+                </div>
+                
+                <div class="text-center bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-3xl hover:shadow-xl transition-all">
+                    <div class="benefit-icon mx-auto mb-6" style="background: linear-gradient(135deg, #10B981, #00C9A7);">
+                        <i class="fas fa-video text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Consultas por Vídeo</h3>
+                    <p class="text-gray-600">
+                        Telemedicina com qualidade HD, como se estivesse no consultório
+                    </p>
+                </div>
+                
+                <div class="text-center bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-3xl hover:shadow-xl transition-all">
+                    <div class="benefit-icon mx-auto mb-6" style="background: linear-gradient(135deg, #8B5CF6, #EC4899);">
+                        <i class="fas fa-dollar-sign text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Preços Justos</h3>
+                    <p class="text-gray-600">
+                        Produtos acessíveis a partir de R$ 19,90/mês com consultas ilimitadas
+                    </p>
+                </div>
+                
+                <div class="text-center bg-gradient-to-br from-orange-50 to-red-50 p-8 rounded-3xl hover:shadow-xl transition-all">
+                    <div class="benefit-icon mx-auto mb-6" style="background: linear-gradient(135deg, #F59E0B, #FF6B35);">
+                        <i class="fas fa-shield-alt text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Seguro e Confiável</h3>
+                    <p class="text-gray-600">
+                        Dados protegidos e médicos certificados pelo CRM
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Como Funciona -->
+    <section id="como-funciona" class="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-4xl md:text-5xl font-black text-gray-800 mb-4">
+                    Como Funciona?
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Em apenas 3 passos simples você tem acesso completo à saúde digital
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-12">
+                <div class="text-center bg-white p-8 rounded-3xl shadow-lg">
+                    <div class="step-number bg-gradient-to-br from-blue-600 to-cyan-500 text-white mx-auto mb-6">
+                        1
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Escolha Seu Produto</h3>
+                    <p class="text-gray-600 text-lg">
+                        Selecione o produto ideal para você ou sua família entre nossas 6 opções especializadas
+                    </p>
+                </div>
+                
+                <div class="text-center bg-white p-8 rounded-3xl shadow-lg">
+                    <div class="step-number bg-gradient-to-br from-green-600 to-emerald-500 text-white mx-auto mb-6">
+                        2
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Cadastre-se Grátis</h3>
+                    <p class="text-gray-600 text-lg">
+                        Preencha seus dados em menos de 2 minutos e ganhe 7 dias de teste grátis
+                    </p>
+                </div>
+                
+                <div class="text-center bg-white p-8 rounded-3xl shadow-lg">
+                    <div class="step-number bg-gradient-to-br from-purple-600 to-pink-500 text-white mx-auto mb-6">
+                        3
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Agende Sua Consulta</h3>
+                    <p class="text-gray-600 text-lg">
+                        Acesse médicos especialistas 24/7 por vídeo, chat ou telefone de onde você estiver
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Produtos em Destaque -->
+    <section id="produtos" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-4xl md:text-5xl font-black text-gray-800 mb-4">
+                    Conheça Nossos Produtos
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Soluções completas de saúde para cada necessidade da sua família
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Produto 1: KaiNow Mulher -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden shadow-lg relative">
+                    <div class="product-badge">MAIS VENDIDO</div>
+                    <div class="p-8">
+                        <div class="product-icon bg-gradient-to-br from-pink-500 to-rose-500 text-white mb-6">
+                            <i class="fas fa-venus"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">KaiNow Mulher</h3>
+                        <p class="text-gray-600 mb-6">Saúde feminina completa em todas as fases da vida</p>
+                        
+                        <div class="mb-6">
+                            <span class="price-tag">R$ 49,90</span>
+                            <span class="text-gray-500 text-lg">/mês</span>
+                        </div>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Ginecologia ilimitada</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Acompanhamento pré-natal</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Nutrição especializada</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Telemedicina 24/7</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Psicologia online</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="programa-mulher.html" class="block text-center bg-gradient-to-r from-pink-500 to-rose-500 text-white py-4 rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105">
+                            Assinar Produto
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Produto 2: KaiNow Sênior -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden shadow-lg relative">
+                    <div class="p-8">
+                        <div class="product-icon bg-gradient-to-br from-blue-500 to-indigo-500 text-white mb-6">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">KaiNow Sênior</h3>
+                        <p class="text-gray-600 mb-6">Cuidado especializado para a terceira idade</p>
+                        
+                        <div class="mb-6">
+                            <span class="price-tag">R$ 59,90</span>
+                            <span class="text-gray-500 text-lg">/mês</span>
+                        </div>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Geriatria especializada</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Cardiologia completa</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Monitoramento contínuo</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Visitas domiciliares</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Suporte 24/7</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="programa-senior.html" class="block text-center bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-4 rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105">
+                            Assinar Produto
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Produto 3: KaiNow Farma -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden shadow-lg relative">
+                    <div class="p-8">
+                        <div class="product-icon bg-gradient-to-br from-green-500 to-emerald-500 text-white mb-6">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">KaiNow Farma</h3>
+                        <p class="text-gray-600 mb-6">Descontos especiais em medicamentos</p>
+                        
+                        <div class="mb-6">
+                            <span class="price-tag">R$ 29,90</span>
+                            <span class="text-gray-500 text-lg">/mês</span>
+                        </div>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Até 70% de desconto</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Entrega grátis</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Farmacêutico online</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Sistema de fidelidade</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Rede nacional</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="programa-farma.html" class="block text-center bg-gradient-to-r from-green-500 to-emerald-500 text-white py-4 rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105">
+                            Assinar Produto
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Produto 4: KaiNow Acolher -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden shadow-lg relative">
+                    <div class="p-8">
+                        <div class="product-icon bg-gradient-to-br from-purple-500 to-pink-500 text-white mb-6">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">KaiNow Acolher</h3>
+                        <p class="text-gray-600 mb-6">Saúde mental e suporte emocional</p>
+                        
+                        <div class="mb-6">
+                            <span class="price-tag">R$ 39,90</span>
+                            <span class="text-gray-500 text-lg">/mês</span>
+                        </div>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Psicólogos especializados</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Terapia online</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Grupos de apoio</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Atendimento emergencial</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Consultas ilimitadas</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="programa-acolher.html" class="block text-center bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105">
+                            Assinar Produto
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Produto 5: KaiNow Orienta -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden shadow-lg relative">
+                    <div class="p-8">
+                        <div class="product-icon bg-gradient-to-br from-orange-500 to-amber-500 text-white mb-6">
+                            <i class="fas fa-book-medical"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">KaiNow Orienta</h3>
+                        <p class="text-gray-600 mb-6">Orientação médica rápida e prática</p>
+                        
+                        <div class="mb-6">
+                            <span class="price-tag">R$ 19,90</span>
+                            <span class="text-gray-500 text-lg">/mês</span>
+                        </div>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Orientação médica 24/7</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Chat e telefone</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Sem limite de consultas</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Resposta em até 5 min</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Encaminhamentos</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="programa-orienta.html" class="block text-center bg-gradient-to-r from-orange-500 to-amber-500 text-white py-4 rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105">
+                            Assinar Produto
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Produto 6: KaiNow Viva Leve -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden shadow-lg relative">
+                    <div class="p-8">
+                        <div class="product-icon bg-gradient-to-br from-yellow-500 to-orange-500 text-white mb-6">
+                            <i class="fas fa-running"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">KaiNow Viva Leve</h3>
+                        <p class="text-gray-600 mb-6">Emagrecimento saudável e qualidade de vida</p>
+                        
+                        <div class="mb-6">
+                            <span class="price-tag">R$ 44,90</span>
+                            <span class="text-gray-500 text-lg">/mês</span>
+                        </div>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Consultas com nutricionista</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Personal trainer online</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Planos alimentares</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Acompanhamento de metas</span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i>
+                                <span class="text-gray-700">Comunidade fitness</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="programa-vivaleve.html" class="block text-center bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-4 rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105">
+                            Assinar Produto
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Estatísticas -->
+    <section class="py-20 bg-gradient-to-br from-blue-600 to-cyan-500 text-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="stat-number mb-2 text-white">10k+</div>
+                    <div class="text-xl font-semibold opacity-90">Pacientes Atendidos</div>
+                </div>
+                <div>
+                    <div class="stat-number mb-2 text-white">6</div>
+                    <div class="text-xl font-semibold opacity-90">Produtos Especializados</div>
+                </div>
+                <div>
+                    <div class="stat-number mb-2 text-white">98%</div>
+                    <div class="text-xl font-semibold opacity-90">Satisfação dos Clientes</div>
+                </div>
+                <div>
+                    <div class="stat-number mb-2 text-white">24/7</div>
+                    <div class="text-xl font-semibold opacity-90">Suporte Disponível</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Especialidades (seção compacta) -->
+    <section id="especialidades" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-4xl md:text-5xl font-black text-gray-800 mb-4">
+                    38 Especialidades Médicas
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Acesso completo a especialistas em todas as áreas da medicina
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-heart-pulse text-blue-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Cardiologia</p>
+                </div>
+                <div class="bg-gradient-to-br from-pink-50 to-rose-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-baby text-pink-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Pediatria</p>
+                </div>
+                <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-brain text-purple-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Neurologia</p>
+                </div>
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-hand-dots text-green-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Dermatologia</p>
+                </div>
+                <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-bone text-orange-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Ortopedia</p>
+                </div>
+                <div class="bg-gradient-to-br from-red-50 to-rose-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-eye text-red-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Oftalmologia</p>
+                </div>
+                <div class="bg-gradient-to-br from-teal-50 to-cyan-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-lungs text-teal-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Pneumologia</p>
+                </div>
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-venus text-indigo-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Ginecologia</p>
+                </div>
+                <div class="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-stomach text-yellow-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Gastro</p>
+                </div>
+                <div class="bg-gradient-to-br from-lime-50 to-green-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-apple-whole text-lime-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Nutrição</p>
+                </div>
+                <div class="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-comments text-cyan-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Psicologia</p>
+                </div>
+                <div class="bg-gradient-to-br from-rose-50 to-pink-50 p-6 rounded-2xl text-center hover:shadow-lg transition-all cursor-pointer">
+                    <i class="fas fa-syringe text-rose-600 text-3xl mb-3"></i>
+                    <p class="font-semibold text-gray-800">Endocrino</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="index.html#especialidades" class="inline-block bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-8 py-4 rounded-full font-bold hover:shadow-xl transition-all transform hover:scale-105">
+                    Ver Todas as Especialidades
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Depoimentos -->
+    <section id="depoimentos" class="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-4xl md:text-5xl font-black text-gray-800 mb-4">
+                    O Que Dizem Nossos Pacientes
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Mais de 10.000 pessoas já transformaram sua saúde com os produtos KaiNow
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="testimonial-card">
+                    <div class="flex items-center gap-4 mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Maria Silva" class="w-16 h-16 rounded-full">
+                        <div>
+                            <h4 class="font-bold text-gray-800">Maria Silva</h4>
+                            <div class="text-yellow-500">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">
+                        "O KaiNow Mulher mudou minha vida! Consigo consultar com ginecologista sem sair de casa. Super recomendo!"
+                    </p>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="flex items-center gap-4 mb-4">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="João Santos" class="w-16 h-16 rounded-full">
+                        <div>
+                            <h4 class="font-bold text-gray-800">João Santos</h4>
+                            <div class="text-yellow-500">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">
+                        "Meu pai de 75 anos adora o KaiNow Sênior. Atendimento carinhoso e médicos muito competentes!"
+                    </p>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="flex items-center gap-4 mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Ana Costa" class="w-16 h-16 rounded-full">
+                        <div>
+                            <h4 class="font-bold text-gray-800">Ana Costa</h4>
+                            <div class="text-yellow-500">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">
+                        "O KaiNow Farma me economiza muito dinheiro com medicamentos. Vale cada centavo!"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Final -->
+    <section class="py-20 bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500 text-white relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+            <div class="absolute top-10 right-10 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+            <div class="absolute bottom-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <h2 class="text-4xl md:text-5xl font-black mb-6">
+                Pronto para Conhecer Nossos Produtos?
+            </h2>
+            <p class="text-xl md:text-2xl mb-12 max-w-3xl mx-auto opacity-90">
+                Junte-se a mais de <strong>10.000 pessoas</strong> que já cuidam da saúde com praticidade e qualidade
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
+                <a href="cadastro.html" class="bg-white text-blue-600 px-10 py-5 rounded-full font-black text-xl hover:shadow-2xl transition-all transform hover:scale-105">
+                    <i class="fas fa-rocket mr-2"></i>
+                    Criar Minha Conta Grátis
+                </a>
+                <a href="#contato" class="bg-transparent border-2 border-white text-white px-10 py-5 rounded-full font-black text-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-phone mr-2"></i>
+                    Falar com Consultor
+                </a>
+            </div>
+            
+            <div class="flex items-center justify-center gap-8 text-sm flex-wrap">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-check-circle text-green-300"></i>
+                    <span>Sem fidelidade</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-check-circle text-green-300"></i>
+                    <span>Cancele quando quiser</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-check-circle text-green-300"></i>
+                    <span>7 dias grátis</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Formulário de Contato -->
+    <section id="contato" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="section-title text-4xl md:text-5xl font-black text-gray-800 mb-4">
+                        Fale Conosco
+                    </h2>
+                    <p class="text-xl text-gray-600">
+                        Tire suas dúvidas ou solicite um orçamento personalizado
+                    </p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-3xl p-8 md:p-12">
+                    <form class="space-y-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Nome Completo</label>
+                                <input type="text" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition" placeholder="Seu nome">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Telefone</label>
+                                <input type="tel" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition" placeholder="(00) 00000-0000">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">E-mail</label>
+                            <input type="email" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition" placeholder="seu@email.com">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Produto de Interesse</label>
+                            <select class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition">
+                                <option>KaiNow Mulher</option>
+                                <option>KaiNow Sênior</option>
+                                <option>KaiNow Farma</option>
+                                <option>KaiNow Acolher</option>
+                                <option>KaiNow Orienta</option>
+                                <option>KaiNow Viva Leve</option>
+                                <option>Plano Familiar</option>
+                                <option>Plano Empresarial</option>
+                                <option>Tire uma Dúvida</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Mensagem</label>
+                            <textarea rows="4" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition" placeholder="Como podemos ajudar?"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl transition-all transform hover:scale-105">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Enviar Mensagem
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-heartbeat text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-black">KaiNow</h3>
+                            <p class="text-sm text-gray-400">Saúde Digital</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-6">
+                        Transformando o acesso à saúde no Brasil com tecnologia e humanização.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Produtos</h4>
+                    <ul class="space-y-3">
+                        <li><a href="programa-mulher.html" class="text-gray-400 hover:text-white transition">KaiNow Mulher</a></li>
+                        <li><a href="programa-senior.html" class="text-gray-400 hover:text-white transition">KaiNow Sênior</a></li>
+                        <li><a href="programa-farma.html" class="text-gray-400 hover:text-white transition">KaiNow Farma</a></li>
+                        <li><a href="programa-acolher.html" class="text-gray-400 hover:text-white transition">KaiNow Acolher</a></li>
+                        <li><a href="programa-orienta.html" class="text-gray-400 hover:text-white transition">KaiNow Orienta</a></li>
+                        <li><a href="programa-vivaleve.html" class="text-gray-400 hover:text-white transition">KaiNow Viva Leve</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Especialidades</h4>
+                    <ul class="space-y-3">
+                        <li><a href="index.html#especialidades" class="text-gray-400 hover:text-white transition">Cardiologia</a></li>
+                        <li><a href="index.html#especialidades" class="text-gray-400 hover:text-white transition">Dermatologia</a></li>
+                        <li><a href="index.html#especialidades" class="text-gray-400 hover:text-white transition">Pediatria</a></li>
+                        <li><a href="index.html#especialidades" class="text-gray-400 hover:text-white transition">Ginecologia</a></li>
+                        <li><a href="index.html#especialidades" class="text-gray-400 hover:text-white transition">Psicologia</a></li>
+                        <li><a href="index.html#especialidades" class="text-gray-400 hover:text-white transition">Ver todas (38)</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Contato</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-phone text-blue-400 mt-1"></i>
+                            <div>
+                                <p class="text-gray-400">Central de Atendimento</p>
+                                <p class="font-semibold">0800 123 4567</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-envelope text-blue-400 mt-1"></i>
+                            <div>
+                                <p class="text-gray-400">E-mail</p>
+                                <p class="font-semibold">contato@kainow.com.br</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fab fa-whatsapp text-green-400 mt-1"></i>
+                            <div>
+                                <p class="text-gray-400">WhatsApp</p>
+                                <p class="font-semibold">(11) 99999-9999</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p class="text-gray-400 text-sm">
+                        © 2025 KaiNow Saúde. Todos os direitos reservados.
+                    </p>
+                    <div class="flex gap-6 text-sm">
+                        <a href="#" class="text-gray-400 hover:text-white transition">Política de Privacidade</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">Termos de Uso</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">LGPD</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar background on scroll
+        const navbar = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-xl');
+            } else {
+                navbar.classList.remove('shadow-xl');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar e Corrigir Afiliados - KaiNow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            margin: 20px 0;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 1.1rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .info-box h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .success-box h3 {
+            color: #065f46;
+            margin-bottom: 10px;
+        }
+
+        .error-box {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .error-box h3 {
+            color: #991b1b;
+            margin-bottom: 10px;
+        }
+
+        .field {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            font-family: monospace;
+            color: #1f2937;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading i {
+            font-size: 48px;
+            color: #8b5cf6;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        label {
+            display: block;
+            color: #374151;
+            font-weight: 600;
+            margin: 15px 0 8px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 32px;
+            color: #1e40af;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #1e3a8a;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <h1><i class="fas fa-search"></i> Buscar Afiliado</h1>
+            <p class="subtitle">Digite o username para verificar se existe e corrigir dados</p>
+
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchUsername" 
+                    placeholder="Digite o username (ex: teste1, gelcisilva252)"
+                    autofocus
+                >
+            </div>
+
+            <button class="btn" onclick="buscarAfiliado()">
+                <i class="fas fa-search"></i> Buscar Afiliado
+            </button>
+
+            <button class="btn btn-blue" onclick="listarTodos()">
+                <i class="fas fa-list"></i> Listar Todos os Afiliados
+            </button>
+
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner"></i>
+                <p style="margin-top: 10px; color: #6b7280;">Processando...</p>
+            </div>
+
+            <div id="resultado"></div>
+        </div>
+
+        <p style="text-align: center; color: white; margin-top: 20px;">
+            <a href="dashboard-admin.html" style="color: white; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+            </a>
+        </p>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentDoc = null;
+
+        // Enter para buscar
+        document.getElementById('searchUsername').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') buscarAfiliado();
+        });
+
+        // Buscar afiliado
+        async function buscarAfiliado() {
+            const username = document.getElementById('searchUsername').value.trim();
+            
+            if (!username) {
+                alert('Digite um username!');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const resultado = document.getElementById('resultado');
+            
+            loading.classList.add('active');
+            resultado.innerHTML = '';
+            currentDoc = null;
+
+            try {
+                console.log('🔍 Buscando:', username);
+
+                const snapshot = await db.collection('affiliates')
+                    .where('username', '==', username)
+                    .get();
+
+                loading.classList.remove('active');
+
+                if (snapshot.empty) {
+                    resultado.innerHTML = `
+                        <div class="error-box">
+                            <h3><i class="fas fa-times-circle"></i> Username "${username}" NÃO Encontrado</h3>
+                            
+                            <p style="margin: 15px 0;">
+                                O afiliado não existe no Firestore.
+                            </p>
+
+                            <button class="btn btn-green" onclick="mostrarFormCriar('${username}')">
+                                <i class="fas fa-plus-circle"></i> Criar Afiliado "${username}" Agora
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                currentDoc = snapshot.docs[0];
+                const data = currentDoc.data();
+
+                console.log('✅ Encontrado:', data);
+
+                resultado.innerHTML = `
+                    <div class="success-box">
+                        <h3><i class="fas fa-check-circle"></i> Afiliado Encontrado!</h3>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>📋 Dados Cadastrados:</h3>
+                        <div class="field"><strong>ID Firestore:</strong> ${currentDoc.id}</div>
+                        <div class="field"><strong>Username:</strong> "${data.username}"</div>
+                        <div class="field"><strong>Senha:</strong> "${data.password}"</div>
+                        <div class="field"><strong>Nome:</strong> ${data.name}</div>
+                        <div class="field"><strong>Email:</strong> ${data.email}</div>
+                        <div class="field"><strong>CPF:</strong> ${data.cpf}</div>
+                        <div class="field"><strong>Telefone:</strong> ${data.phone}</div>
+                        <div class="field"><strong>PIX:</strong> ${data.pixKey}</div>
+                        <div class="field"><strong>Comissão:</strong> ${data.commission}%</div>
+                        <div class="field"><strong>Status:</strong> ${data.active ? '✅ Ativo' : '❌ Inativo'}</div>
+                    </div>
+
+                    <button class="btn btn-green" onclick="testarLogin()">
+                        <i class="fas fa-sign-in-alt"></i> Testar Login
+                    </button>
+
+                    <button class="btn btn-blue" onclick="mostrarFormEditar()">
+                        <i class="fas fa-edit"></i> Editar Dados
+                    </button>
+
+                    <button class="btn btn-red" onclick="deletarAfiliado()">
+                        <i class="fas fa-trash"></i> Deletar Afiliado
+                    </button>
+                `;
+
+            } catch (error) {
+                loading.classList.remove('active');
+                console.error('❌ Erro:', error);
+                resultado.innerHTML = `
+                    <div class="error-box">
+                        <h3><i class="fas fa-times-circle"></i> Erro ao Buscar</h3>
+                        <p><strong>Mensagem:</strong> ${error.message}</p>
+                        <p><strong>Code:</strong> ${error.code || 'N/A'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Testar login
+        function testarLogin() {
+            if (!currentDoc) return;
+            const data = currentDoc.data();
+            
+            const loginWindow = window.open('../afiliado/login.html', '_blank');
+            
+            setTimeout(() => {
+                alert(
+                    `🔐 CREDENCIAIS PARA TESTAR:\n\n` +
+                    `Username: ${data.username}\n` +
+                    `Senha: ${data.password}\n\n` +
+                    `Digite na página que foi aberta.`
+                );
+            }, 1000);
+        }
+
+        // Mostrar formulário de criar
+        function mostrarFormCriar(username) {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = `
+                <div class="card" style="background: #f9fafb; padding: 30px;">
+                    <h3 style="color: #1f2937; margin-bottom: 20px;">
+                        <i class="fas fa-plus-circle"></i> Criar Afiliado "${username}"
+                    </h3>
+
+                    <form id="formCriar" onsubmit="event.preventDefault(); criarAfiliado();">
+                        <input type="hidden" id="c_username" value="${username}">
+                        
+                        <label>Senha *</label>
+                        <input type="text" id="c_password" required placeholder="Ex: kainow3v7s9w">
+
+                        <label>Nome Completo *</label>
+                        <input type="text" id="c_name" required placeholder="Ex: João Silva">
+
+                        <label>Email *</label>
+                        <input type="email" id="c_email" required placeholder="Ex: joao@email.com">
+
+                        <label>CPF *</label>
+                        <input type="text" id="c_cpf" required placeholder="Ex: 000.000.000-00">
+
+                        <label>Telefone *</label>
+                        <input type="text" id="c_phone" required placeholder="Ex: (11)99999-9999">
+
+                        <label>Chave PIX *</label>
+                        <input type="text" id="c_pixKey" required placeholder="Ex: 11013430794">
+
+                        <label>Comissão (%) *</label>
+                        <input type="number" id="c_commission" required value="20" min="0" max="100">
+
+                        <button type="submit" class="btn btn-green">
+                            <i class="fas fa-save"></i> Criar Afiliado
+                        </button>
+
+                        <button type="button" class="btn" onclick="buscarAfiliado()">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </button>
+                    </form>
+                </div>
+            `;
+        }
+
+        // Criar afiliado
+        async function criarAfiliado() {
+            const loading = document.getElementById('loading');
+            loading.classList.add('active');
+
+            try {
+                const dados = {
+                    username: document.getElementById('c_username').value.trim(),
+                    password: document.getElementById('c_password').value.trim(),
+                    name: document.getElementById('c_name').value.trim(),
+                    email: document.getElementById('c_email').value.trim(),
+                    cpf: document.getElementById('c_cpf').value.trim(),
+                    phone: document.getElementById('c_phone').value.trim(),
+                    pixKey: document.getElementById('c_pixKey').value.trim(),
+                    commission: parseFloat(document.getElementById('c_commission').value),
+                    active: true,
+                    sales: 0,
+                    totalCommission: 0,
+                    created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: null
+                };
+
+                console.log('💾 Criando:', dados);
+
+                const docRef = await db.collection('affiliates').add(dados);
+
+                console.log('✅ Criado! ID:', docRef.id);
+
+                loading.classList.remove('active');
+
+                document.getElementById('resultado').innerHTML = `
+                    <div class="success-box">
+                        <h3><i class="fas fa-check-circle"></i> Afiliado Criado com Sucesso!</h3>
+                        
+                        <p style="margin: 20px 0;"><strong>Credenciais:</strong></p>
+                        <div class="field"><strong>Username:</strong> ${dados.username}</div>
+                        <div class="field"><strong>Senha:</strong> ${dados.password}</div>
+                        <div class="field"><strong>ID Firestore:</strong> ${docRef.id}</div>
+
+                        <a href="../afiliado/login.html" target="_blank" class="btn btn-green" style="display: block; text-decoration: none; margin-top: 20px;">
+                            <i class="fas fa-sign-in-alt"></i> Testar Login Agora
+                        </a>
+
+                        <button class="btn" onclick="buscarAfiliado()">
+                            <i class="fas fa-search"></i> Buscar Outro Afiliado
+                        </button>
+                    </div>
+                `;
+
+                document.getElementById('searchUsername').value = dados.username;
+
+            } catch (error) {
+                loading.classList.remove('active');
+                console.error('❌ Erro:', error);
+                alert(`Erro ao criar: ${error.message}`);
+            }
+        }
+
+        // Mostrar formulário de editar
+        function mostrarFormEditar() {
+            if (!currentDoc) return;
+            const data = currentDoc.data();
+
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = `
+                <div class="card" style="background: #f9fafb; padding: 30px;">
+                    <h3 style="color: #1f2937; margin-bottom: 20px;">
+                        <i class="fas fa-edit"></i> Editar "${data.username}"
+                    </h3>
+
+                    <form id="formEditar" onsubmit="event.preventDefault(); salvarEdicao();">
+                        <label>Senha *</label>
+                        <input type="text" id="e_password" required value="${data.password}">
+
+                        <label>Nome Completo *</label>
+                        <input type="text" id="e_name" required value="${data.name}">
+
+                        <label>Email *</label>
+                        <input type="email" id="e_email" required value="${data.email}">
+
+                        <label>CPF *</label>
+                        <input type="text" id="e_cpf" required value="${data.cpf}">
+
+                        <label>Telefone *</label>
+                        <input type="text" id="e_phone" required value="${data.phone}">
+
+                        <label>Chave PIX *</label>
+                        <input type="text" id="e_pixKey" required value="${data.pixKey}">
+
+                        <label>Comissão (%) *</label>
+                        <input type="number" id="e_commission" required value="${data.commission}" min="0" max="100">
+
+                        <button type="submit" class="btn btn-green">
+                            <i class="fas fa-save"></i> Salvar Alterações
+                        </button>
+
+                        <button type="button" class="btn" onclick="buscarAfiliado()">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </button>
+                    </form>
+                </div>
+            `;
+        }
+
+        // Salvar edição
+        async function salvarEdicao() {
+            if (!currentDoc) return;
+
+            const loading = document.getElementById('loading');
+            loading.classList.add('active');
+
+            try {
+                const dados = {
+                    password: document.getElementById('e_password').value.trim(),
+                    name: document.getElementById('e_name').value.trim(),
+                    email: document.getElementById('e_email').value.trim(),
+                    cpf: document.getElementById('e_cpf').value.trim(),
+                    phone: document.getElementById('e_phone').value.trim(),
+                    pixKey: document.getElementById('e_pixKey').value.trim(),
+                    commission: parseFloat(document.getElementById('e_commission').value)
+                };
+
+                console.log('💾 Atualizando:', dados);
+
+                await currentDoc.ref.update(dados);
+
+                console.log('✅ Atualizado!');
+
+                loading.classList.remove('active');
+
+                alert('✅ Dados atualizados com sucesso!');
+                buscarAfiliado();
+
+            } catch (error) {
+                loading.classList.remove('active');
+                console.error('❌ Erro:', error);
+                alert(`Erro ao atualizar: ${error.message}`);
+            }
+        }
+
+        // Deletar afiliado
+        async function deletarAfiliado() {
+            if (!currentDoc) return;
+            const data = currentDoc.data();
+
+            if (!confirm(`⚠️ DELETAR afiliado "${data.username}"?\n\nEsta ação não pode ser desfeita!`)) return;
+
+            const loading = document.getElementById('loading');
+            loading.classList.add('active');
+
+            try {
+                console.log('🗑️ Deletando...');
+
+                await currentDoc.ref.delete();
+
+                console.log('✅ Deletado!');
+
+                loading.classList.remove('active');
+
+                document.getElementById('resultado').innerHTML = `
+                    <div class="success-box">
+                        <h3><i class="fas fa-check-circle"></i> Afiliado Deletado!</h3>
+                        <p>O afiliado "${data.username}" foi removido do banco de dados.</p>
+                    </div>
+                `;
+
+                document.getElementById('searchUsername').value = '';
+                currentDoc = null;
+
+            } catch (error) {
+                loading.classList.remove('active');
+                console.error('❌ Erro:', error);
+                alert(`Erro ao deletar: ${error.message}`);
+            }
+        }
+
+        // Listar todos
+        async function listarTodos() {
+            const loading = document.getElementById('loading');
+            const resultado = document.getElementById('resultado');
+            
+            loading.classList.add('active');
+            resultado.innerHTML = '';
+
+            try {
+                const snapshot = await db.collection('affiliates').get();
+
+                loading.classList.remove('active');
+
+                if (snapshot.empty) {
+                    resultado.innerHTML = `
+                        <div class="error-box">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Nenhum Afiliado Encontrado</h3>
+                            <p>A collection "affiliates" está vazia.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="success-box">
+                        <h3><i class="fas fa-users"></i> ${snapshot.size} Afiliado(s) Cadastrado(s)</h3>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-card">
+                            <h3>${snapshot.size}</h3>
+                            <p>Total</p>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+                            <h3>${snapshot.docs.filter(d => d.data().active).length}</h3>
+                            <p>Ativos</p>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+                            <h3>${snapshot.docs.filter(d => !d.data().active).length}</h3>
+                            <p>Inativos</p>
+                        </div>
+                    </div>
+                `;
+
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    html += `
+                        <div class="info-box" style="cursor: pointer;" onclick="document.getElementById('searchUsername').value='${data.username}'; buscarAfiliado();">
+                            <h3><i class="fas fa-user"></i> ${data.name}</h3>
+                            <div class="field"><strong>Username:</strong> ${data.username}</div>
+                            <div class="field"><strong>Email:</strong> ${data.email}</div>
+                            <div class="field"><strong>Comissão:</strong> ${data.commission}%</div>
+                            <p style="margin-top: 10px; color: #6b7280; font-size: 0.9rem;">
+                                <i class="fas fa-mouse-pointer"></i> Clique para ver detalhes
+                            </p>
+                        </div>
+                    `;
+                });
+
+                resultado.innerHTML = html;
+
+            } catch (error) {
+                loading.classList.remove('active');
+                console.error('❌ Erro:', error);
+                resultado.innerHTML = `
+                    <div class="error-box">
+                        <h3><i class="fas fa-times-circle"></i> Erro ao Listar</h3>
+                        <p><strong>Mensagem:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+
+</body>
+</html>

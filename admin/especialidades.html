@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Especialidades - KaiNow Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .menu-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .menu-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .specialty-row {
+            transition: all 0.3s;
+        }
+        .specialty-row:hover {
+            background: #f8fafc;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        .search-box input {
+            padding-left: 3rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 text-white fixed h-full">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fas fa-user-shield"></i>
+                    KaiNow Admin
+                </h1>
+            </div>
+            
+            <nav class="p-4 space-y-2">
+                <a href="dashboard.html" class="menu-link">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span class="ml-3">Dashboard</span>
+                </a>
+                <a href="programas.html" class="menu-link">
+                    <i class="fas fa-heartbeat w-5"></i>
+                    <span class="ml-3">Programas</span>
+                </a>
+                <a href="especialidades.html" class="menu-link active">
+                    <i class="fas fa-stethoscope w-5"></i>
+                    <span class="ml-3">Especialidades</span>
+                </a>
+                <a href="precos.html" class="menu-link">
+                    <i class="fas fa-dollar-sign w-5"></i>
+                    <span class="ml-3">Preços</span>
+                </a>
+                <a href="usuarios.html" class="menu-link">
+                    <i class="fas fa-users w-5"></i>
+                    <span class="ml-3">Usuários</span>
+                </a>
+                <a href="agendamentos.html" class="menu-link">
+                    <i class="fas fa-calendar-check w-5"></i>
+                    <span class="ml-3">Agendamentos</span>
+                </a>
+                <a href="relatorios.html" class="menu-link">
+                    <i class="fas fa-chart-bar w-5"></i>
+                    <span class="ml-3">Relatórios</span>
+                </a>
+                <a href="configuracoes.html" class="menu-link">
+                    <i class="fas fa-cog w-5"></i>
+                    <span class="ml-3">Configurações</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white border-opacity-20">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium" id="admin-name">Admin</p>
+                        <p class="text-xs opacity-75">Administrador</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                            <i class="fas fa-stethoscope text-blue-600"></i>
+                            Gerenciador de Especialidades
+                        </h2>
+                        <p class="text-gray-600 mt-2">Gerencie todas as especialidades médicas disponíveis</p>
+                    </div>
+                    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 shadow-lg">
+                        <i class="fas fa-plus"></i>
+                        Nova Especialidade
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Total de Especialidades</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-1" id="total-specialties">38</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-stethoscope text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Especialidades Ativas</p>
+                            <p class="text-3xl font-bold text-green-600 mt-1" id="active-specialties">38</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Especialidades Inativas</p>
+                            <p class="text-3xl font-bold text-red-600 mt-1" id="inactive-specialties">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Total de Consultas</p>
+                            <p class="text-3xl font-bold text-purple-600 mt-1" id="total-appointments">2,458</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div class="flex gap-4 items-center">
+                    <div class="flex-1 search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" placeholder="Buscar especialidade..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">Todos os status</option>
+                        <option value="active">Apenas ativos</option>
+                        <option value="inactive">Apenas inativos</option>
+                    </select>
+                    <select id="sort-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="name">Ordenar por nome</option>
+                        <option value="appointments">Ordenar por consultas</option>
+                        <option value="date">Ordenar por data</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Specialties Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Ícone</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Especialidade</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Descrição</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Consultas</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="specialties-table" class="divide-y divide-gray-200">
+                        <!-- Table rows will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="empty-state" class="hidden text-center py-12">
+                <i class="fas fa-search text-gray-300 text-6xl mb-4"></i>
+                <p class="text-gray-500 text-lg">Nenhuma especialidade encontrada</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Add/Edit Specialty -->
+    <div id="specialtyModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-800" id="modal-title">
+                    <i class="fas fa-plus-circle text-blue-600 mr-2"></i>
+                    Nova Especialidade
+                </h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="specialtyForm" class="space-y-4">
+                <input type="hidden" id="specialty-id">
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-tag text-gray-400 mr-1"></i>
+                        Nome da Especialidade
+                    </label>
+                    <input type="text" id="specialty-name" required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: Cardiologia">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-icons text-gray-400 mr-1"></i>
+                        Ícone (Font Awesome)
+                    </label>
+                    <input type="text" id="specialty-icon" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: fa-heart-pulse">
+                    <p class="text-xs text-gray-500 mt-1">Use nomes de ícones do Font Awesome (sem prefixo "fas")</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-align-left text-gray-400 mr-1"></i>
+                        Descrição
+                    </label>
+                    <textarea id="specialty-description" required rows="3"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Descreva a especialidade..."></textarea>
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="specialty-status" checked
+                            class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <span class="text-sm font-semibold text-gray-700">Especialidade Ativa</span>
+                    </label>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
+                        <i class="fas fa-save mr-2"></i>
+                        Salvar Especialidade
+                    </button>
+                    <button type="button" onclick="closeModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Authentication Check
+        function checkAuth() {
+            const adminSession = localStorage.getItem('kainow_admin_session');
+            if (!adminSession) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            try {
+                const session = JSON.parse(adminSession);
+                document.getElementById('admin-name').textContent = session.username;
+                return session;
+            } catch (e) {
+                console.error('Erro ao carregar sessão:', e);
+                window.location.href = 'login.html';
+                return null;
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                localStorage.removeItem('kainow_admin_session');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Initialize Specialties Data
+        function initializeSpecialties() {
+            const existingSpecialties = localStorage.getItem('kainow_specialties');
+            
+            if (!existingSpecialties) {
+                const defaultSpecialties = [
+                    { id: 'cardiologia', name: 'Cardiologia', icon: 'fa-heart-pulse', description: 'Especialidade focada no coração e sistema circulatório', status: 'active', appointments: 342 },
+                    { id: 'dermatologia', name: 'Dermatologia', icon: 'fa-hand-dots', description: 'Cuidados com a pele, cabelo e unhas', status: 'active', appointments: 289 },
+                    { id: 'endocrinologia', name: 'Endocrinologia', icon: 'fa-syringe', description: 'Tratamento de distúrbios hormonais', status: 'active', appointments: 156 },
+                    { id: 'gastroenterologia', name: 'Gastroenterologia', icon: 'fa-stomach', description: 'Especialidade do sistema digestivo', status: 'active', appointments: 198 },
+                    { id: 'ginecologia', name: 'Ginecologia', icon: 'fa-venus', description: 'Saúde da mulher e sistema reprodutivo', status: 'active', appointments: 412 },
+                    { id: 'neurologia', name: 'Neurologia', icon: 'fa-brain', description: 'Especialidade do sistema nervoso', status: 'active', appointments: 187 },
+                    { id: 'oftalmologia', name: 'Oftalmologia', icon: 'fa-eye', description: 'Cuidados com a visão e olhos', status: 'active', appointments: 234 },
+                    { id: 'ortopedia', name: 'Ortopedia', icon: 'fa-bone', description: 'Tratamento de ossos e articulações', status: 'active', appointments: 267 },
+                    { id: 'otorrinolaringologia', name: 'Otorrinolaringologia', icon: 'fa-ear-listen', description: 'Ouvido, nariz e garganta', status: 'active', appointments: 145 },
+                    { id: 'pediatria', name: 'Pediatria', icon: 'fa-child', description: 'Saúde infantil e desenvolvimento', status: 'active', appointments: 398 },
+                    { id: 'psiquiatria', name: 'Psiquiatria', icon: 'fa-brain', description: 'Saúde mental e transtornos psiquiátricos', status: 'active', appointments: 276 },
+                    { id: 'urologia', name: 'Urologia', icon: 'fa-kidneys', description: 'Sistema urinário e reprodutor masculino', status: 'active', appointments: 167 },
+                    { id: 'pneumologia', name: 'Pneumologia', icon: 'fa-lungs', description: 'Especialidade do sistema respiratório', status: 'active', appointments: 134 },
+                    { id: 'reumatologia', name: 'Reumatologia', icon: 'fa-person-walking-with-cane', description: 'Doenças das articulações e tecidos', status: 'active', appointments: 112 },
+                    { id: 'nutrição', name: 'Nutrição', icon: 'fa-apple-whole', description: 'Alimentação saudável e dietas', status: 'active', appointments: 289 },
+                    { id: 'psicologia', name: 'Psicologia', icon: 'fa-comments', description: 'Saúde mental e terapia', status: 'active', appointments: 356 },
+                    { id: 'fisioterapia', name: 'Fisioterapia', icon: 'fa-person-walking', description: 'Reabilitação física e motora', status: 'active', appointments: 223 },
+                    { id: 'geriatria', name: 'Geriatria', icon: 'fa-user-shield', description: 'Saúde do idoso', status: 'active', appointments: 178 },
+                    { id: 'angiologia', name: 'Angiologia', icon: 'fa-droplet', description: 'Sistema vascular e circulação', status: 'active', appointments: 98 },
+                    { id: 'hematologia', name: 'Hematologia', icon: 'fa-droplet', description: 'Doenças do sangue', status: 'active', appointments: 87 },
+                    { id: 'infectologia', name: 'Infectologia', icon: 'fa-virus', description: 'Doenças infecciosas', status: 'active', appointments: 76 },
+                    { id: 'nefrologia', name: 'Nefrologia', icon: 'fa-kidneys', description: 'Especialidade dos rins', status: 'active', appointments: 92 },
+                    { id: 'oncologia', name: 'Oncologia', icon: 'fa-ribbon', description: 'Tratamento do câncer', status: 'active', appointments: 124 },
+                    { id: 'proctologia', name: 'Proctologia', icon: 'fa-stethoscope', description: 'Sistema digestivo inferior', status: 'active', apartments: 67 },
+                    { id: 'alergologia', name: 'Alergologia', icon: 'fa-allergies', description: 'Tratamento de alergias', status: 'active', appointments: 189 },
+                    { id: 'cirurgia-geral', name: 'Cirurgia Geral', icon: 'fa-scalpel', description: 'Procedimentos cirúrgicos gerais', status: 'active', appointments: 156 },
+                    { id: 'cirurgia-plastica', name: 'Cirurgia Plástica', icon: 'fa-user-doctor', description: 'Cirurgia estética e reparadora', status: 'active', appointments: 134 },
+                    { id: 'homeopatia', name: 'Homeopatia', icon: 'fa-leaf', description: 'Medicina alternativa homeopática', status: 'active', appointments: 78 },
+                    { id: 'acupuntura', name: 'Acupuntura', icon: 'fa-spa', description: 'Terapia com agulhas', status: 'active', appointments: 89 },
+                    { id: 'medicina-esporte', name: 'Medicina do Esporte', icon: 'fa-running', description: 'Saúde e performance atlética', status: 'active', appointments: 112 },
+                    { id: 'medicina-trabalho', name: 'Medicina do Trabalho', icon: 'fa-briefcase-medical', description: 'Saúde ocupacional', status: 'active', appointments: 145 },
+                    { id: 'radiologia', name: 'Radiologia', icon: 'fa-x-ray', description: 'Exames de imagem', status: 'active', appointments: 267 },
+                    { id: 'patologia', name: 'Patologia', icon: 'fa-microscope', description: 'Análise de tecidos e doenças', status: 'active', appointments: 98 },
+                    { id: 'anestesiologia', name: 'Anestesiologia', icon: 'fa-syringe', description: 'Anestesia e controle da dor', status: 'active', appointments: 178 },
+                    { id: 'cirurgia-cardiovascular', name: 'Cirurgia Cardiovascular', icon: 'fa-heart', description: 'Cirurgia do coração', status: 'active', appointments: 67 },
+                    { id: 'cirurgia-toracica', name: 'Cirurgia Torácica', icon: 'fa-lungs', description: 'Cirurgia do tórax', status: 'active', appointments: 54 },
+                    { id: 'neurocirurgia', name: 'Neurocirurgia', icon: 'fa-brain', description: 'Cirurgia do sistema nervoso', status: 'active', appointments: 43 },
+                    { id: 'mastologia', name: 'Mastologia', icon: 'fa-ribbon', description: 'Saúde das mamas', status: 'active', appointments: 156 }
+                ];
+                
+                localStorage.setItem('kainow_specialties', JSON.stringify(defaultSpecialties));
+                return defaultSpecialties;
+            }
+            
+            return JSON.parse(existingSpecialties);
+        }
+
+        let allSpecialties = [];
+
+        // Load Specialties
+        function loadSpecialties() {
+            allSpecialties = initializeSpecialties();
+            applyFilters();
+        }
+
+        // Apply Filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const sortBy = document.getElementById('sort-select').value;
+            
+            let filtered = allSpecialties.filter(specialty => {
+                const matchesSearch = specialty.name.toLowerCase().includes(searchTerm) ||
+                                    specialty.description.toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || specialty.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            // Sort
+            if (sortBy === 'name') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortBy === 'appointments') {
+                filtered.sort((a, b) => (b.appointments || 0) - (a.appointments || 0));
+            } else if (sortBy === 'date') {
+                filtered.sort((a, b) => (b.id || '').localeCompare(a.id || ''));
+            }
+            
+            renderTable(filtered);
+            updateStats(allSpecialties);
+        }
+
+        // Render Table
+        function renderTable(specialties) {
+            const tbody = document.getElementById('specialties-table');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (specialties.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            tbody.innerHTML = specialties.map(specialty => `
+                <tr class="specialty-row">
+                    <td class="px-6 py-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas ${specialty.icon} text-blue-600"></i>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <p class="font-semibold text-gray-800">${specialty.name}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <p class="text-sm text-gray-600">${specialty.description}</p>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="text-lg font-bold text-blue-600">${specialty.appointments || 0}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="badge ${specialty.status === 'active' ? 'badge-active' : 'badge-inactive'}">
+                            ${specialty.status === 'active' ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex justify-center gap-2">
+                            <button onclick="editSpecialty('${specialty.id}')" 
+                                class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-edit mr-1"></i>Editar
+                            </button>
+                            <button onclick="deleteSpecialty('${specialty.id}')" 
+                                class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-trash mr-1"></i>Excluir
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Update Stats
+        function updateStats(specialties) {
+            const active = specialties.filter(s => s.status === 'active').length;
+            const inactive = specialties.length - active;
+            const totalAppointments = specialties.reduce((sum, s) => sum + (s.appointments || 0), 0);
+            
+            document.getElementById('total-specialties').textContent = specialties.length;
+            document.getElementById('active-specialties').textContent = active;
+            document.getElementById('inactive-specialties').textContent = inactive;
+            document.getElementById('total-appointments').textContent = totalAppointments.toLocaleString('pt-BR');
+        }
+
+        // Modal Functions
+        function openModal(specialtyId = null) {
+            const modal = document.getElementById('specialtyModal');
+            const form = document.getElementById('specialtyForm');
+            const title = document.getElementById('modal-title');
+            
+            form.reset();
+            
+            if (specialtyId) {
+                const specialty = allSpecialties.find(s => s.id === specialtyId);
+                
+                if (specialty) {
+                    title.innerHTML = '<i class="fas fa-edit text-blue-600 mr-2"></i>Editar Especialidade';
+                    document.getElementById('specialty-id').value = specialty.id;
+                    document.getElementById('specialty-name').value = specialty.name;
+                    document.getElementById('specialty-icon').value = specialty.icon;
+                    document.getElementById('specialty-description').value = specialty.description;
+                    document.getElementById('specialty-status').checked = specialty.status === 'active';
+                }
+            } else {
+                title.innerHTML = '<i class="fas fa-plus-circle text-blue-600 mr-2"></i>Nova Especialidade';
+                document.getElementById('specialty-status').checked = true;
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('specialtyModal');
+            modal.classList.remove('show');
+        }
+
+        // Edit Specialty
+        function editSpecialty(specialtyId) {
+            openModal(specialtyId);
+        }
+
+        // Delete Specialty
+        function deleteSpecialty(specialtyId) {
+            if (!confirm('Tem certeza que deseja excluir esta especialidade?')) {
+                return;
+            }
+            
+            allSpecialties = allSpecialties.filter(s => s.id !== specialtyId);
+            localStorage.setItem('kainow_specialties', JSON.stringify(allSpecialties));
+            applyFilters();
+            showNotification('Especialidade excluída com sucesso!', 'success');
+        }
+
+        // Form Submit
+        document.getElementById('specialtyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const specialtyId = document.getElementById('specialty-id').value;
+            const name = document.getElementById('specialty-name').value;
+            const icon = document.getElementById('specialty-icon').value;
+            const description = document.getElementById('specialty-description').value;
+            const status = document.getElementById('specialty-status').checked ? 'active' : 'inactive';
+            
+            if (specialtyId) {
+                // Update existing
+                const index = allSpecialties.findIndex(s => s.id === specialtyId);
+                if (index !== -1) {
+                    allSpecialties[index] = {
+                        ...allSpecialties[index],
+                        name,
+                        icon,
+                        description,
+                        status
+                    };
+                }
+                showNotification('Especialidade atualizada com sucesso!', 'success');
+            } else {
+                // Create new
+                const newSpecialty = {
+                    id: 'specialty-' + Date.now(),
+                    name,
+                    icon,
+                    description,
+                    status,
+                    appointments: 0
+                };
+                allSpecialties.push(newSpecialty);
+                showNotification('Especialidade criada com sucesso!', 'success');
+            }
+            
+            localStorage.setItem('kainow_specialties', JSON.stringify(allSpecialties));
+            closeModal();
+            applyFilters();
+        });
+
+        // Show Notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Event Listeners
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+        document.getElementById('status-filter').addEventListener('change', applyFilters);
+        document.getElementById('sort-select').addEventListener('change', applyFilters);
+
+        // Initialize
+        checkAuth();
+        loadSpecialties();
+
+        // Close modal on outside click
+        document.getElementById('specialtyModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

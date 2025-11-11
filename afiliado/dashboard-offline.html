@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Divulgador KaiNow (Modo Offline)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white text-blue-600 w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl">
+                        <span id="header-initial">D</span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold" id="header-name">Divulgador</h1>
+                        <p class="text-sm opacity-90" id="header-id">ID: AFF...</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <div class="bg-yellow-500 text-black px-3 py-1 rounded text-xs font-bold flex items-center">
+                        <i class="fas fa-wifi-slash mr-2"></i>
+                        MODO OFFLINE
+                    </div>
+                    <button 
+                        onclick="tentarReconectar()"
+                        class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition text-sm"
+                        title="Tentar conectar ao servidor"
+                    >
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        Reconectar
+                    </button>
+                    <button 
+                        onclick="logout()"
+                        class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition"
+                    >
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Alerta Modo Offline -->
+        <div class="mb-6 bg-gradient-to-r from-yellow-400 to-orange-400 border-4 border-yellow-500 rounded-2xl p-6 shadow-2xl">
+            <div class="flex items-start">
+                <div class="bg-white rounded-full w-16 h-16 flex items-center justify-center mr-4 shadow-lg">
+                    <i class="fas fa-wifi-slash text-orange-600 text-3xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-white text-2xl mb-3 drop-shadow-lg">
+                        🔌 MODO OFFLINE ATIVADO
+                    </h3>
+                    <p class="text-white text-base mb-3 drop-shadow-md">
+                        <strong>Você está usando a versão offline do dashboard.</strong><br>
+                        Seus links de divulgação estão prontos para uso, mas suas estatísticas podem estar desatualizadas.
+                    </p>
+                    <div class="bg-white/30 backdrop-blur rounded-lg p-3 mt-3">
+                        <p class="text-white text-sm font-semibold">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Por que estou no modo offline?
+                        </p>
+                        <p class="text-white text-xs mt-1">
+                            Seu dispositivo não conseguiu conectar ao servidor Firebase. Isso pode ser devido a problemas de internet, firewall, ou bloqueio regional.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards de Estatísticas -->
+        <div class="grid md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Total de Vendas</p>
+                        <h2 class="text-3xl font-bold text-gray-800" id="total-sales">0</h2>
+                    </div>
+                    <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center">
+                        <i class="fas fa-shopping-cart text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Comissão Total</p>
+                        <h2 class="text-3xl font-bold text-green-600" id="total-commission">R$ 0,00</h2>
+                    </div>
+                    <div class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Sua Comissão</p>
+                        <h2 class="text-3xl font-bold text-purple-600" id="commission-rate">20%</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Cliques no Link</p>
+                        <h2 class="text-3xl font-bold text-orange-600" id="total-clicks">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links de Divulgação -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-link mr-2 text-blue-600"></i>
+                Seus Links de Divulgação
+            </h2>
+            <div id="affiliate-links" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <script>
+        function checkAuth() {
+            const session = localStorage.getItem('kainow_affiliate_session') || 
+                           sessionStorage.getItem('kainow_affiliate_session');
+            
+            if (!session) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            return JSON.parse(session);
+        }
+
+        function loadAffiliateData() {
+            const session = checkAuth();
+            if (!session) return;
+
+            // Atualizar header
+            document.getElementById('header-name').textContent = session.name || 'Divulgador';
+            document.getElementById('header-id').textContent = 'ID: ' + (session.username || 'N/A');
+            document.getElementById('header-initial').textContent = (session.name || 'D').charAt(0).toUpperCase();
+
+            // Atualizar comissão
+            document.getElementById('commission-rate').textContent = (session.commission || 20) + '%';
+
+            // Gerar links
+            generateAffiliateLinks(session);
+        }
+
+        function generateAffiliateLinks(session) {
+            const products = [
+                { id: 'mulher', name: 'KaiNow Mulher', price: '49,90', icon: 'fa-venus', color: 'pink' },
+                { id: 'senior', name: 'KaiNow Sênior', price: '59,90', icon: 'fa-user-shield', color: 'amber' },
+                { id: 'farma', name: 'KaiNow Farma', price: '19,90', icon: 'fa-pills', color: 'green' },
+                { id: 'acolher', name: 'KaiNow Acolher', price: '24,90', icon: 'fa-hands-holding-child', color: 'blue' },
+                { id: 'orienta', name: 'KaiNow Orienta', price: '19,90', icon: 'fa-lightbulb', color: 'purple' },
+                { id: 'vivaleve', name: 'KaiNow Viva Leve', price: '24,90', icon: 'fa-spa', color: 'teal' }
+            ];
+
+            const linksContainer = document.getElementById('affiliate-links');
+            const refParam = session.username;
+            const commission = session.commission || 20;
+            
+            linksContainer.innerHTML = products.map(product => {
+                const link = `https://kainow.com.br/programa-${product.id}.html?ref=${refParam}`;
+                const commissionValue = (parseFloat(product.price.replace(',', '.')) * commission / 100).toFixed(2).replace('.', ',');
+                
+                return `
+                    <div class="border-2 border-gray-200 hover:border-blue-300 rounded-lg p-4 transition">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4 flex-1">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100">
+                                    <i class="fas ${product.icon} text-blue-600 text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-gray-800">${product.name}</h4>
+                                    <p class="text-sm text-gray-600">R$ ${product.price}/mês • Você ganha R$ ${commissionValue}</p>
+                                    <div class="flex items-center mt-2">
+                                        <input 
+                                            type="text" 
+                                            value="${link}" 
+                                            readonly 
+                                            id="link-${product.id}"
+                                            class="flex-1 text-xs bg-gray-50 border border-gray-300 rounded px-2 py-1 mr-2"
+                                        >
+                                        <button 
+                                            onclick="copyLink('link-${product.id}')"
+                                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition"
+                                        >
+                                            <i class="fas fa-copy mr-1"></i>Copiar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function copyLink(inputId) {
+            const input = document.getElementById(inputId);
+            input.select();
+            document.execCommand('copy');
+            
+            const button = input.nextElementSibling;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check mr-1"></i>Copiado!';
+            button.classList.add('bg-green-500');
+            button.classList.remove('bg-blue-500');
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('bg-green-500');
+                button.classList.add('bg-blue-500');
+            }, 2000);
+        }
+
+        function logout() {
+            if (confirm('Deseja sair do painel?')) {
+                localStorage.removeItem('kainow_affiliate_session');
+                sessionStorage.removeItem('kainow_affiliate_session');
+                window.location.href = 'login.html';
+            }
+        }
+
+        function tentarReconectar() {
+            if (confirm('🔄 Tentar reconectar ao servidor?\n\nIsso vai redirecionar você para o dashboard online e verificar se o servidor Firebase está acessível agora.')) {
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        loadAffiliateData();
+    </script>
+</body>
+</html>

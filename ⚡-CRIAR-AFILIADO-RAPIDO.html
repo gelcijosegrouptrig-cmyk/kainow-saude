@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Criar Afiliado Rápido - KaiNow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
+    
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="bg-gradient-to-r from-green-400 to-blue-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-user-plus text-white text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">⚡ Criar Afiliado Rápido</h1>
+            <p class="text-gray-600">Configure Firebase e crie seu primeiro afiliado</p>
+        </div>
+
+        <!-- Etapa 1: Credenciais Firebase -->
+        <div class="mb-8">
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+                <h2 class="text-xl font-bold text-blue-800 mb-2">
+                    <i class="fas fa-fire text-orange-500 mr-2"></i>
+                    Etapa 1: Configurar Firebase
+                </h2>
+                <p class="text-blue-700 text-sm mb-3">
+                    Cole aqui as credenciais do seu projeto Firebase
+                </p>
+                
+                <div class="space-y-3">
+                    <input 
+                        type="text" 
+                        id="apiKey" 
+                        value="AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs"
+                        placeholder="apiKey (ex: AIzaSyD...)"
+                        class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                    <input 
+                        type="text" 
+                        id="authDomain" 
+                        value="kainowsaude.firebaseapp.com"
+                        placeholder="authDomain (ex: kainow-123.firebaseapp.com)"
+                        class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                    <input 
+                        type="text" 
+                        id="projectId" 
+                        value="kainowsaude"
+                        placeholder="projectId (ex: kainow-123)"
+                        class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                    <input 
+                        type="text" 
+                        id="storageBucket" 
+                        value="kainowsaude.firebasestorage.app"
+                        placeholder="storageBucket (ex: kainow-123.appspot.com)"
+                        class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                    <input 
+                        type="text" 
+                        id="messagingSenderId" 
+                        value="230049250523"
+                        placeholder="messagingSenderId (ex: 123456789012)"
+                        class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                    <input 
+                        type="text" 
+                        id="appId" 
+                        value="1:230049250523:web:ce16ada5c4e5488e64e0fe"
+                        placeholder="appId (ex: 1:123...)"
+                        class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                </div>
+
+                <button 
+                    onclick="testarFirebase()"
+                    class="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition"
+                >
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Testar Conexão Firebase
+                </button>
+            </div>
+        </div>
+
+        <!-- Etapa 2: Dados do Afiliado -->
+        <div class="mb-8" id="etapa-afiliado" style="display: none;">
+            <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
+                <h2 class="text-xl font-bold text-green-800 mb-2">
+                    <i class="fas fa-user text-green-600 mr-2"></i>
+                    Etapa 2: Dados do Afiliado
+                </h2>
+                <p class="text-green-700 text-sm mb-3">
+                    Preencha os dados do primeiro afiliado
+                </p>
+                
+                <div class="space-y-3">
+                    <input 
+                        type="text" 
+                        id="username" 
+                        value="gelcijosegrouptrig"
+                        placeholder="Usuário (para login)"
+                        class="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    >
+                    <input 
+                        type="password" 
+                        id="password" 
+                        value="Senha123!"
+                        placeholder="Senha"
+                        class="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    >
+                    <input 
+                        type="text" 
+                        id="name" 
+                        value="Gelci José"
+                        placeholder="Nome Completo"
+                        class="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    >
+                    <input 
+                        type="email" 
+                        id="email" 
+                        value="gelci@example.com"
+                        placeholder="E-mail"
+                        class="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    >
+                    <input 
+                        type="text" 
+                        id="cpf" 
+                        value="000.000.000-00"
+                        placeholder="CPF"
+                        class="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    >
+                    <input 
+                        type="text" 
+                        id="phone" 
+                        value="(11) 99999-9999"
+                        placeholder="Telefone"
+                        class="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    >
+                    <input 
+                        type="text" 
+                        id="pixKey" 
+                        value="gelci@pix.com"
+                        placeholder="Chave PIX"
+                        class="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    >
+                    <input 
+                        type="number" 
+                        id="commission" 
+                        value="25"
+                        placeholder="Comissão (%)"
+                        class="w-full px-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    >
+                </div>
+
+                <button 
+                    onclick="criarAfiliado()"
+                    class="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition"
+                >
+                    <i class="fas fa-rocket mr-2"></i>
+                    Criar Afiliado no Firebase
+                </button>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div id="status" class="hidden mb-4"></div>
+
+        <!-- Instruções -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <h3 class="font-bold text-yellow-800 mb-2">
+                <i class="fas fa-lightbulb mr-2"></i>
+                Como usar:
+            </h3>
+            <ol class="text-sm text-yellow-700 space-y-1 list-decimal list-inside">
+                <li>Acesse Firebase Console e copie as credenciais</li>
+                <li>Cole nas caixas acima e clique em "Testar Conexão"</li>
+                <li>Se conectar com sucesso, preencha dados do afiliado</li>
+                <li>Clique em "Criar Afiliado no Firebase"</li>
+                <li>Pronto! Teste o login em: <strong>/afiliado</strong></li>
+            </ol>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        let db = null;
+
+        function mostrarStatus(mensagem, tipo) {
+            const status = document.getElementById('status');
+            status.className = `p-4 rounded-lg ${tipo === 'sucesso' ? 'bg-green-100 text-green-800 border border-green-300' : tipo === 'erro' ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-blue-100 text-blue-800 border border-blue-300'}`;
+            status.innerHTML = `<strong>${tipo === 'sucesso' ? '✅' : tipo === 'erro' ? '❌' : 'ℹ️'}</strong> ${mensagem}`;
+            status.classList.remove('hidden');
+        }
+
+        async function testarFirebase() {
+            try {
+                const apiKey = document.getElementById('apiKey').value.trim();
+                const authDomain = document.getElementById('authDomain').value.trim();
+                const projectId = document.getElementById('projectId').value.trim();
+                const storageBucket = document.getElementById('storageBucket').value.trim();
+                const messagingSenderId = document.getElementById('messagingSenderId').value.trim();
+                const appId = document.getElementById('appId').value.trim();
+
+                if (!apiKey || !authDomain || !projectId) {
+                    mostrarStatus('Por favor, preencha pelo menos apiKey, authDomain e projectId', 'erro');
+                    return;
+                }
+
+                mostrarStatus('Conectando ao Firebase...', 'info');
+
+                const firebaseConfig = {
+                    apiKey,
+                    authDomain,
+                    projectId,
+                    storageBucket,
+                    messagingSenderId,
+                    appId
+                };
+
+                // Inicializar Firebase
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                } else {
+                    firebase.app(); // usa app já inicializado
+                }
+                
+                db = firebase.firestore();
+
+                // Testar conexão
+                await db.collection('_test').doc('_test').set({ test: true });
+                await db.collection('_test').doc('_test').delete();
+
+                mostrarStatus('✅ Firebase conectado com sucesso! Agora preencha os dados do afiliado abaixo.', 'sucesso');
+                document.getElementById('etapa-afiliado').style.display = 'block';
+
+            } catch (error) {
+                console.error('Erro Firebase:', error);
+                mostrarStatus(`Erro ao conectar Firebase: ${error.message}. Verifique as credenciais.`, 'erro');
+            }
+        }
+
+        async function criarAfiliado() {
+            if (!db) {
+                mostrarStatus('Conecte ao Firebase primeiro (Etapa 1)', 'erro');
+                return;
+            }
+
+            try {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const cpf = document.getElementById('cpf').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const pixKey = document.getElementById('pixKey').value.trim();
+                const commission = parseInt(document.getElementById('commission').value);
+
+                if (!username || !password || !name || !email) {
+                    mostrarStatus('Preencha pelo menos: usuário, senha, nome e email', 'erro');
+                    return;
+                }
+
+                mostrarStatus('Criando afiliado no Firebase...', 'info');
+
+                const affiliateData = {
+                    username,
+                    password, // Em produção, use hash
+                    name,
+                    email,
+                    cpf,
+                    phone,
+                    pixKey,
+                    commission,
+                    active: true,
+                    created_at: firebase.firestore.Timestamp.now(),
+                    sales: 0,
+                    totalCommission: 0
+                };
+
+                const docRef = await db.collection('affiliates').add(affiliateData);
+
+                mostrarStatus(`✅ SUCESSO! Afiliado criado com ID: ${docRef.id}<br><br>
+                    <strong>🔑 Dados de Login:</strong><br>
+                    Usuário: <strong>${username}</strong><br>
+                    Senha: <strong>${password}</strong><br><br>
+                    <strong>🌐 Testar em:</strong><br>
+                    <a href="/afiliado" class="text-blue-600 underline">https://kainow.com.br/afiliado</a><br><br>
+                    ⚠️ Anote esses dados! Você precisará deles para fazer login.
+                `, 'sucesso');
+
+            } catch (error) {
+                console.error('Erro ao criar afiliado:', error);
+                mostrarStatus(`Erro ao criar afiliado: ${error.message}`, 'erro');
+            }
+        }
+    </script>
+
+</body>
+</html>

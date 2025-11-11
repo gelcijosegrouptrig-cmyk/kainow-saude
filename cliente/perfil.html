@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - KaiNow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center">
+                        <i class="fas fa-heartbeat text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">KaiNow Saúde</h1>
+                        <p class="text-sm text-gray-600" id="header-nome">Cliente</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-blue-600 font-semibold">
+                        <i class="fas fa-home mr-1"></i> Início
+                    </a>
+                    <a href="agendamentos.html" class="text-gray-700 hover:text-blue-600 font-semibold">
+                        <i class="fas fa-calendar-alt mr-1"></i> Consultas
+                    </a>
+                    <a href="perfil.html" class="text-blue-600 font-semibold">
+                        <i class="fas fa-user mr-1"></i> Perfil
+                    </a>
+                    <button onclick="fazerLogout()" class="text-red-600 hover:text-red-800 font-semibold">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Sair
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+
+        <!-- Título -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-user-edit text-blue-600 mr-3"></i>
+                Meu Perfil
+            </h2>
+            <p class="text-gray-600">Gerencie suas informações pessoais</p>
+        </div>
+
+        <!-- Card de Perfil -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-6">
+            
+            <!-- Foto de Perfil -->
+            <div class="flex flex-col items-center mb-8">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 w-24 h-24 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4">
+                    <span id="user-initials">?</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800" id="profile-nome">Carregando...</h3>
+                <p class="text-gray-600" id="profile-email">email@example.com</p>
+            </div>
+
+            <!-- Dados Pessoais -->
+            <div class="border-t pt-6">
+                <h4 class="text-lg font-bold text-gray-800 mb-4">
+                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                    Dados Pessoais
+                </h4>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    
+                    <!-- Nome -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo</label>
+                        <input 
+                            type="text" 
+                            id="input-nome"
+                            disabled
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-100 text-gray-700"
+                        >
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                        <input 
+                            type="email" 
+                            id="input-email"
+                            disabled
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-100 text-gray-700"
+                        >
+                    </div>
+
+                    <!-- CPF -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">CPF</label>
+                        <input 
+                            type="text" 
+                            id="input-cpf"
+                            disabled
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-100 text-gray-700"
+                        >
+                    </div>
+
+                    <!-- Telefone -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Telefone</label>
+                        <input 
+                            type="text" 
+                            id="input-telefone"
+                            disabled
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-100 text-gray-700"
+                        >
+                    </div>
+
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="flex gap-4 mt-6">
+                    <button 
+                        id="btn-editar" 
+                        onclick="habilitarEdicao()" 
+                        class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all"
+                    >
+                        <i class="fas fa-edit mr-2"></i>
+                        Editar Dados
+                    </button>
+                    <button 
+                        id="btn-salvar" 
+                        onclick="salvarAlteracoes()" 
+                        style="display: none;"
+                        class="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all"
+                    >
+                        <i class="fas fa-save mr-2"></i>
+                        Salvar Alterações
+                    </button>
+                    <button 
+                        id="btn-cancelar" 
+                        onclick="cancelarEdicao()" 
+                        style="display: none;"
+                        class="flex-1 bg-gray-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all"
+                    >
+                        <i class="fas fa-times mr-2"></i>
+                        Cancelar
+                    </button>
+                </div>
+                
+                <!-- Mensagem de Sucesso/Erro -->
+                <div id="msg-feedback" style="display: none;" class="mt-4 p-4 rounded-xl"></div>
+            </div>
+
+        </div>
+
+        <!-- Card do Plano -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-6">
+            <h4 class="text-lg font-bold text-gray-800 mb-4">
+                <i class="fas fa-clipboard-list text-green-600 mr-2"></i>
+                Meu Plano
+            </h4>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                
+                <!-- Plano Contratado -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Plano Contratado</label>
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-3 border-2 border-blue-200 rounded-xl">
+                        <p class="font-bold text-gray-800" id="plano-nome">Carregando...</p>
+                    </div>
+                </div>
+
+                <!-- Valor Mensal -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Valor Mensal</label>
+                    <div class="bg-green-50 px-4 py-3 border-2 border-green-200 rounded-xl">
+                        <p class="font-bold text-green-600 text-xl" id="plano-valor">R$ 0,00</p>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <div class="bg-green-50 px-4 py-3 border-2 border-green-200 rounded-xl">
+                        <p class="font-bold text-green-600">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Ativo
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Data de Cadastro -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Cliente desde</label>
+                    <div class="bg-gray-50 px-4 py-3 border-2 border-gray-200 rounded-xl">
+                        <p class="font-bold text-gray-700" id="plano-data">-</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Botão de Suporte -->
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-6 text-white text-center">
+            <i class="fas fa-headset text-4xl mb-3"></i>
+            <h4 class="text-xl font-bold mb-2">Precisa de Ajuda?</h4>
+            <p class="mb-4 opacity-90">Nossa equipe está disponível 24 horas por dia</p>
+            <a 
+                href="https://wa.me/5511999999999" 
+                target="_blank"
+                class="inline-block bg-white text-purple-600 px-8 py-3 rounded-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all"
+            >
+                <i class="fab fa-whatsapp mr-2"></i>
+                Falar com Suporte
+            </a>
+        </div>
+
+    </main>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAcU5V5fGTd1OBx4jmH3d7qdvPMh-bPBE",
+            authDomain: "kainowmedic-fa477.firebaseapp.com",
+            projectId: "kainowmedic-fa477",
+            storageBucket: "kainowmedic-fa477.firebasestorage.app",
+            messagingSenderId: "144366365597",
+            appId: "1:144366365597:web:6e4c95fb8e0e7267bb72b2",
+            measurementId: "G-RJQY0XEGXK"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // Estado de edição
+        let modoEdicao = false;
+        let dadosOriginais = {};
+        
+        // Verificar autenticação
+        function verificarAuth() {
+            const sessionData = localStorage.getItem('kainow_cliente_session') || 
+                               sessionStorage.getItem('kainow_cliente_session');
+            
+            if (!sessionData) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            return JSON.parse(sessionData);
+        }
+
+        // Logout
+        function fazerLogout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                localStorage.removeItem('kainow_cliente_session');
+                sessionStorage.removeItem('kainow_cliente_session');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Carregar dados
+        function carregarDados() {
+            const cliente = verificarAuth();
+            if (!cliente) return;
+
+            // Header
+            document.getElementById('header-nome').textContent = cliente.nome.split(' ')[0];
+
+            // Iniciais
+            const iniciais = cliente.nome.split(' ')
+                .map(n => n[0])
+                .slice(0, 2)
+                .join('')
+                .toUpperCase();
+            document.getElementById('user-initials').textContent = iniciais;
+
+            // Perfil
+            document.getElementById('profile-nome').textContent = cliente.nome;
+            document.getElementById('profile-email').textContent = cliente.email;
+
+            // Inputs
+            document.getElementById('input-nome').value = cliente.nome;
+            document.getElementById('input-email').value = cliente.email;
+            document.getElementById('input-cpf').value = cliente.cpf;
+            document.getElementById('input-telefone').value = cliente.telefone;
+
+            // Plano
+            document.getElementById('plano-nome').textContent = cliente.programaNome || cliente.programa;
+            
+            const valorFormatado = typeof cliente.valorMensal === 'number' 
+                ? `R$ ${cliente.valorMensal.toFixed(2).replace('.', ',')}` 
+                : cliente.valorMensal;
+            document.getElementById('plano-valor').textContent = valorFormatado;
+
+            // Data de cadastro
+            if (cliente.dataCadastro) {
+                let dataFormatada;
+                if (cliente.dataCadastro.seconds) {
+                    const data = new Date(cliente.dataCadastro.seconds * 1000);
+                    dataFormatada = data.toLocaleDateString('pt-BR');
+                } else if (typeof cliente.dataCadastro === 'string') {
+                    const data = new Date(cliente.dataCadastro);
+                    dataFormatada = data.toLocaleDateString('pt-BR');
+                } else {
+                    dataFormatada = 'Data não disponível';
+                }
+                document.getElementById('plano-data').textContent = dataFormatada;
+            }
+        }
+
+        // Habilitar edição
+        function habilitarEdicao() {
+            modoEdicao = true;
+            
+            // Salvar dados originais
+            dadosOriginais = {
+                nome: document.getElementById('input-nome').value,
+                email: document.getElementById('input-email').value,
+                telefone: document.getElementById('input-telefone').value
+            };
+            
+            // Habilitar campos editáveis
+            document.getElementById('input-nome').disabled = false;
+            document.getElementById('input-nome').classList.remove('bg-gray-100');
+            document.getElementById('input-nome').classList.add('bg-white', 'border-blue-300');
+            
+            document.getElementById('input-email').disabled = false;
+            document.getElementById('input-email').classList.remove('bg-gray-100');
+            document.getElementById('input-email').classList.add('bg-white', 'border-blue-300');
+            
+            document.getElementById('input-telefone').disabled = false;
+            document.getElementById('input-telefone').classList.remove('bg-gray-100');
+            document.getElementById('input-telefone').classList.add('bg-white', 'border-blue-300');
+            
+            // Trocar botões
+            document.getElementById('btn-editar').style.display = 'none';
+            document.getElementById('btn-salvar').style.display = 'block';
+            document.getElementById('btn-cancelar').style.display = 'block';
+            
+            // Focar no primeiro campo
+            document.getElementById('input-nome').focus();
+        }
+        
+        // Cancelar edição
+        function cancelarEdicao() {
+            if (!confirm('Tem certeza? As alterações serão perdidas.')) {
+                return;
+            }
+            
+            // Restaurar dados originais
+            document.getElementById('input-nome').value = dadosOriginais.nome;
+            document.getElementById('input-email').value = dadosOriginais.email;
+            document.getElementById('input-telefone').value = dadosOriginais.telefone;
+            
+            // Desabilitar campos
+            desabilitarEdicao();
+        }
+        
+        // Desabilitar edição
+        function desabilitarEdicao() {
+            modoEdicao = false;
+            
+            // Desabilitar campos
+            document.getElementById('input-nome').disabled = true;
+            document.getElementById('input-nome').classList.add('bg-gray-100');
+            document.getElementById('input-nome').classList.remove('bg-white', 'border-blue-300');
+            
+            document.getElementById('input-email').disabled = true;
+            document.getElementById('input-email').classList.add('bg-gray-100');
+            document.getElementById('input-email').classList.remove('bg-white', 'border-blue-300');
+            
+            document.getElementById('input-telefone').disabled = true;
+            document.getElementById('input-telefone').classList.add('bg-gray-100');
+            document.getElementById('input-telefone').classList.remove('bg-white', 'border-blue-300');
+            
+            // Trocar botões
+            document.getElementById('btn-editar').style.display = 'block';
+            document.getElementById('btn-salvar').style.display = 'none';
+            document.getElementById('btn-cancelar').style.display = 'none';
+        }
+        
+        // Máscara de telefone
+        function aplicarMascaraTelefone(valor) {
+            valor = valor.replace(/\D/g, '');
+            if (valor.length <= 10) {
+                return valor.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+            } else {
+                return valor.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            }
+        }
+        
+        // Aplicar máscara ao digitar
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputTelefone = document.getElementById('input-telefone');
+            inputTelefone?.addEventListener('input', function(e) {
+                e.target.value = aplicarMascaraTelefone(e.target.value);
+            });
+        });
+        
+        // Salvar alterações
+        async function salvarAlteracoes() {
+            const cliente = verificarAuth();
+            if (!cliente) return;
+            
+            // Obter valores
+            const novoNome = document.getElementById('input-nome').value.trim();
+            const novoEmail = document.getElementById('input-email').value.trim();
+            const novoTelefone = document.getElementById('input-telefone').value.trim();
+            
+            // Validações
+            if (!novoNome) {
+                mostrarFeedback('Por favor, preencha o nome.', 'erro');
+                return;
+            }
+            
+            if (!novoEmail || !novoEmail.includes('@')) {
+                mostrarFeedback('Por favor, preencha um email válido.', 'erro');
+                return;
+            }
+            
+            if (!novoTelefone) {
+                mostrarFeedback('Por favor, preencha o telefone.', 'erro');
+                return;
+            }
+            
+            // Mostrar loading
+            const btnSalvar = document.getElementById('btn-salvar');
+            btnSalvar.disabled = true;
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...';
+            
+            try {
+                // Atualizar no Firestore
+                await db.collection('clientes').doc(cliente.id).update({
+                    nome: novoNome,
+                    email: novoEmail,
+                    telefone: novoTelefone,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Atualizar sessão
+                cliente.nome = novoNome;
+                cliente.email = novoEmail;
+                cliente.telefone = novoTelefone;
+                
+                const storageKey = localStorage.getItem('kainow_cliente_session') ? 'kainow_cliente_session' : 'kainow_cliente_session';
+                const storageType = localStorage.getItem('kainow_cliente_session') ? localStorage : sessionStorage;
+                storageType.setItem(storageKey, JSON.stringify(cliente));
+                
+                // Atualizar interface
+                document.getElementById('profile-nome').textContent = novoNome;
+                document.getElementById('profile-email').textContent = novoEmail;
+                document.getElementById('header-nome').textContent = novoNome.split(' ')[0];
+                
+                // Atualizar iniciais
+                const iniciais = novoNome.split(' ')
+                    .map(n => n[0])
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase();
+                document.getElementById('user-initials').textContent = iniciais;
+                
+                // Desabilitar edição
+                desabilitarEdicao();
+                
+                // Mostrar sucesso
+                mostrarFeedback('Dados atualizados com sucesso!', 'sucesso');
+                
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                mostrarFeedback('Erro ao salvar alterações. Tente novamente.', 'erro');
+            } finally {
+                btnSalvar.disabled = false;
+                btnSalvar.innerHTML = '<i class="fas fa-save mr-2"></i> Salvar Alterações';
+            }
+        }
+        
+        // Mostrar feedback
+        function mostrarFeedback(mensagem, tipo) {
+            const msgDiv = document.getElementById('msg-feedback');
+            msgDiv.style.display = 'block';
+            
+            if (tipo === 'sucesso') {
+                msgDiv.className = 'mt-4 p-4 rounded-xl bg-green-50 border-l-4 border-green-500 text-green-700';
+                msgDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>' + mensagem;
+            } else {
+                msgDiv.className = 'mt-4 p-4 rounded-xl bg-red-50 border-l-4 border-red-500 text-red-700';
+                msgDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>' + mensagem;
+            }
+            
+            // Esconder após 5 segundos
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Inicialização
+        window.addEventListener('load', function() {
+            carregarDados();
+        });
+    </script>
+
+</body>
+</html>

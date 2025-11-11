@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trocar Senha - Divulgador KaiNow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+        <!-- Cabeçalho -->
+        <div class="text-center mb-8">
+            <div class="inline-block bg-gradient-to-r from-purple-500 to-pink-600 text-white w-20 h-20 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-key text-4xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Trocar Senha</h1>
+            <p class="text-gray-600">Defina uma nova senha pessoal</p>
+        </div>
+
+        <!-- Formulário -->
+        <form id="change-password-form" class="space-y-6">
+            <!-- Senha Atual -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fas fa-lock mr-2"></i>Senha Atual
+                </label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="current-password"
+                        placeholder="Digite sua senha atual"
+                        required
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none transition pr-12"
+                    >
+                    <button 
+                        type="button"
+                        onclick="togglePassword('current-password', 'toggle-icon-1')"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                        <i class="fas fa-eye" id="toggle-icon-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Nova Senha -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fas fa-key mr-2"></i>Nova Senha
+                </label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="new-password"
+                        placeholder="Digite a nova senha"
+                        required
+                        minlength="6"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none transition pr-12"
+                    >
+                    <button 
+                        type="button"
+                        onclick="togglePassword('new-password', 'toggle-icon-2')"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                        <i class="fas fa-eye" id="toggle-icon-2"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Mínimo de 6 caracteres</p>
+            </div>
+
+            <!-- Confirmar Nova Senha -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fas fa-check-circle mr-2"></i>Confirmar Nova Senha
+                </label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="confirm-password"
+                        placeholder="Digite a nova senha novamente"
+                        required
+                        minlength="6"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none transition pr-12"
+                    >
+                    <button 
+                        type="button"
+                        onclick="togglePassword('confirm-password', 'toggle-icon-3')"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                        <i class="fas fa-eye" id="toggle-icon-3"></i>
+                    </button>
+                </div>
+                <div id="password-match" class="mt-1 text-xs"></div>
+            </div>
+
+            <!-- Força da Senha -->
+            <div id="password-strength" class="hidden">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                    Força da Senha:
+                </label>
+                <div class="flex space-x-1">
+                    <div id="strength-1" class="h-2 flex-1 bg-gray-200 rounded"></div>
+                    <div id="strength-2" class="h-2 flex-1 bg-gray-200 rounded"></div>
+                    <div id="strength-3" class="h-2 flex-1 bg-gray-200 rounded"></div>
+                    <div id="strength-4" class="h-2 flex-1 bg-gray-200 rounded"></div>
+                </div>
+                <p id="strength-text" class="text-xs mt-1 text-gray-600"></p>
+            </div>
+
+            <!-- Botões -->
+            <div class="flex space-x-4">
+                <button 
+                    type="button"
+                    onclick="window.location.href='dashboard.html'"
+                    class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 rounded-lg transition"
+                >
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Voltar
+                </button>
+                <button 
+                    type="submit"
+                    class="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold py-3 rounded-lg hover:from-purple-600 hover:to-pink-700 transition shadow-lg"
+                >
+                    <i class="fas fa-save mr-2"></i>
+                    Salvar Senha
+                </button>
+            </div>
+        </form>
+
+        <!-- Dicas de Segurança -->
+        <div class="mt-6 bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+            <h3 class="font-bold text-blue-800 mb-2 text-sm">
+                <i class="fas fa-shield-alt mr-2"></i>Dicas de Segurança
+            </h3>
+            <ul class="text-xs text-blue-700 space-y-1">
+                <li>• Use pelo menos 8 caracteres</li>
+                <li>• Combine letras maiúsculas e minúsculas</li>
+                <li>• Adicione números e símbolos</li>
+                <li>• Não use dados pessoais óbvios</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Verificar autenticação
+        function checkAuth() {
+            const session = localStorage.getItem('kainow_affiliate_session') || 
+                           sessionStorage.getItem('kainow_affiliate_session');
+            
+            if (!session) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            return JSON.parse(session);
+        }
+
+        // Toggle mostrar/ocultar senha
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Verificar força da senha
+        function checkPasswordStrength(password) {
+            const strengthDiv = document.getElementById('password-strength');
+            const strengthText = document.getElementById('strength-text');
+            
+            if (!password) {
+                strengthDiv.classList.add('hidden');
+                return;
+            }
+            
+            strengthDiv.classList.remove('hidden');
+            
+            let strength = 0;
+            
+            // Critérios
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            // Resetar cores
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`strength-${i}`).className = 'h-2 flex-1 bg-gray-200 rounded';
+            }
+            
+            // Aplicar cores baseado na força
+            const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500'];
+            const texts = ['Fraca', 'Regular', 'Boa', 'Forte'];
+            const textColors = ['text-red-600', 'text-orange-600', 'text-yellow-600', 'text-green-600'];
+            
+            for (let i = 0; i < strength; i++) {
+                document.getElementById(`strength-${i + 1}`).className = `h-2 flex-1 ${colors[strength - 1]} rounded`;
+            }
+            
+            strengthText.textContent = texts[strength - 1] || 'Muito Fraca';
+            strengthText.className = `text-xs mt-1 font-bold ${textColors[strength - 1] || 'text-red-600'}`;
+        }
+
+        // Verificar se senhas coincidem
+        function checkPasswordMatch() {
+            const newPass = document.getElementById('new-password').value;
+            const confirmPass = document.getElementById('confirm-password').value;
+            const matchDiv = document.getElementById('password-match');
+            
+            if (!confirmPass) {
+                matchDiv.textContent = '';
+                return false;
+            }
+            
+            if (newPass === confirmPass) {
+                matchDiv.textContent = '✅ Senhas coincidem';
+                matchDiv.className = 'mt-1 text-xs text-green-600 font-bold';
+                return true;
+            } else {
+                matchDiv.textContent = '❌ Senhas não coincidem';
+                matchDiv.className = 'mt-1 text-xs text-red-600 font-bold';
+                return false;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('new-password').addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+            checkPasswordMatch();
+        });
+
+        document.getElementById('confirm-password').addEventListener('input', checkPasswordMatch);
+
+        // Processar mudança de senha
+        document.getElementById('change-password-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const session = checkAuth();
+            if (!session) return;
+
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            // Validações
+            if (newPassword !== confirmPassword) {
+                alert('❌ As senhas não coincidem!');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('❌ A senha deve ter pelo menos 6 caracteres!');
+                return;
+            }
+
+            // Buscar afiliado
+            const affiliates = JSON.parse(localStorage.getItem('kainow_affiliates') || '[]');
+            const affiliateIndex = affiliates.findIndex(a => a.id === session.affiliateId);
+
+            if (affiliateIndex === -1) {
+                alert('❌ Erro: Afiliado não encontrado!');
+                return;
+            }
+
+            const affiliate = affiliates[affiliateIndex];
+
+            // Verificar senha atual
+            if (affiliate.password !== currentPassword) {
+                alert('❌ Senha atual incorreta!');
+                return;
+            }
+
+            // Verificar se a nova senha é diferente da antiga
+            if (newPassword === currentPassword) {
+                alert('❌ A nova senha deve ser diferente da senha atual!');
+                return;
+            }
+
+            // Atualizar senha
+            affiliates[affiliateIndex].password = newPassword;
+            affiliates[affiliateIndex].passwordChanged = true;
+            affiliates[affiliateIndex].passwordChangedAt = new Date().toISOString();
+
+            localStorage.setItem('kainow_affiliates', JSON.stringify(affiliates));
+
+            alert(
+                '✅ Senha alterada com sucesso!\n\n' +
+                '🔐 Sua nova senha foi salva.\n' +
+                'Use-a no próximo login.'
+            );
+
+            // Redirecionar para dashboard
+            window.location.href = 'dashboard.html';
+        });
+
+        // Verificar autenticação ao carregar
+        checkAuth();
+    </script>
+</body>
+</html>

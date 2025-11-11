@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="KaiNow Saúde - Assistência à Saúde com Telemedicina 24h. Mais de 27 especialidades médicas disponíveis.">
+    <title>KaiNow Saúde - Assistência à Saúde</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Mercado Pago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/iframe-modal.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0066CC',
+                        secondary: '#00A8E8',
+                        accent: '#00C9A7',
+                        dark: '#1A202C',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans bg-gray-50">
+    
+    <!-- Header -->
+    <header class="bg-white shadow-lg fixed w-full top-0 z-50 border-b-2 border-gray-100">
+        <nav class="container mx-auto px-4 py-2.5">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-heartbeat text-primary text-4xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold text-primary leading-tight">KaiNow Saúde</h1>
+                        <p class="text-base text-gray-600 leading-none">Assistência à Saúde</p>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-3 flex-1 justify-end">
+                    <a href="#inicio" class="menu-link">Início</a>
+                    <a href="#sobre" class="menu-link">Sobre</a>
+                    <a href="#telemedicina" class="menu-link">Telemedicina</a>
+                    
+                    <div class="relative" id="produtos-dropdown">
+                        <button id="produtos-dropdown-btn" class="menu-link flex items-center">
+                            Produtos
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div id="produtos-dropdown-menu" class="hidden absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border-2 border-gray-100 z-50">
+                            <div class="p-2">
+                                <button onclick="openProductModal('programa-mulher.html')" class="block w-full text-left px-3 py-2 hover:bg-pink-50 rounded-lg transition text-sm">
+                                    <i class="fas fa-venus text-primary mr-2"></i>
+                                    KaiNow Mulher
+                                </button>
+                                <button onclick="openProductModal('programa-senior.html')" class="block w-full text-left px-3 py-2 hover:bg-amber-50 rounded-lg transition text-sm">
+                                    <i class="fas fa-user-shield text-primary mr-2"></i>
+                                    KaiNow Sênior
+                                </button>
+                                <button onclick="openProductModal('programa-farma.html')" class="block w-full text-left px-3 py-2 hover:bg-green-50 rounded-lg transition text-sm">
+                                    <i class="fas fa-pills text-primary mr-2"></i>
+                                    KaiNow Farma
+                                </button>
+                                <button onclick="openProductModal('programa-acolher.html')" class="block w-full text-left px-3 py-2 hover:bg-blue-50 rounded-lg transition text-sm">
+                                    <i class="fas fa-hands-holding-child text-primary mr-2"></i>
+                                    KaiNow Acolher
+                                </button>
+                                <button onclick="openProductModal('programa-orienta.html')" class="block w-full text-left px-3 py-2 hover:bg-purple-50 rounded-lg transition text-sm">
+                                    <i class="fas fa-lightbulb text-primary mr-2"></i>
+                                    KaiNow Orienta
+                                </button>
+                                <button onclick="openProductModal('programa-vivaleve.html')" class="block w-full text-left px-3 py-2 hover:bg-teal-50 rounded-lg transition text-sm">
+                                    <i class="fas fa-spa text-primary mr-2"></i>
+                                    KaiNow Viva Leve
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative" id="especialidades-dropdown">
+                        <button id="especialidades-dropdown-btn" class="menu-link flex items-center">
+                            Especialidades
+                            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                        </button>
+                        <!-- Dropdown Menu (scrollable) -->
+                        <div id="especialidades-dropdown-menu" class="hidden absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border-2 border-gray-100 z-50 max-h-[70vh] overflow-y-auto">
+                            <div class="p-2">
+                                <!-- Especialidades serão carregadas aqui via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="mobile-menu-btn" class="md:hidden text-gray-700">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
+                <a href="#produtos" class="mobile-menu-link"><i class="fas fa-heart-pulse mr-1 text-primary"></i> Produtos</a>
+                <a href="#especialidades" class="mobile-menu-link"><i class="fas fa-user-doctor mr-1 text-primary"></i> Especialidades</a>
+                <a href="#inicio" class="mobile-menu-link">Início</a>
+                <a href="#sobre" class="mobile-menu-link">Sobre</a>
+                <a href="#telemedicina" class="mobile-menu-link">Telemedicina</a>
+                
+                <!-- User Auth Mobile -->
+                <div id="user-menu-mobile" class="hidden mt-4 pt-4 border-t-2 border-gray-200">
+                    <!-- Mostrado quando NÃO está logado -->
+                    <div id="auth-buttons-mobile" class="space-y-2">
+                        <a href="login.html" class="block px-4 py-3 text-center text-primary hover:bg-blue-50 rounded-lg transition font-semibold">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Entrar
+                        </a>
+                        <a href="cadastro.html" class="block px-4 py-3 text-center bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:shadow-lg transition font-semibold">
+                            <i class="fas fa-user-plus mr-2"></i>Criar Conta
+                        </a>
+                    </div>
+                    
+                    <!-- Mostrado quando está logado -->
+                    <div id="user-info-mobile" class="hidden flex flex-col space-y-2">
+                        <div class="flex items-center space-x-2 bg-green-50 px-4 py-3 rounded-lg">
+                            <i class="fas fa-user-circle text-2xl text-green-600"></i>
+                            <span class="text-sm font-semibold text-gray-700" id="user-name-mobile"></span>
+                        </div>
+                        <button onclick="realizarLogout()" class="w-full px-4 py-3 text-center text-red-600 hover:bg-red-50 rounded-lg transition font-semibold">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Sair da Conta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="pt-20 pb-12 md:pt-24 md:pb-16 bg-gradient-to-br from-primary to-secondary text-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight">Não importa onde você esteja</h2>
+                    <h3 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold mb-4 md:mb-6 leading-tight">A KaiNow Saúde cuida de você</h3>
+                    <p class="text-base sm:text-lg md:text-xl mb-6 md:mb-8 text-gray-100 leading-relaxed">Atendimento médico, psicológico e nutricional à distância. Disponível 24h por dia, 7 dias por semana.</p>
+                    <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
+                        <a href="#telemedicina" class="bg-white text-primary px-6 py-3 md:px-8 md:py-4 rounded-lg font-semibold hover:bg-gray-100 transition text-center shadow-lg text-sm sm:text-base">
+                            <i class="fas fa-info-circle mr-2"></i>Saiba Mais
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 border border-white border-opacity-20">
+                        <div class="space-y-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-white bg-opacity-20 p-4 rounded-full">
+                                    <i class="fas fa-clock text-3xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg">Atendimento 24/7</h4>
+                                    <p class="text-gray-100">Pronto atendimento online a qualquer hora</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-white bg-opacity-20 p-4 rounded-full">
+                                    <i class="fas fa-user-md text-3xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg">+27 Especialidades</h4>
+                                    <p class="text-gray-100">Médicos especializados à sua disposição</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-white bg-opacity-20 p-4 rounded-full">
+                                    <i class="fas fa-certificate text-3xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg">ANS 41.837-4</h4>
+                                    <p class="text-gray-100">Operadora de autogestão registrada</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Recursos -->
+    <section class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
+                <div class="text-center p-6 rounded-xl hover:shadow-lg transition">
+                    <div class="bg-primary bg-opacity-10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-stethoscope text-4xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">Pronto Atendimento</h3>
+                    <p class="text-gray-600">Clínico geral disponível 24h por dia para urgências e emergências</p>
+                </div>
+                
+                <div class="text-center p-6 rounded-xl hover:shadow-lg transition">
+                    <div class="bg-secondary bg-opacity-10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-calendar-check text-4xl text-secondary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">Consultas Agendadas</h3>
+                    <p class="text-gray-600">Mais de 27 especialidades médicas com agendamento mínimo de 48h</p>
+                </div>
+                
+                <div class="text-center p-6 rounded-xl hover:shadow-lg transition">
+                    <div class="bg-accent bg-opacity-10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-prescription text-4xl text-accent"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">Diagnóstico Completo</h3>
+                    <p class="text-gray-600">Solicitação de exames, prescrição de medicamentos e orientações</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre Section -->
+    <section id="sobre" class="py-12 md:py-16 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8 md:mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Sobre a KaiNow Saúde</h2>
+                    <div class="w-24 h-1 bg-primary mx-auto"></div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 lg:p-12">
+                    <div class="flex items-start space-x-4 mb-6">
+                        <i class="fas fa-shield-alt text-3xl text-primary mt-1"></i>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">Operadora de Autogestão</h3>
+                            <p class="text-gray-700 leading-relaxed mb-4">
+                                A KaiNow Saúde é classificada pela ANS como uma operadora de autogestão, registrada sob o número <strong>41.837-4</strong>, onde os valores constantes do credo vêm, desde o início, formando uma personalidade ímpar e definindo a atuação dentro do contexto da saúde suplementar.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-4">
+                        <i class="fas fa-heart text-3xl text-accent mt-1"></i>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">Nosso Compromisso</h3>
+                            <p class="text-gray-700 leading-relaxed">
+                                A KaiNow Saúde disponibiliza para todos os seus beneficiários, o atendimento médico, psicológico e nutricional à distância. É possível fazer acompanhamento médico, nutricional e sessões de psicologia com o mesmo profissional, garantindo continuidade e qualidade no cuidado com sua saúde.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Telemedicina Section -->
+    <section id="telemedicina" class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="text-center mb-8 md:mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">O que é a Telemedicina?</h2>
+                <div class="w-24 h-1 bg-primary mx-auto"></div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+                <div>
+                    <div class="bg-gradient-to-br from-primary to-secondary rounded-2xl p-8 text-white">
+                        <i class="fas fa-laptop-medical text-6xl mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-4">Medicina à Distância</h3>
+                        <p class="text-lg leading-relaxed">
+                            A Telemedicina é a realização de uma ação médica a distância, contando com um conjunto de tecnologias e aplicações que permitem essa realização. Entre trocas de compreensões e análises médicas, já é possível que um paciente consiga ser atendido por um médico sem precisar estar fisicamente em seu consultório.
+                        </p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Como ela funciona?</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-4 bg-gray-50 p-4 rounded-lg">
+                            <i class="fas fa-phone text-2xl text-primary mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-lg text-gray-800">Atendimentos Telefônicos</h4>
+                                <p class="text-gray-600">Consultas por telefone para orientações rápidas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4 bg-gray-50 p-4 rounded-lg">
+                            <i class="fas fa-video text-2xl text-secondary mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-lg text-gray-800">Atendimentos por Vídeo</h4>
+                                <p class="text-gray-600">Consultas completas por videochamada</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4 bg-gray-50 p-4 rounded-lg">
+                            <i class="fas fa-desktop text-2xl text-accent mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-lg text-gray-800">Plataformas de Acompanhamento</h4>
+                                <p class="text-gray-600">Sistema completo oferecido por operadoras e convênios</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Especialidades Section (OCULTA - acessível via dropdown) -->
+    <section id="especialidades" class="hidden py-12 md:py-16 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="text-center mb-8 md:mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Especialidades Médicas</h2>
+                <p class="text-lg md:text-xl text-gray-600 mb-6">Mais de 27 especialidades à sua disposição</p>
+                <div class="w-24 h-1 bg-primary mx-auto mb-8"></div>
+                
+                <!-- Search Bar -->
+                <div class="max-w-2xl mx-auto">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="search-specialty" 
+                            placeholder="Buscar especialidade..." 
+                            class="w-full px-6 py-4 rounded-full border-2 border-gray-300 focus:border-primary focus:outline-none text-lg"
+                        >
+                        <i class="fas fa-search absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="specialties-grid" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+                <!-- Specialties will be dynamically loaded here -->
+            </div>
+            
+            <div id="no-results" class="hidden text-center py-12">
+                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                <p class="text-xl text-gray-500">Nenhuma especialidade encontrada</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Diferenciais Section -->
+    <section id="diferenciais" class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="text-center mb-8 md:mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Diferenciais da KaiNow Saúde</h2>
+                <p class="text-lg md:text-xl text-gray-600 mb-6">O que nos torna únicos no cuidado com sua saúde</p>
+                <div class="w-24 h-1 bg-primary mx-auto"></div>
+            </div>
+            
+            <div class="max-w-6xl mx-auto">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    
+                    <!-- Diferencial 1: Flexibilidade -->
+                    <div class="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-blue-100 hover:border-blue-300">
+                        <div class="bg-gradient-to-r from-primary to-secondary rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <i class="fas fa-sliders-h text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Flexibilidade Total</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            Produtos exclusivos construídos com autonomia e flexibilidade para atender às necessidades específicas de cada beneficiário e parceiro.
+                        </p>
+                    </div>
+                    
+                    <!-- Diferencial 2: Atendimento 24h -->
+                    <div class="bg-gradient-to-br from-green-50 to-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-green-100 hover:border-green-300">
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <i class="fas fa-clock text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Disponível 24/7</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            Atendimento médico disponível 24 horas por dia, 7 dias por semana, incluindo finais de semana e feriados, para emergências e urgências.
+                        </p>
+                    </div>
+                    
+                    <!-- Diferencial 3: Mais de 27 Especialidades -->
+                    <div class="bg-gradient-to-br from-purple-50 to-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-purple-100 hover:border-purple-300">
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <i class="fas fa-user-md text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">+27 Especialidades</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            Ampla cobertura com mais de 27 especialidades médicas, garantindo atendimento completo para toda a família.
+                        </p>
+                    </div>
+                    
+                    <!-- Diferencial 4: Receitas e Atestados -->
+                    <div class="bg-gradient-to-br from-orange-50 to-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-orange-100 hover:border-orange-300">
+                        <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <i class="fas fa-file-prescription text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Receitas Digitais</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            Emissão de receitas médicas e atestados digitais com validade legal em todo o território nacional.
+                        </p>
+                    </div>
+                    
+                    <!-- Diferencial 5: Acompanhamento Continuado -->
+                    <div class="bg-gradient-to-br from-pink-50 to-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-pink-100 hover:border-pink-300">
+                        <div class="bg-gradient-to-r from-pink-500 to-pink-600 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <i class="fas fa-heart-pulse text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Acompanhamento Contínuo</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            Possibilidade de consultar sempre com o mesmo médico, nutricionista ou psicólogo, garantindo continuidade no seu tratamento.
+                        </p>
+                    </div>
+                    
+                    <!-- Diferencial 6: Sem Carência -->
+                    <div class="bg-gradient-to-br from-teal-50 to-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-teal-100 hover:border-teal-300">
+                        <div class="bg-gradient-to-r from-teal-500 to-teal-600 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <i class="fas fa-bolt text-3xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Sem Carência</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            Comece a usar imediatamente após a contratação. Sem período de carência, sem burocracia.
+                        </p>
+                    </div>
+                    
+                </div>
+                
+                <!-- CTA Box -->
+                <div class="mt-12 bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-center text-white shadow-2xl">
+                    <h3 class="text-2xl md:text-3xl font-bold mb-4">
+                        <i class="fas fa-star mr-3"></i>
+                        Produtos Personalizados
+                    </h3>
+                    <p class="text-lg md:text-xl mb-6 opacity-90">
+                        Desenvolvemos produtos exclusivos com total flexibilidade e autonomia para atender suas necessidades específicas
+                    </p>
+                    <a href="https://wa.me/5527997981963?text=Olá!%20Quero%20conhecer%20os%20produtos%20da%20KaiNow" class="inline-block bg-white text-primary px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Conhecer os Produtos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Produto Saúde Mulher Section -->
+    <!-- Nossos Produtos Section -->
+    <section id="produtos" class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="text-center mb-8 md:mb-12">
+                <div class="inline-block bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full font-bold mb-4 text-sm md:text-base">
+                    <i class="fas fa-heart-pulse mr-2"></i>PROGRAMAS ESPECIALIZADOS
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Conheça Nossos Programas</h2>
+                <p class="text-lg md:text-xl text-gray-600">Cuidado especializado para cada momento da sua vida</p>
+                <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mt-4"></div>
+            </div>
+            
+            <div class="max-w-7xl mx-auto">
+                <!-- Grid de Programas -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    
+                    <!-- Programa 1: KaiNow Mulher (já existe, mas incluído aqui para consistência) -->
+                    <div class="bg-gradient-to-br from-pink-50 to-white rounded-2xl p-8 shadow-xl border-2 border-pink-200 hover:border-pink-400 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-pink-200 rounded-full -mr-16 -mt-16 opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="relative z-10">
+                            <div class="bg-gradient-to-r from-pink-500 to-purple-600 rounded-full w-20 h-20 flex items-center justify-center mb-6 shadow-lg">
+                                <i class="fas fa-venus text-4xl text-white"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-3">
+                                <i class="fas fa-heart text-pink-500 mr-2"></i>
+                                KaiNow Mulher
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-6">
+                                Cuidado integral em todas as fases da vida feminina. Ginecologia, obstetrícia, nutrição e muito mais.
+                            </p>
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-pink-500 mr-2"></i>
+                                    Ginecologia e obstetrícia 24h
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-pink-500 mr-2"></i>
+                                    Pré-natal completo
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-pink-500 mr-2"></i>
+                                    8 especialidades femininas
+                                </li>
+                            </ul>
+                            <div class="flex flex-col gap-3">
+                                <button onclick="openProductModal('programa-mulher.html')" class="w-full bg-white border-2 border-pink-500 text-pink-600 px-6 py-3 rounded-full font-bold hover:bg-pink-50 transition-all duration-300">
+                                    <i class="fas fa-eye mr-2"></i>
+                                    Ver Programa Completo
+                                </button>
+                                <button onclick="openCheckoutModal('checkout.html?program=mulher')" class="w-full text-center bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all duration-300">
+                                    <i class="fas fa-credit-card mr-2"></i>
+                                    Contratar - R$ 49,90/mês
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Programa 2: KaiNow Sênior -->
+                    <div class="bg-gradient-to-br from-amber-50 to-white rounded-2xl p-8 shadow-xl border-2 border-amber-200 hover:border-amber-400 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-amber-200 rounded-full -mr-16 -mt-16 opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="relative z-10">
+                            <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-full w-20 h-20 flex items-center justify-center mb-6 shadow-lg">
+                                <i class="fas fa-user-shield text-4xl text-white"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-3">
+                                <i class="fas fa-heart text-amber-500 mr-2"></i>
+                                KaiNow Sênior
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-6">
+                                Atenção especial para a saúde da terceira idade. Acompanhamento médico dedicado e cuidados preventivos.
+                            </p>
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-amber-500 mr-2"></i>
+                                    Geriatria especializada
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-amber-500 mr-2"></i>
+                                    Acompanhamento de doenças crônicas
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-amber-500 mr-2"></i>
+                                    Orientação sobre medicamentos
+                                </li>
+                            </ul>
+                            <div class="flex flex-col gap-3">
+                                <button onclick="openProductModal('programa-senior.html')" class="w-full bg-white border-2 border-amber-500 text-amber-600 px-6 py-3 rounded-full font-bold hover:bg-amber-50 transition-all duration-300">
+                                    <i class="fas fa-eye mr-2"></i>
+                                    Ver Programa Completo
+                                </button>
+                                <button onclick="openCheckoutModal('checkout.html?program=senior')" class="w-full text-center bg-gradient-to-r from-amber-500 to-orange-600 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all duration-300">
+                                    <i class="fas fa-credit-card mr-2"></i>
+                                    Contratar - R$ 59,90/mês
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Programa 3: KaiNow Farma -->
+                    <div class="bg-gradient-to-br from-green-50 to-white rounded-2xl p-8 shadow-xl border-2 border-green-200 hover:border-green-400 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-green-200 rounded-full -mr-16 -mt-16 opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="relative z-10">
+                            <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-full w-20 h-20 flex items-center justify-center mb-6 shadow-lg">
+                                <i class="fas fa-pills text-4xl text-white"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-3">
+                                <i class="fas fa-heart text-green-500 mr-2"></i>
+                                KaiNow Farma
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-6">
+                                Descontos especiais em medicamentos e produtos de saúde. Economia e facilidade na compra de remédios.
+                            </p>
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    Até 80% de desconto em genéricos
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    Rede credenciada nacional
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    Entrega em domicílio
+                                </li>
+                            </ul>
+                            <div class="flex flex-col gap-3">
+                                <button onclick="openProductModal('programa-farma.html')" class="w-full bg-white border-2 border-green-500 text-green-600 px-6 py-3 rounded-full font-bold hover:bg-green-50 transition-all duration-300">
+                                    <i class="fas fa-eye mr-2"></i>
+                                    Ver Programa Completo
+                                </button>
+                                <button onclick="openCheckoutModal('checkout.html?program=farma')" class="w-full text-center bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all duration-300">
+                                    <i class="fas fa-credit-card mr-2"></i>
+                                    Contratar - R$ 19,90/mês
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Programa 4: KaiNow Acolher -->
+                    <div class="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-8 shadow-xl border-2 border-blue-200 hover:border-blue-400 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-200 rounded-full -mr-16 -mt-16 opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="relative z-10">
+                            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full w-20 h-20 flex items-center justify-center mb-6 shadow-lg">
+                                <i class="fas fa-hands-holding-child text-4xl text-white"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-3">
+                                <i class="fas fa-heart text-blue-500 mr-2"></i>
+                                KaiNow Acolher
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-6">
+                                Suporte emocional e saúde mental. Psicólogos e psiquiatras disponíveis para cuidar do seu bem-estar.
+                            </p>
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-blue-500 mr-2"></i>
+                                    Psicologia e psiquiatria
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-blue-500 mr-2"></i>
+                                    Terapia individual e familiar
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-blue-500 mr-2"></i>
+                                    Atendimento emergencial 24h
+                                </li>
+                            </ul>
+                            <div class="flex flex-col gap-3">
+                                <button onclick="openProductModal('programa-acolher.html')" class="w-full bg-white border-2 border-blue-500 text-blue-600 px-6 py-3 rounded-full font-bold hover:bg-blue-50 transition-all duration-300">
+                                    <i class="fas fa-eye mr-2"></i>
+                                    Ver Programa Completo
+                                </button>
+                                <button onclick="openCheckoutModal('checkout.html?program=acolher')" class="w-full text-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all duration-300">
+                                    <i class="fas fa-credit-card mr-2"></i>
+                                    Contratar - R$ 24,90/mês
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Programa 5: KaiNow Orienta -->
+                    <div class="bg-gradient-to-br from-purple-50 to-white rounded-2xl p-8 shadow-xl border-2 border-purple-200 hover:border-purple-400 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-200 rounded-full -mr-16 -mt-16 opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="relative z-10">
+                            <div class="bg-gradient-to-r from-purple-500 to-violet-600 rounded-full w-20 h-20 flex items-center justify-center mb-6 shadow-lg">
+                                <i class="fas fa-lightbulb text-4xl text-white"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-3">
+                                <i class="fas fa-heart text-purple-500 mr-2"></i>
+                                KaiNow Orienta
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-6">
+                                Orientação médica preventiva e educação em saúde. Aprenda a cuidar melhor de você e sua família.
+                            </p>
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-purple-500 mr-2"></i>
+                                    Programas de prevenção
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-purple-500 mr-2"></i>
+                                    Orientação nutricional
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-purple-500 mr-2"></i>
+                                    Palestras e conteúdos exclusivos
+                                </li>
+                            </ul>
+                            <div class="flex flex-col gap-3">
+                                <button onclick="openProductModal('programa-orienta.html')" class="w-full bg-white border-2 border-purple-500 text-purple-600 px-6 py-3 rounded-full font-bold hover:bg-purple-50 transition-all duration-300">
+                                    <i class="fas fa-eye mr-2"></i>
+                                    Ver Programa Completo
+                                </button>
+                                <button onclick="openCheckoutModal('checkout.html?program=orienta')" class="w-full text-center bg-gradient-to-r from-purple-500 to-violet-600 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all duration-300">
+                                    <i class="fas fa-credit-card mr-2"></i>
+                                    Contratar - R$ 19,90/mês
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Programa 6: KaiNow Viva Leve -->
+                    <div class="bg-gradient-to-br from-teal-50 to-white rounded-2xl p-8 shadow-xl border-2 border-teal-200 hover:border-teal-400 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-teal-200 rounded-full -mr-16 -mt-16 opacity-20 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="relative z-10">
+                            <div class="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-full w-20 h-20 flex items-center justify-center mb-6 shadow-lg">
+                                <i class="fas fa-spa text-4xl text-white"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-3">
+                                <i class="fas fa-heart text-teal-500 mr-2"></i>
+                                KaiNow Viva Leve
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-6">
+                                Programa de qualidade de vida e bem-estar. Exercícios, meditação e hábitos saudáveis para uma vida plena.
+                            </p>
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-teal-500 mr-2"></i>
+                                    Planos de exercícios personalizados
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-teal-500 mr-2"></i>
+                                    Meditação e mindfulness
+                                </li>
+                                <li class="flex items-center text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-teal-500 mr-2"></i>
+                                    Acompanhamento nutricional
+                                </li>
+                            </ul>
+                            <div class="flex flex-col gap-3">
+                                <button onclick="openProductModal('programa-vivaleve.html')" class="w-full bg-white border-2 border-teal-500 text-teal-600 px-6 py-3 rounded-full font-bold hover:bg-teal-50 transition-all duration-300">
+                                    <i class="fas fa-eye mr-2"></i>
+                                    Ver Programa Completo
+                                </button>
+                                <button onclick="openCheckoutModal('checkout.html?program=vivaleve')" class="w-full text-center bg-gradient-to-r from-teal-500 to-cyan-600 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all duration-300">
+                                    <i class="fas fa-credit-card mr-2"></i>
+                                    Contratar - R$ 24,90/mês
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section - Perguntas Frequentes -->
+    <section id="faq" class="py-12 md:py-16 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="text-center mb-8 md:mb-12">
+                <div class="inline-block bg-primary bg-opacity-10 px-6 py-2 rounded-full mb-4">
+                    <i class="fas fa-question-circle text-primary mr-2"></i>
+                    <span class="text-primary font-bold">FAQ</span>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Perguntas Frequentes</h2>
+                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                    Tire suas dúvidas sobre nossos serviços de telemedicina
+                </p>
+                <div class="w-24 h-1 bg-primary mx-auto mt-4"></div>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <!-- FAQ Items -->
+                <div class="space-y-4">
+                    
+                    <!-- FAQ Item 1 -->
+                    <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-gray-800 pr-8">
+                                <i class="fas fa-stethoscope text-primary mr-3"></i>
+                                O que é telemedicina e como funciona?
+                            </span>
+                            <i class="fas fa-chevron-down text-primary faq-icon transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-6">
+                            <p class="text-gray-600 leading-relaxed">
+                                A telemedicina é a prática médica à distância, utilizando tecnologia para conectar pacientes e médicos. Através do nosso serviço, você pode realizar consultas por telefone ou videochamada, receber diagnósticos, prescrições médicas e orientações profissionais sem sair de casa, com a mesma qualidade de uma consulta presencial.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 2 -->
+                    <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-gray-800 pr-8">
+                                <i class="fas fa-clock text-primary mr-3"></i>
+                                Qual é o horário de atendimento?
+                            </span>
+                            <i class="fas fa-chevron-down text-primary faq-icon transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-6">
+                            <p class="text-gray-600 leading-relaxed">
+                                Nosso pronto atendimento está disponível <strong>24 horas por dia, 7 dias por semana</strong>, incluindo feriados. Para consultas com especialistas, oferecemos agendamento com no mínimo 48 horas de antecedência, de segunda a sexta-feira.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 3 -->
+                    <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-gray-800 pr-8">
+                                <i class="fas fa-user-md text-primary mr-3"></i>
+                                Quantas consultas posso fazer por mês?
+                            </span>
+                            <i class="fas fa-chevron-down text-primary faq-icon transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-6">
+                            <p class="text-gray-600 leading-relaxed">
+                                Nossos planos oferecem <strong>consultas ilimitadas</strong> no pronto atendimento. Para consultas com especialistas, psicólogos e nutricionistas, a quantidade varia conforme o plano escolhido. O Plano Completo oferece o maior número de consultas especializadas mensais.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 4 -->
+                    <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-gray-800 pr-8">
+                                <i class="fas fa-prescription text-primary mr-3"></i>
+                                O médico pode receitar medicamentos?
+                            </span>
+                            <i class="fas fa-chevron-down text-primary faq-icon transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-6">
+                            <p class="text-gray-600 leading-relaxed">
+                                <strong>Sim!</strong> Nossos médicos podem prescrever medicamentos, solicitar exames laboratoriais e fornecer atestados médicos quando necessário. Todas as receitas são digitais e possuem validade em farmácias de todo o Brasil.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 5 -->
+                    <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-gray-800 pr-8">
+                                <i class="fas fa-credit-card text-primary mr-3"></i>
+                                Como funciona o pagamento e posso cancelar?
+                            </span>
+                            <i class="fas fa-chevron-down text-primary faq-icon transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-6">
+                            <p class="text-gray-600 leading-relaxed">
+                                O pagamento é mensal via cartão de crédito, processado de forma segura pelo Mercado Pago. Você pode <strong>cancelar sua assinatura a qualquer momento</strong>, sem multas ou taxas de cancelamento. O acesso continua até o fim do período pago.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 6 -->
+                    <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-gray-800 pr-8">
+                                <i class="fas fa-map-marked-alt text-primary mr-3"></i>
+                                O serviço está disponível em todo o Brasil?
+                            </span>
+                            <i class="fas fa-chevron-down text-primary faq-icon transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-6">
+                            <p class="text-gray-600 leading-relaxed">
+                                <strong>Sim!</strong> Nossos serviços de telemedicina estão disponíveis para <strong>todo o território nacional</strong>. Você pode acessar de qualquer lugar do Brasil, precisando apenas de uma conexão com a internet ou telefone.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 7 -->
+                    <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-gray-800 pr-8">
+                                <i class="fas fa-users text-primary mr-3"></i>
+                                Posso incluir dependentes no plano?
+                            </span>
+                            <i class="fas fa-chevron-down text-primary faq-icon transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-6">
+                            <p class="text-gray-600 leading-relaxed">
+                                O plano é individual, mas você pode contratar planos adicionais para seus dependentes com desconto especial para famílias. Entre em contato conosco para conhecer as condições especiais para grupos familiares.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 8 -->
+                    <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-gray-800 pr-8">
+                                <i class="fas fa-trophy text-primary mr-3"></i>
+                                Como funcionam os sorteios da Loteria Federal?
+                            </span>
+                            <i class="fas fa-chevron-down text-primary faq-icon transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-6">
+                            <p class="text-gray-600 leading-relaxed">
+                                Todos os assinantes ativos participam automaticamente dos sorteios mensais pela Loteria Federal. Os prêmios variam de R$ 30.000 a R$ 100.000 dependendo do plano. O sorteio é realizado todo mês e o ganhador é notificado por email e telefone. Consulte o regulamento completo para mais informações.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 9 -->
+                    <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-gray-800 pr-8">
+                                <i class="fas fa-shield-alt text-primary mr-3"></i>
+                                Meus dados estão seguros?
+                            </span>
+                            <i class="fas fa-chevron-down text-primary faq-icon transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-6">
+                            <p class="text-gray-600 leading-relaxed">
+                                <strong>Absolutamente!</strong> Utilizamos criptografia de ponta e seguimos todas as normas da LGPD (Lei Geral de Proteção de Dados). Seus dados médicos e pessoais são armazenados em servidores seguros e jamais são compartilhados com terceiros sem sua autorização.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 10 -->
+                    <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-gray-800 pr-8">
+                                <i class="fas fa-mobile-alt text-primary mr-3"></i>
+                                Preciso baixar algum aplicativo?
+                            </span>
+                            <i class="fas fa-chevron-down text-primary faq-icon transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 pb-6">
+                            <p class="text-gray-600 leading-relaxed">
+                                Não é obrigatório! Você pode acessar nossos serviços pelo telefone, WhatsApp ou por qualquer navegador web. No entanto, também oferecemos aplicativo móvel para iOS e Android que facilita o agendamento e o acesso ao histórico de consultas.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- CTA Dúvidas -->
+                <div class="mt-12 bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-center text-white">
+                    <i class="fas fa-comments text-5xl mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-3">Ainda tem dúvidas?</h3>
+                    <p class="text-lg mb-6 opacity-90">
+                        Nossa equipe está pronta para ajudar você!
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="https://api.whatsapp.com/send?phone=5511912345678" target="_blank" class="bg-white text-primary px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition inline-flex items-center justify-center">
+                            <i class="fab fa-whatsapp text-2xl mr-2"></i>
+                            Falar no WhatsApp
+                        </a>
+                        <a href="tel:+551131234567" class="bg-white bg-opacity-20 border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-opacity-30 transition inline-flex items-center justify-center">
+                            <i class="fas fa-phone text-xl mr-2"></i>
+                            Ligar Agora
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-12 md:py-16 bg-gradient-to-r from-primary to-secondary text-white">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">Pronto para cuidar da sua saúde?</h2>
+            <p class="text-base sm:text-lg md:text-xl mb-6 md:mb-8 max-w-2xl mx-auto">
+                Acesse nossa plataforma e realize ou agende sua consulta agora mesmo
+            </p>
+            <a href="https://wa.me/5527997981963?text=Olá!%20Quero%20assinar%20e%20começar%20a%20cuidar%20da%20minha%20saúde" class="inline-block bg-white text-primary px-6 py-3 md:px-10 md:py-5 rounded-full font-bold text-base md:text-lg hover:bg-gray-100 active:scale-95 transition shadow-xl">
+                <i class="fas fa-video mr-2 md:mr-3"></i>Assine agora e comece a cuidar da sua saúde
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contato" class="bg-dark text-white py-8 md:py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-heartbeat text-3xl text-primary"></i>
+                        <div>
+                            <h3 class="text-xl font-bold">KaiNow Saúde</h3>
+                            <p class="text-sm text-gray-400">Assistência à Saúde</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400">
+                        Operadora de autogestão registrada na ANS sob o número 41.837-4
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Links Rápidos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#inicio" class="text-gray-400 hover:text-white transition">Início</a></li>
+                        <li><a href="#sobre" class="text-gray-400 hover:text-white transition">Sobre</a></li>
+                        <li><a href="#telemedicina" class="text-gray-400 hover:text-white transition">Telemedicina</a></li>
+                        <li><a href="#especialidades" class="text-gray-400 hover:text-white transition">Especialidades</a></li>
+                        <li><a href="https://wa.me/5527997981963?text=Olá!%20Quero%20saber%20sobre%20os%20programas" class="text-gray-400 hover:text-white transition">Fale Conosco</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Atendimento</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-clock text-primary"></i>
+                            <span class="text-gray-400">24 horas por dia, 7 dias por semana</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-calendar text-primary"></i>
+                            <span class="text-gray-400">Agendamento com 48h de antecedência</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 KaiNow Saúde. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de Pagamento -->
+    <div id="payment-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-fade-in">
+            <!-- Header do Modal -->
+            <div class="bg-gradient-to-r from-primary to-secondary text-white p-6 md:p-8 rounded-t-2xl sticky top-0 z-10">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-2xl md:text-3xl font-bold mb-2 flex items-center">
+                            <i class="fas fa-heartbeat mr-3"></i>
+                            Plano Mensal
+                        </h3>
+                        <p class="text-gray-100 text-sm md:text-base">Acesso ilimitado aos serviços de telemedicina</p>
+                    </div>
+                    <button onclick="closePaymentModal()" class="ml-4 text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Preço Destaque -->
+                <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-4 mt-4">
+                    <div class="flex items-center justify-center">
+                        <span class="text-xl md:text-2xl font-bold mr-2">R$</span>
+                        <span class="text-5xl md:text-6xl font-extrabold">59</span>
+                        <span class="text-2xl md:text-3xl font-bold">,90</span>
+                        <span class="text-lg md:text-xl ml-2">/mês</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Corpo do Modal -->
+            <div class="p-6 md:p-8">
+                <!-- Benefícios Resumidos -->
+                <div class="mb-6">
+                    <h4 class="font-bold text-lg text-gray-800 mb-3">✅ O que está incluído:</h4>
+                    <div class="grid sm:grid-cols-2 gap-2 text-sm text-gray-700">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-check text-accent"></i>
+                            <span>Pronto Atendimento 24/7</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-check text-accent"></i>
+                            <span>+27 Especialidades</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-check text-accent"></i>
+                            <span>Atendimento Psicológico</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-check text-accent"></i>
+                            <span>Acompanhamento Nutricional</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-check text-accent"></i>
+                            <span>Prescrição de Medicamentos</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-check text-accent"></i>
+                            <span>Solicitação de Exames</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Formulário de Dados -->
+                <form id="payment-form" class="space-y-4">
+                    <h4 class="font-bold text-lg text-gray-800 mb-3 border-b pb-2">📋 Seus Dados</h4>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo *</label>
+                            <input 
+                                type="text" 
+                                name="nome"
+                                required
+                                placeholder="Seu nome completo"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">CPF *</label>
+                            <input 
+                                type="text" 
+                                name="cpf"
+                                required
+                                placeholder="000.000.000-00"
+                                maxlength="14"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">E-mail *</label>
+                            <input 
+                                type="email" 
+                                name="email"
+                                required
+                                placeholder="seu@email.com"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Telefone/Celular *</label>
+                            <input 
+                                type="tel" 
+                                name="telefone"
+                                required
+                                placeholder="(00) 00000-0000"
+                                maxlength="15"
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Data de Nascimento *</label>
+                        <input 
+                            type="date" 
+                            name="nascimento"
+                            required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none transition"
+                        >
+                    </div>
+                    
+                    <!-- Informações de Segurança -->
+                    <div class="bg-gray-50 rounded-lg p-4 mt-6">
+                        <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-shield-alt text-primary mr-2"></i>
+                            Informações de Segurança
+                        </h4>
+                        <div class="space-y-2 text-xs text-gray-600">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-check text-accent"></i>
+                                <span>Operadora ANS 41.837-4</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-lock text-accent"></i>
+                                <span>Pagamento 100% seguro processado por Mercado Pago</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-certificate text-accent"></i>
+                                <span>SSL Seguro - Seus dados estão protegidos</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Termos -->
+                    <div class="flex items-start space-x-2 mt-4">
+                        <input 
+                            type="checkbox" 
+                            id="termos"
+                            required
+                            class="mt-1 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                        >
+                        <label for="termos" class="text-sm text-gray-600">
+                            Aceito os <a href="#" class="text-primary hover:underline">termos de uso</a> e <a href="#" class="text-primary hover:underline">política de privacidade</a> da KaiNow Saúde *
+                        </label>
+                    </div>
+                </form>
+                
+                <!-- Opções de Pagamento -->
+                <div class="mt-6 pt-6 border-t">
+                    <h4 class="font-bold text-lg text-gray-800 mb-4 text-center">💳 Escolha a Forma de Pagamento</h4>
+                    <p class="text-sm text-gray-600 text-center mb-6">Após preencher seus dados acima, escolha como deseja pagar</p>
+                    
+                    <!-- Grid de Opções de Pagamento -->
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <!-- Opção 1: PIX -->
+                        <div class="payment-option-card">
+                            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white text-center hover:shadow-xl transition-all duration-300 hover:scale-105">
+                                <div class="mb-3">
+                                    <i class="fas fa-qrcode text-5xl mb-2"></i>
+                                    <h5 class="text-xl font-bold">Pagar com PIX</h5>
+                                    <p class="text-sm text-green-100 mt-1">Aprovação instantânea</p>
+                                </div>
+                                <button 
+                                    type="button"
+                                    onclick="openPixPayment(event)"
+                                    class="block w-full bg-white text-green-600 py-3 px-4 rounded-lg font-bold hover:bg-green-50 transition mt-4"
+                                >
+                                    <i class="fas fa-mobile-alt mr-2"></i>
+                                    Pagar com PIX
+                                </button>
+                                <div class="flex items-center justify-center gap-2 mt-3 text-xs text-green-100">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>Rápido e seguro</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Opção 2: Cartão (Mercado Pago) -->
+                        <div class="payment-option-card">
+                            <div class="bg-gradient-to-br from-primary to-secondary rounded-xl p-6 text-white text-center hover:shadow-xl transition-all duration-300 hover:scale-105">
+                                <div class="mb-3">
+                                    <i class="fas fa-credit-card text-5xl mb-2"></i>
+                                    <h5 class="text-xl font-bold">Cartão de Crédito</h5>
+                                    <p class="text-sm text-blue-100 mt-1">Pagamento via Mercado Pago</p>
+                                </div>
+                                <button 
+                                    type="button"
+                                    onclick="openCardPayment(event)"
+                                    class="w-full bg-white text-primary py-3 px-4 rounded-lg font-bold hover:bg-blue-50 transition mt-4"
+                                >
+                                    <i class="fas fa-credit-card mr-2"></i>
+                                    Pagar com Cartão
+                                </button>
+                                <div class="flex items-center justify-center gap-2 mt-3 text-xs text-blue-100">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Mercado Pago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botão Cancelar -->
+                    <div class="flex justify-center">
+                        <button 
+                            type="button"
+                            onclick="closePaymentModal()"
+                            class="px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition"
+                        >
+                            <i class="fas fa-times mr-2"></i>
+                            Cancelar
+                        </button>
+                    </div>
+                    
+                    <!-- Informações de Segurança -->
+                    <div class="mt-6 text-center">
+                        <div class="flex items-center justify-center gap-4 text-xs text-gray-500">
+                            <div class="flex items-center gap-1">
+                                <i class="fas fa-shield-alt text-green-500"></i>
+                                <span>Pagamento Seguro</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <i class="fas fa-lock text-green-500"></i>
+                                <span>SSL Criptografado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Iframe PIX Payment -->
+    <div id="pix-payment-frame" class="hidden fixed inset-0 z-60 overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+        <div class="relative h-full flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center">
+                    <h3 class="text-xl font-bold flex items-center">
+                        <i class="fas fa-mobile-alt mr-2"></i>
+                        Pagamento via PIX
+                    </h3>
+                    <button onclick="closePixPayment()" class="text-white hover:text-gray-200 text-2xl font-bold transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Iframe Container -->
+                <div class="flex-1 overflow-hidden">
+                    <iframe 
+                        id="pix-iframe" 
+                        src="" 
+                        class="w-full h-full border-0"
+                        allow="payment"
+                    ></iframe>
+                </div>
+                
+                <!-- Footer -->
+                <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t">
+                    <p class="text-sm text-gray-600 text-center">
+                        <i class="fas fa-shield-alt text-green-500 mr-2"></i>
+                        Pagamento seguro processado pela Woovi
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Iframe CARD Payment (Mercado Pago) -->
+    <div id="card-payment-frame" class="hidden fixed inset-0 z-60 overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+        <div class="relative h-full flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center">
+                    <h3 class="text-xl font-bold flex items-center">
+                        <i class="fas fa-credit-card mr-2"></i>
+                        Pagamento com Cartão de Crédito
+                    </h3>
+                    <button onclick="closeCardPayment()" class="text-white hover:text-gray-200 text-2xl font-bold transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Iframe Container -->
+                <div class="flex-1 overflow-hidden">
+                    <iframe 
+                        id="card-iframe" 
+                        src="" 
+                        class="w-full h-full border-0"
+                        allow="payment"
+                    ></iframe>
+                </div>
+                
+                <!-- Footer -->
+                <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t">
+                    <p class="text-sm text-gray-600 text-center">
+                        <i class="fas fa-shield-alt text-blue-500 mr-2"></i>
+                        Pagamento seguro processado pelo Mercado Pago
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Iframe Programas (Compacto) -->
+    <div id="program-modal" class="hidden fixed inset-0 z-[9999] overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm" onclick="closeProductModal()"></div>
+        <div class="relative h-full flex items-center justify-center p-2">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-slideUp">
+                <!-- Header Compacto -->
+                <div id="program-modal-header" class="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2.5 rounded-t-xl flex justify-between items-center">
+                    <h3 class="text-base font-bold flex items-center">
+                        <i id="program-modal-icon" class="fas fa-heart-pulse mr-2 text-lg"></i>
+                        <span id="program-modal-title">Programa</span>
+                    </h3>
+                    <button onclick="closeProductModal()" class="text-white hover:text-gray-200 text-xl font-bold transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Iframe Container -->
+                <div class="flex-1 overflow-hidden relative">
+                    <!-- Loading -->
+                    <div id="program-loading" class="absolute inset-0 flex items-center justify-center bg-white">
+                        <div class="text-center">
+                            <div class="spinner mx-auto mb-3"></div>
+                            <p class="text-sm text-gray-600">Carregando produto...</p>
+                        </div>
+                    </div>
+                    
+                    <iframe 
+                        id="program-iframe" 
+                        src="" 
+                        class="w-full h-full border-0"
+                        onload="hideProductLoading()"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Iframe Especialidades (Compacto) -->
+    <div id="specialty-modal" class="hidden fixed inset-0 z-[9999] overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm" onclick="closeSpecialtyModal()"></div>
+        <div class="relative h-full flex items-center justify-center p-2">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-slideUp">
+                <!-- Header Compacto com Cores Dinâmicas -->
+                <div id="specialty-modal-header" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2.5 rounded-t-xl flex justify-between items-center">
+                    <h3 class="text-base font-bold flex items-center">
+                        <i id="specialty-modal-icon" class="fas fa-stethoscope mr-2 text-lg"></i>
+                        <span id="specialty-modal-title">Especialidade</span>
+                    </h3>
+                    <button onclick="closeSpecialtyModal()" class="text-white hover:text-gray-200 text-xl font-bold transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Iframe Container -->
+                <div class="flex-1 overflow-hidden relative">
+                    <!-- Loading -->
+                    <div id="specialty-loading" class="absolute inset-0 flex items-center justify-center bg-white">
+                        <div class="text-center">
+                            <div class="spinner mx-auto mb-3"></div>
+                            <p class="text-sm text-gray-600">Carregando especialidade...</p>
+                        </div>
+                    </div>
+                    
+                    <iframe 
+                        id="specialty-iframe" 
+                        src="" 
+                        class="w-full h-full border-0"
+                        onload="hideSpecialtyLoading()"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Iframe Checkout (Médio) -->
+    <div id="checkout-modal" class="hidden fixed inset-0 z-[9999] overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm" onclick="closeCheckoutModal()"></div>
+        <div class="relative h-full flex items-center justify-center p-2">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-slideUp">
+                <!-- Header Compacto -->
+                <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-t-xl flex justify-between items-center">
+                    <h3 class="text-base font-bold flex items-center">
+                        <i class="fas fa-shopping-cart mr-2 text-lg"></i>
+                        <span>Checkout - Contratação</span>
+                    </h3>
+                    <button onclick="closeCheckoutModal()" class="text-white hover:text-gray-200 text-xl font-bold transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Iframe Container -->
+                <div class="flex-1 overflow-hidden relative">
+                    <!-- Loading -->
+                    <div id="checkout-loading" class="absolute inset-0 flex items-center justify-center bg-white">
+                        <div class="text-center">
+                            <div class="spinner mx-auto mb-3"></div>
+                            <p class="text-sm text-gray-600">Carregando checkout...</p>
+                        </div>
+                    </div>
+                    
+                    <iframe 
+                        id="checkout-iframe" 
+                        src="" 
+                        class="w-full h-full border-0"
+                        onload="hideCheckoutLoading()"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Iframe Login/Cadastro (Compacto) -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-[9999] overflow-hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm" onclick="closeAuthModal()"></div>
+        <div class="relative h-full flex items-center justify-center p-2">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col animate-slideUp">
+                <!-- Header Compacto -->
+                <div class="bg-gradient-to-r from-primary to-secondary text-white px-4 py-2.5 rounded-t-xl flex justify-between items-center">
+                    <h3 class="text-base font-bold flex items-center">
+                        <i class="fas fa-user-circle mr-2 text-lg"></i>
+                        <span id="auth-modal-title">Entrar</span>
+                    </h3>
+                    <button onclick="closeAuthModal()" class="text-white hover:text-gray-200 text-xl font-bold transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Iframe Container -->
+                <div class="flex-1 overflow-hidden relative">
+                    <!-- Loading -->
+                    <div id="auth-loading" class="absolute inset-0 flex items-center justify-center bg-white">
+                        <div class="text-center">
+                            <div class="spinner mx-auto mb-3"></div>
+                            <p class="text-sm text-gray-600">Carregando...</p>
+                        </div>
+                    </div>
+                    
+                    <iframe 
+                        id="auth-iframe" 
+                        src="" 
+                        class="w-full h-full border-0"
+                        onload="hideAuthLoading()"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <!-- Configurações Centralizadas (DEVE SER CARREGADO PRIMEIRO) -->
+    <script src="js/config.js"></script>
+    
+    <!-- Auth System -->
+    <script src="js/auth.js"></script>
+    
+    <!-- Check Login Status and Update UI -->
+    <script>
+        // Verificar status de login e atualizar interface
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 DOMContentLoaded disparado');
+            console.log('🔍 estaLogado disponível?', typeof estaLogado);
+            console.log('🔍 obterSessao disponível?', typeof obterSessao);
+            
+            if (typeof estaLogado === 'function' && typeof obterSessao === 'function') {
+                const logado = estaLogado();
+                const sessao = obterSessao();
+                
+                console.log('🔍 Está logado?', logado);
+                console.log('🔍 Sessão:', sessao);
+                
+                if (logado && sessao) {
+                    console.log('✅ Usuário logado detectado! Nome:', sessao.nome);
+                    
+                    // Ocultar botões de login/cadastro
+                    const authButtonsDesktop = document.getElementById('auth-buttons-desktop');
+                    const authButtonsMobile = document.getElementById('auth-buttons-mobile');
+                    
+                    console.log('🔍 authButtonsDesktop:', authButtonsDesktop);
+                    console.log('🔍 authButtonsMobile:', authButtonsMobile);
+                    
+                    if (authButtonsDesktop) {
+                        authButtonsDesktop.classList.add('hidden');
+                        console.log('✅ Botões desktop ocultados');
+                    }
+                    if (authButtonsMobile) {
+                        authButtonsMobile.classList.add('hidden');
+                        console.log('✅ Botões mobile ocultados');
+                    }
+                    
+                    // Mostrar informações do usuário
+                    const userInfoDesktop = document.getElementById('user-info-desktop');
+                    const userInfoMobile = document.getElementById('user-info-mobile');
+                    const userNameDesktop = document.getElementById('user-name-desktop');
+                    const userNameMobile = document.getElementById('user-name-mobile');
+                    
+                    console.log('🔍 userInfoDesktop:', userInfoDesktop);
+                    console.log('🔍 userInfoMobile:', userInfoMobile);
+                    console.log('🔍 userNameDesktop:', userNameDesktop);
+                    console.log('🔍 userNameMobile:', userNameMobile);
+                    
+                    if (userInfoDesktop) {
+                        userInfoDesktop.classList.remove('hidden');
+                        userInfoDesktop.classList.add('flex');
+                        console.log('✅ Info desktop exibida');
+                    }
+                    if (userInfoMobile) {
+                        userInfoMobile.classList.remove('hidden');
+                        userInfoMobile.classList.add('flex');
+                        console.log('✅ Info mobile exibida');
+                    }
+                    
+                    // Pegar primeiro nome
+                    const primeiroNome = sessao.nome.split(' ')[0];
+                    console.log('✅ Primeiro nome extraído:', primeiroNome);
+                    
+                    if (userNameDesktop) {
+                        userNameDesktop.textContent = primeiroNome;
+                        console.log('✅ Nome desktop atualizado:', userNameDesktop.textContent);
+                    }
+                    if (userNameMobile) {
+                        userNameMobile.textContent = primeiroNome;
+                        console.log('✅ Nome mobile atualizado:', userNameMobile.textContent);
+                    }
+                } else {
+                    console.log('ℹ️ Usuário não está logado ou sessão não encontrada');
+                }
+            } else {
+                console.log('❌ Funções de autenticação não disponíveis!');
+            }
+        });
+    </script>
+    
+    <!-- Main Script -->
+    <script src="js/main.js"></script>
+    
+    <!-- Auth Modal Script -->
+    <script>
+        function openAuthModal(page) {
+            const modal = document.getElementById('auth-modal');
+            const iframe = document.getElementById('auth-iframe');
+            const title = document.getElementById('auth-modal-title');
+            const loading = document.getElementById('auth-loading');
+            
+            // Definir título
+            if (page === 'login.html') {
+                title.textContent = 'Entrar';
+            } else if (page === 'cadastro.html') {
+                title.textContent = 'Cadastrar';
+            }
+            
+            // Mostrar loading
+            loading.style.display = 'flex';
+            
+            // Definir src do iframe
+            iframe.src = page;
+            
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            document.body.classList.add('iframe-modal-open');
+            
+            // Escutar mensagens do iframe
+            window.addEventListener('message', handleAuthMessage);
+        }
+        
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            const iframe = document.getElementById('auth-iframe');
+            
+            modal.classList.add('hidden');
+            iframe.src = '';
+            document.body.classList.remove('iframe-modal-open');
+            
+            // Remover listener
+            window.removeEventListener('message', handleAuthMessage);
+            
+            // Verificar se login foi bem-sucedido e recarregar página
+            if (typeof estaLogado === 'function' && estaLogado()) {
+                window.location.reload();
+            }
+        }
+        
+        function hideAuthLoading() {
+            const loading = document.getElementById('auth-loading');
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 300);
+        }
+        
+        function handleAuthMessage(event) {
+            // Lidar com mensagens do iframe (ex: login bem-sucedido)
+            if (event.data === 'login-success' || event.data === 'cadastro-success') {
+                closeAuthModal();
+            }
+        }
+        
+        // Escutar ESC para fechar modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const authModal = document.getElementById('auth-modal');
+                const productModal = document.getElementById('program-modal');
+                
+                if (!authModal.classList.contains('hidden')) {
+                    closeAuthModal();
+                } else if (!productModal.classList.contains('hidden')) {
+                    closeProductModal();
+                }
+            }
+        });
+    </script>
+    
+    <!-- Program Modal Script -->
+    <script>
+        // Configurações dos programas
+        const programConfigs = {
+            'programa-mulher.html': {
+                title: 'KaiNow Mulher',
+                icon: 'fa-venus',
+                gradient: 'from-pink-500 to-purple-600'
+            },
+            'programa-senior.html': {
+                title: 'KaiNow Sênior',
+                icon: 'fa-user-shield',
+                gradient: 'from-amber-500 to-orange-600'
+            },
+            'programa-farma.html': {
+                title: 'KaiNow Farma',
+                icon: 'fa-pills',
+                gradient: 'from-green-500 to-emerald-600'
+            },
+            'programa-acolher.html': {
+                title: 'KaiNow Acolher',
+                icon: 'fa-hands-holding-child',
+                gradient: 'from-blue-500 to-indigo-600'
+            },
+            'programa-orienta.html': {
+                title: 'KaiNow Orienta',
+                icon: 'fa-lightbulb',
+                gradient: 'from-purple-500 to-violet-600'
+            },
+            'programa-vivaleve.html': {
+                title: 'KaiNow Viva Leve',
+                icon: 'fa-spa',
+                gradient: 'from-teal-500 to-cyan-600'
+            }
+        };
+        
+        function openProductModal(page) {
+            const modal = document.getElementById('program-modal');
+            const iframe = document.getElementById('program-iframe');
+            const header = document.getElementById('program-modal-header');
+            const title = document.getElementById('program-modal-title');
+            const icon = document.getElementById('program-modal-icon');
+            const loading = document.getElementById('program-loading');
+            
+            // Obter configuração do produto
+            const config = programConfigs[page];
+            
+            if (config) {
+                // Definir título e ícone
+                title.textContent = config.title;
+                icon.className = `fas ${config.icon} mr-2 text-lg`;
+                
+                // Atualizar gradiente do header
+                header.className = `bg-gradient-to-r ${config.gradient} text-white px-4 py-2.5 rounded-t-xl flex justify-between items-center`;
+            }
+            
+            // Mostrar loading
+            loading.style.display = 'flex';
+            
+            // Definir src do iframe
+            iframe.src = page;
+            
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            document.body.classList.add('iframe-modal-open');
+        }
+        
+        function closeProductModal() {
+            const modal = document.getElementById('program-modal');
+            const iframe = document.getElementById('program-iframe');
+            
+            modal.classList.add('hidden');
+            iframe.src = '';
+            document.body.classList.remove('iframe-modal-open');
+        }
+        
+        function hideProductLoading() {
+            const loading = document.getElementById('program-loading');
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 300);
+        }
+        
+        // ========================================
+        // 🏥 SPECIALTY MODAL FUNCTIONS (33 especialidades)
+        // ========================================
+        
+        // Configurações das 33 especialidades (cores e ícones)
+        const specialtyConfigs = {
+            'alergia-e-imunologia-pediatrica': { name: 'Alergia e Imunologia Pediátrica', icon: 'fa-allergies', gradient: 'from-pink-400 to-rose-500' },
+            'cardiologia': { name: 'Cardiologia', icon: 'fa-heartbeat', gradient: 'from-red-500 to-pink-600' },
+            'cirurgia-geral': { name: 'Cirurgia Geral', icon: 'fa-user-md', gradient: 'from-gray-600 to-slate-700' },
+            'cirurgia-plastica': { name: 'Cirurgia Plástica', icon: 'fa-hand-sparkles', gradient: 'from-purple-400 to-pink-500' },
+            'cirurgia-vascular': { name: 'Cirurgia Vascular', icon: 'fa-stethoscope', gradient: 'from-blue-600 to-indigo-700' },
+            'clinica-medica': { name: 'Clínica Médica', icon: 'fa-clinic-medical', gradient: 'from-blue-500 to-indigo-600' },
+            'coloproctologia': { name: 'Coloproctologia', icon: 'fa-user-md', gradient: 'from-teal-500 to-cyan-600' },
+            'dermatologia': { name: 'Dermatologia', icon: 'fa-hand-holding-medical', gradient: 'from-amber-500 to-orange-600' },
+            'endocrinologia-metabologia': { name: 'Endocrinologia/Metabologia', icon: 'fa-dna', gradient: 'from-violet-500 to-purple-600' },
+            'gastroenterologia': { name: 'Gastroenterologia', icon: 'fa-notes-medical', gradient: 'from-emerald-500 to-green-600' },
+            'gastroenterologia-pediatrica': { name: 'Gastroenterologia Pediátrica', icon: 'fa-baby', gradient: 'from-lime-400 to-green-500' },
+            'geriatria': { name: 'Geriatria', icon: 'fa-wheelchair', gradient: 'from-slate-500 to-gray-600' },
+            'ginecologia-obstetricia': { name: 'Ginecologia/Obstetrícia', icon: 'fa-female', gradient: 'from-pink-500 to-rose-600' },
+            'hematologia-pediatrica': { name: 'Hematologia Pediátrica', icon: 'fa-tint', gradient: 'from-red-400 to-rose-500' },
+            'hematologia-e-hemoterapia': { name: 'Hematologia e Hemoterapia', icon: 'fa-tint', gradient: 'from-red-600 to-rose-700' },
+            'infectologia-pediatrica': { name: 'Infectologia Pediátrica', icon: 'fa-shield-virus', gradient: 'from-yellow-500 to-amber-600' },
+            'mastologia': { name: 'Mastologia', icon: 'fa-ribbon', gradient: 'from-pink-400 to-fuchsia-500' },
+            'neurologia': { name: 'Neurologia', icon: 'fa-brain', gradient: 'from-violet-500 to-purple-600' },
+            'nutricionista': { name: 'Nutricionista', icon: 'fa-apple-alt', gradient: 'from-emerald-500 to-green-600' },
+            'oftalmologia': { name: 'Oftalmologia', icon: 'fa-eye', gradient: 'from-sky-500 to-blue-600' },
+            'ortopediatria': { name: 'Ortopediatria', icon: 'fa-child', gradient: 'from-cyan-500 to-blue-600' },
+            'otorrinolaringologia': { name: 'Otorrinolaringologia', icon: 'fa-head-side-mask', gradient: 'from-indigo-500 to-purple-600' },
+            'pediatria': { name: 'Pediatria', icon: 'fa-baby-carriage', gradient: 'from-blue-400 to-cyan-500' },
+            'pneumologia': { name: 'Pneumologia', icon: 'fa-lungs', gradient: 'from-teal-500 to-cyan-600' },
+            'pneumologia-pediatrica': { name: 'Pneumologia Pediátrica', icon: 'fa-lungs-virus', gradient: 'from-cyan-400 to-teal-500' },
+            'psicologia': { name: 'Psicologia', icon: 'fa-user-friends', gradient: 'from-purple-400 to-violet-500' },
+            'psiquiatria': { name: 'Psiquiatria', icon: 'fa-head-side-virus', gradient: 'from-purple-600 to-indigo-700' },
+            'reumatologia': { name: 'Reumatologia', icon: 'fa-hand-holding-medical', gradient: 'from-orange-500 to-red-600' },
+            'urologia': { name: 'Urologia', icon: 'fa-procedures', gradient: 'from-blue-500 to-indigo-600' },
+            'nefrologia': { name: 'Nefrologia', icon: 'fa-kidney', gradient: 'from-teal-600 to-cyan-700' },
+            'oncologia': { name: 'Oncologia', icon: 'fa-ribbon', gradient: 'from-rose-500 to-pink-600' },
+            'proctologia': { name: 'Proctologia', icon: 'fa-notes-medical', gradient: 'from-teal-500 to-emerald-600' },
+            'angiologia': { name: 'Angiologia', icon: 'fa-heart-pulse', gradient: 'from-red-500 to-rose-600' },
+            'nutrologia': { name: 'Nutrologia', icon: 'fa-weight-scale', gradient: 'from-green-500 to-emerald-600' },
+            'homeopatia': { name: 'Homeopatia', icon: 'fa-leaf', gradient: 'from-green-400 to-lime-500' },
+            'acupuntura': { name: 'Acupuntura', icon: 'fa-spa', gradient: 'from-teal-400 to-cyan-500' },
+            'fisioterapia': { name: 'Fisioterapia', icon: 'fa-dumbbell', gradient: 'from-orange-500 to-amber-600' }
+        };
+        
+        // Abre modal de especialidade com cores e ícones dinâmicos
+        function openSpecialtyModal(specialtyName, specialtySlug) {
+            const modal = document.getElementById('specialty-modal');
+            const iframe = document.getElementById('specialty-iframe');
+            const header = document.getElementById('specialty-modal-header');
+            const title = document.getElementById('specialty-modal-title');
+            const icon = document.getElementById('specialty-modal-icon');
+            const loading = document.getElementById('specialty-loading');
+            
+            // Obter configuração da especialidade
+            const config = specialtyConfigs[specialtySlug];
+            
+            if (config) {
+                // Definir título e ícone
+                title.textContent = config.name;
+                icon.className = `fas ${config.icon} mr-2 text-lg`;
+                
+                // Atualizar gradiente do header
+                header.className = `bg-gradient-to-r ${config.gradient} text-white px-4 py-2.5 rounded-t-xl flex justify-between items-center`;
+            }
+            
+            // Mostrar loading
+            loading.style.display = 'flex';
+            
+            // Definir src do iframe
+            const pageUrl = `especialidade-${specialtySlug}.html`;
+            iframe.src = pageUrl;
+            
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            document.body.classList.add('iframe-modal-open');
+        }
+        
+        function closeSpecialtyModal() {
+            const modal = document.getElementById('specialty-modal');
+            const iframe = document.getElementById('specialty-iframe');
+            
+            modal.classList.add('hidden');
+            iframe.src = '';
+            document.body.classList.remove('iframe-modal-open');
+        }
+        
+        function hideSpecialtyLoading() {
+            const loading = document.getElementById('specialty-loading');
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 300);
+        }
+        
+        // Fechar modal com tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSpecialtyModal();
+                closeCheckoutModal();
+            }
+        });
+        
+        // ========================================
+        // 💳 CHECKOUT MODAL FUNCTIONS
+        // ========================================
+        
+        // Abre modal de checkout com URL específica do programa
+        function openCheckoutModal(checkoutUrl) {
+            const modal = document.getElementById('checkout-modal');
+            const iframe = document.getElementById('checkout-iframe');
+            const loading = document.getElementById('checkout-loading');
+            
+            // Mostrar loading
+            loading.style.display = 'flex';
+            
+            // Definir src do iframe
+            iframe.src = checkoutUrl;
+            
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            document.body.classList.add('iframe-modal-open');
+        }
+        
+        function closeCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            const iframe = document.getElementById('checkout-iframe');
+            
+            modal.classList.add('hidden');
+            iframe.src = '';
+            document.body.classList.remove('iframe-modal-open');
+        }
+        
+        function hideCheckoutLoading() {
+            const loading = document.getElementById('checkout-loading');
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 300);
+        }
+    </script>
+
+</body>
+</html>

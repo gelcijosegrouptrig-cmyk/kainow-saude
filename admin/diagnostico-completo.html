@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Completo - KaiNow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            text-align: center;
+        }
+        
+        .test-item {
+            background: #f9fafb;
+            border-left: 4px solid #d1d5db;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        
+        .test-item.success {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .test-item.error {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .test-item.warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+        
+        .test-item h3 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading i {
+            font-size: 48px;
+            color: #8b5cf6;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading.active { display: block; }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        code {
+            background: #1f2937;
+            color: #10b981;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        pre {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <h1><i class="fas fa-stethoscope"></i> Diagnóstico Completo do Sistema</h1>
+            <p style="text-align: center; color: #6b7280; margin-bottom: 30px;">
+                Vamos testar TUDO para descobrir por que os afiliados não estão sendo salvos
+            </p>
+
+            <button class="btn" onclick="executarDiagnostico()">
+                <i class="fas fa-play"></i> Executar Diagnóstico Completo
+            </button>
+
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner"></i>
+                <p style="margin-top: 10px; color: #6b7280;">Executando testes...</p>
+            </div>
+
+            <div id="resultado"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        let testResults = [];
+
+        async function executarDiagnostico() {
+            const loading = document.getElementById('loading');
+            const resultado = document.getElementById('resultado');
+            
+            loading.classList.add('active');
+            resultado.innerHTML = '';
+            testResults = [];
+
+            try {
+                // TESTE 1: Firebase Inicialização
+                await teste1_FirebaseInit();
+                
+                // TESTE 2: Conexão com Firestore
+                await teste2_FirestoreConnection();
+                
+                // TESTE 3: Permissões de Leitura
+                await teste3_ReadPermission();
+                
+                // TESTE 4: Permissões de Escrita
+                await teste4_WritePermission();
+                
+                // TESTE 5: Listar Afiliados Existentes
+                await teste5_ListAffiliates();
+                
+                // TESTE 6: Buscar gelcisilva252
+                await teste6_SearchSpecific();
+                
+                // TESTE 7: Tentar Criar Teste
+                await teste7_CreateTest();
+                
+                // Mostrar resultados
+                mostrarResultados();
+                
+            } catch (error) {
+                resultado.innerHTML = `
+                    <div class="test-item error">
+                        <h3><i class="fas fa-times-circle"></i> Erro Fatal</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function teste1_FirebaseInit() {
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                
+                testResults.push({
+                    nome: 'Inicialização do Firebase',
+                    status: 'success',
+                    mensagem: '✅ Firebase inicializado com sucesso',
+                    detalhes: `Projeto: ${firebaseConfig.projectId}`
+                });
+            } catch (error) {
+                testResults.push({
+                    nome: 'Inicialização do Firebase',
+                    status: 'error',
+                    mensagem: '❌ Erro ao inicializar Firebase',
+                    detalhes: error.message
+                });
+                throw error;
+            }
+        }
+
+        async function teste2_FirestoreConnection() {
+            try {
+                const db = firebase.firestore();
+                
+                testResults.push({
+                    nome: 'Conexão com Firestore',
+                    status: 'success',
+                    mensagem: '✅ Conectado ao Firestore',
+                    detalhes: 'Database instanciado com sucesso'
+                });
+            } catch (error) {
+                testResults.push({
+                    nome: 'Conexão com Firestore',
+                    status: 'error',
+                    mensagem: '❌ Erro ao conectar com Firestore',
+                    detalhes: error.message
+                });
+                throw error;
+            }
+        }
+
+        async function teste3_ReadPermission() {
+            try {
+                const db = firebase.firestore();
+                const snapshot = await db.collection('affiliates').limit(1).get();
+                
+                testResults.push({
+                    nome: 'Permissões de Leitura',
+                    status: 'success',
+                    mensagem: '✅ Permissão de LEITURA OK',
+                    detalhes: `Conseguiu ler a collection 'affiliates'`
+                });
+            } catch (error) {
+                testResults.push({
+                    nome: 'Permissões de Leitura',
+                    status: 'error',
+                    mensagem: '❌ SEM Permissão de LEITURA',
+                    detalhes: error.message,
+                    solucao: 'Vá para Firebase Console > Firestore > Rules e configure: allow read: if true;'
+                });
+            }
+        }
+
+        async function teste4_WritePermission() {
+            try {
+                const db = firebase.firestore();
+                const testDoc = {
+                    test: true,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const docRef = await db.collection('_test').add(testDoc);
+                
+                // Deletar imediatamente
+                await docRef.delete();
+                
+                testResults.push({
+                    nome: 'Permissões de Escrita',
+                    status: 'success',
+                    mensagem: '✅ Permissão de ESCRITA OK',
+                    detalhes: 'Conseguiu criar e deletar documento de teste'
+                });
+            } catch (error) {
+                testResults.push({
+                    nome: 'Permissões de Escrita',
+                    status: 'error',
+                    mensagem: '❌ SEM Permissão de ESCRITA',
+                    detalhes: error.message,
+                    solucao: 'Vá para Firebase Console > Firestore > Rules e configure: allow write: if true;'
+                });
+            }
+        }
+
+        async function teste5_ListAffiliates() {
+            try {
+                const db = firebase.firestore();
+                const snapshot = await db.collection('affiliates').get();
+                
+                testResults.push({
+                    nome: 'Afiliados Existentes',
+                    status: snapshot.empty ? 'warning' : 'success',
+                    mensagem: snapshot.empty ? '⚠️ Nenhum afiliado cadastrado' : `✅ ${snapshot.size} afiliado(s) encontrado(s)`,
+                    detalhes: snapshot.empty ? 'Collection está vazia' : snapshot.docs.map(d => d.data().username).join(', ')
+                });
+            } catch (error) {
+                testResults.push({
+                    nome: 'Afiliados Existentes',
+                    status: 'error',
+                    mensagem: '❌ Erro ao listar afiliados',
+                    detalhes: error.message
+                });
+            }
+        }
+
+        async function teste6_SearchSpecific() {
+            try {
+                const db = firebase.firestore();
+                const snapshot = await db.collection('affiliates')
+                    .where('username', '==', 'gelcisilva252')
+                    .get();
+                
+                if (snapshot.empty) {
+                    testResults.push({
+                        nome: 'Buscar "gelcisilva252"',
+                        status: 'warning',
+                        mensagem: '⚠️ Username "gelcisilva252" NÃO encontrado',
+                        detalhes: 'Afiliado precisa ser criado',
+                        solucao: 'Use o botão abaixo para criar'
+                    });
+                } else {
+                    const data = snapshot.docs[0].data();
+                    testResults.push({
+                        nome: 'Buscar "gelcisilva252"',
+                        status: 'success',
+                        mensagem: '✅ Username "gelcisilva252" EXISTE',
+                        detalhes: `Nome: ${data.name}, Senha: ${data.password}, Email: ${data.email}`
+                    });
+                }
+            } catch (error) {
+                testResults.push({
+                    nome: 'Buscar "gelcisilva252"',
+                    status: 'error',
+                    mensagem: '❌ Erro ao buscar',
+                    detalhes: error.message
+                });
+            }
+        }
+
+        async function teste7_CreateTest() {
+            try {
+                const db = firebase.firestore();
+                
+                // Criar afiliado de teste
+                const testData = {
+                    username: "teste_diagnostico_" + Date.now(),
+                    password: "teste123",
+                    name: "Teste Diagnóstico",
+                    email: "teste@diagnostico.com",
+                    cpf: "000.000.000-00",
+                    phone: "(00)00000-0000",
+                    pixKey: "teste@pix.com",
+                    commission: 20,
+                    active: true,
+                    sales: 0,
+                    totalCommission: 0,
+                    created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: null
+                };
+                
+                const docRef = await db.collection('affiliates').add(testData);
+                
+                // Verificar se foi criado
+                const doc = await docRef.get();
+                
+                if (doc.exists) {
+                    // Deletar imediatamente
+                    await docRef.delete();
+                    
+                    testResults.push({
+                        nome: 'Criar Afiliado de Teste',
+                        status: 'success',
+                        mensagem: '✅ CONSEGUIU criar e deletar afiliado de teste',
+                        detalhes: 'Sistema de criação está FUNCIONANDO! O problema pode ser outro.'
+                    });
+                } else {
+                    testResults.push({
+                        nome: 'Criar Afiliado de Teste',
+                        status: 'error',
+                        mensagem: '❌ Criou mas não conseguiu ler de volta',
+                        detalhes: 'Documento foi criado mas não aparece'
+                    });
+                }
+            } catch (error) {
+                testResults.push({
+                    nome: 'Criar Afiliado de Teste',
+                    status: 'error',
+                    mensagem: '❌ ERRO ao criar afiliado de teste',
+                    detalhes: error.message,
+                    solucao: error.code === 'permission-denied' ? 
+                        'PROBLEMA ENCONTRADO: Regras do Firestore estão bloqueando escrita!' : 
+                        'Verifique a conexão e configuração do Firebase'
+                });
+            }
+        }
+
+        function mostrarResultados() {
+            const resultado = document.getElementById('resultado');
+            
+            let html = '<h2 style="margin: 30px 0 20px; color: #1f2937; font-size: 1.5rem;">📊 Resultados do Diagnóstico:</h2>';
+            
+            // Contar status
+            const sucessos = testResults.filter(t => t.status === 'success').length;
+            const erros = testResults.filter(t => t.status === 'error').length;
+            const avisos = testResults.filter(t => t.status === 'warning').length;
+            
+            // Resumo
+            html += `
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
+                    <div style="background: #d1fae5; padding: 20px; border-radius: 12px; text-align: center;">
+                        <h3 style="font-size: 2rem; color: #065f46; margin-bottom: 5px;">${sucessos}</h3>
+                        <p style="color: #065f46; font-weight: 600;">Sucessos</p>
+                    </div>
+                    <div style="background: #fee2e2; padding: 20px; border-radius: 12px; text-align: center;">
+                        <h3 style="font-size: 2rem; color: #991b1b; margin-bottom: 5px;">${erros}</h3>
+                        <p style="color: #991b1b; font-weight: 600;">Erros</p>
+                    </div>
+                    <div style="background: #fef3c7; padding: 20px; border-radius: 12px; text-align: center;">
+                        <h3 style="font-size: 2rem; color: #92400e; margin-bottom: 5px;">${avisos}</h3>
+                        <p style="color: #92400e; font-weight: 600;">Avisos</p>
+                    </div>
+                </div>
+            `;
+            
+            // Detalhes
+            testResults.forEach(test => {
+                html += `
+                    <div class="test-item ${test.status}">
+                        <h3>${test.mensagem}</h3>
+                        <p style="margin: 10px 0; color: #6b7280;"><strong>Teste:</strong> ${test.nome}</p>
+                        <p style="margin: 10px 0; color: #6b7280;"><strong>Detalhes:</strong> ${test.detalhes}</p>
+                        ${test.solucao ? `<p style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.5); border-radius: 6px;"><strong>💡 Solução:</strong> ${test.solucao}</p>` : ''}
+                    </div>
+                `;
+            });
+            
+            // Diagnóstico Final
+            if (erros > 0) {
+                const erroPermissao = testResults.find(t => t.detalhes && t.detalhes.includes('permission-denied'));
+                
+                if (erroPermissao) {
+                    html += `
+                        <div class="test-item error" style="margin-top: 30px;">
+                            <h2 style="margin-bottom: 15px;">🚨 PROBLEMA ENCONTRADO!</h2>
+                            <h3 style="margin-bottom: 15px;">As regras do Firestore estão BLOQUEANDO a criação de afiliados!</h3>
+                            
+                            <p style="margin: 15px 0; font-size: 1.1rem;"><strong>Como Resolver:</strong></p>
+                            
+                            <ol style="margin-left: 25px; line-height: 1.8;">
+                                <li>Acesse: <code>https://console.firebase.google.com/project/kainowsaude/firestore/rules</code></li>
+                                <li>Clique em "Editar regras"</li>
+                                <li>Substitua as regras por:</li>
+                            </ol>
+                            
+                            <pre>rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+                            
+                            <p style="margin: 15px 0;">
+                                <strong>4.</strong> Clique em "Publicar"<br>
+                                <strong>5.</strong> Aguarde 5 minutos<br>
+                                <strong>6.</strong> Teste novamente
+                            </p>
+                        </div>
+                    `;
+                }
+            } else if (avisos > 0 && erros === 0) {
+                html += `
+                    <div class="test-item success" style="margin-top: 30px;">
+                        <h2 style="margin-bottom: 15px;">✅ SISTEMA FUNCIONANDO!</h2>
+                        <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                            Todos os testes passaram. O sistema está pronto para criar afiliados.
+                        </p>
+                        <button class="btn" onclick="window.location.href='verificar-e-corrigir.html'">
+                            <i class="fas fa-user-plus"></i> Ir Para Criar Afiliados
+                        </button>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="test-item success" style="margin-top: 30px;">
+                        <h2 style="margin-bottom: 15px;">🎉 TUDO PERFEITO!</h2>
+                        <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                            Todos os testes passaram com sucesso! O sistema está 100% funcional.
+                        </p>
+                        <button class="btn" onclick="window.location.href='verificar-e-corrigir.html'">
+                            <i class="fas fa-user-plus"></i> Criar Afiliado "gelcisilva252"
+                        </button>
+                    </div>
+                `;
+            }
+            
+            resultado.innerHTML = html;
+        }
+    </script>
+
+</body>
+</html>

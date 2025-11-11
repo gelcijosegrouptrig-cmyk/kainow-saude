@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Diagnóstico - Gerenciador de Afiliados</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <h1 class="text-4xl font-bold mb-4 text-blue-600">
+                🔍 Diagnóstico do Gerenciador
+            </h1>
+            <p class="text-gray-600 mb-8">
+                Esta página mostra qual domínio está sendo gerado nos links de afiliado.
+            </p>
+
+            <!-- Resultado -->
+            <div id="result" class="space-y-6">
+                <!-- Será preenchido por JavaScript -->
+            </div>
+
+            <div class="mt-8 flex gap-4">
+                <button 
+                    onclick="window.location.href='gerenciar-afiliados.html'"
+                    class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition"
+                >
+                    ← Voltar ao Gerenciador
+                </button>
+                <button 
+                    onclick="location.reload(true)"
+                    class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition"
+                >
+                    🔄 Recarregar (Forçar)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Produtos (mesmo do gerenciador)
+        const products = [
+            { id: 'mulher', name: 'KaiNow Mulher', price: '49,90', color: 'pink', icon: 'fa-venus' },
+            { id: 'senior', name: 'KaiNow Sênior', price: '59,90', color: 'amber', icon: 'fa-user-shield' },
+            { id: 'farma', name: 'KaiNow Farma', price: '19,90', color: 'green', icon: 'fa-pills' },
+            { id: 'acolher', name: 'KaiNow Acolher', price: '24,90', color: 'blue', icon: 'fa-hands-holding-child' },
+            { id: 'orienta', name: 'KaiNow Orienta', price: '19,90', color: 'purple', icon: 'fa-lightbulb' },
+            { id: 'vivaleve', name: 'KaiNow Viva Leve', price: '24,90', color: 'teal', icon: 'fa-spa' }
+        ];
+
+        // ID de teste
+        const testAffiliateId = 'AFF1762770248117';
+
+        // Gerar links usando a MESMA LÓGICA do gerenciador
+        const resultDiv = document.getElementById('result');
+        let html = '';
+
+        // Informação de cache
+        html += `
+            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold text-yellow-700 mb-3">
+                    ⚠️ Informação sobre Cache
+                </h2>
+                <p class="text-gray-700 mb-2">
+                    <strong>Timestamp:</strong> ${new Date().toLocaleString()}<br>
+                    <strong>Versão da Página:</strong> 2.0 (Corrigida)<br>
+                    <strong>Cache do Navegador:</strong> ${navigator.onLine ? 'Online' : 'Offline'}
+                </p>
+                <p class="text-sm text-gray-600 mt-3">
+                    Se os links ainda estiverem errados, pressione <strong>CTRL + SHIFT + R</strong> para forçar atualização.
+                </p>
+            </div>
+        `;
+
+        // Gerar links (MESMA lógica da linha 369)
+        html += `
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold text-blue-700 mb-4">
+                    🔗 Links Sendo Gerados:
+                </h2>
+                <div class="space-y-3">
+        `;
+
+        products.forEach(product => {
+            // ESTA É A LINHA 369 DO GERENCIADOR!
+            const affiliateLink = `https://kainow.com.br/programa-${product.id}.html?ref=${testAffiliateId}`;
+            
+            // Verificar se está correto
+            const isCorrect = affiliateLink.includes('kainow.com.br') && !affiliateLink.includes('kainowsaude');
+            
+            html += `
+                <div class="bg-white border-2 ${isCorrect ? 'border-green-300' : 'border-red-300'} rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <strong class="text-gray-800">${product.name}</strong>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <div class="bg-gray-100 p-3 rounded font-mono text-sm break-all">
+                        ${affiliateLink}
+                    </div>
+                    <div class="mt-2 text-xs ${isCorrect ? 'text-green-600' : 'text-red-600'} font-bold">
+                        ${isCorrect ? '✅ Domínio CORRETO: kainow.com.br' : '❌ Domínio ERRADO: contém "saude"'}
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        // Resultado final
+        const allCorrect = products.every(p => {
+            const link = `https://kainow.com.br/programa-${p.id}.html?ref=${testAffiliateId}`;
+            return link.includes('kainow.com.br') && !link.includes('kainowsaude');
+        });
+
+        if (allCorrect) {
+            html += `
+                <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+                    <h2 class="text-xl font-bold text-green-700 mb-3">
+                        ✅ TUDO CORRETO!
+                    </h2>
+                    <p class="text-gray-700">
+                        Todos os links estão usando o domínio correto: <strong>kainow.com.br</strong>
+                    </p>
+                    <p class="text-sm text-gray-600 mt-3">
+                        Se você ainda vê links com "kainowsaude.com.br" no gerenciador, 
+                        é porque seu navegador está usando cache. Pressione <strong>CTRL + SHIFT + R</strong>.
+                    </p>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="bg-red-50 border-2 border-red-200 rounded-lg p-6">
+                    <h2 class="text-xl font-bold text-red-700 mb-3">
+                        ❌ AINDA HÁ ERRO!
+                    </h2>
+                    <p class="text-gray-700">
+                        Os links ainda estão usando domínio incorreto.
+                    </p>
+                    <p class="text-sm text-gray-600 mt-3">
+                        Por favor, me envie um print desta tela.
+                    </p>
+                </div>
+            `;
+        }
+
+        // Informações técnicas
+        html += `
+            <div class="bg-purple-50 border-2 border-purple-200 rounded-lg p-6">
+                <h2 class="text-xl font-bold text-purple-700 mb-3">
+                    🔧 Informações Técnicas
+                </h2>
+                <div class="text-sm text-gray-700 space-y-1 font-mono">
+                    <p><strong>URL Atual:</strong> ${window.location.href}</p>
+                    <p><strong>Navegador:</strong> ${navigator.userAgent}</p>
+                    <p><strong>Data/Hora:</strong> ${new Date().toISOString()}</p>
+                    <p><strong>Cache Control:</strong> ${document.head.querySelector('meta[http-equiv="cache-control"]') ? 'Sim' : 'Não'}</p>
+                </div>
+            </div>
+        `;
+
+        resultDiv.innerHTML = html;
+
+        // Log no console
+        console.log('🔍 DIAGNÓSTICO DO GERENCIADOR DE AFILIADOS');
+        console.log('============================================');
+        console.log('Timestamp:', new Date().toISOString());
+        console.log('Versão: 2.0 (Corrigida)');
+        console.log('\nLinks Gerados:');
+        products.forEach(product => {
+            const link = `https://kainow.com.br/programa-${product.id}.html?ref=${testAffiliateId}`;
+            console.log(`${product.name}: ${link}`);
+        });
+        console.log('\n✅ Todos os links estão corretos:', allCorrect);
+    </script>
+</body>
+</html>

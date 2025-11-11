@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar teste1 - KaiNow</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        p {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .info-box h3 {
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+
+        .info-box .field {
+            margin: 8px 0;
+            font-family: monospace;
+            color: #1f2937;
+        }
+
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .success-box h3 {
+            color: #065f46;
+            margin-bottom: 10px;
+        }
+
+        .error-box {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .error-box h3 {
+            color: #991b1b;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .loading i {
+            font-size: 48px;
+            color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <div class="icon-circle">
+                <i class="fas fa-user-plus"></i>
+            </div>
+
+            <h1>Criar Afiliado "teste1"</h1>
+            <p>Esta ferramenta vai criar o afiliado "teste1" no Firebase Firestore com as credenciais informadas.</p>
+
+            <div class="info-box">
+                <h3><i class="fas fa-info-circle"></i> Dados que serão criados:</h3>
+                <div class="field"><strong>Username:</strong> teste1</div>
+                <div class="field"><strong>Senha:</strong> kainowjaih9i</div>
+                <div class="field"><strong>Nome:</strong> jose silva</div>
+                <div class="field"><strong>Email:</strong> teste@email.com</div>
+                <div class="field"><strong>CPF:</strong> 000.000.000-00</div>
+                <div class="field"><strong>Telefone:</strong> (00)00000-0000</div>
+                <div class="field"><strong>PIX:</strong> 11013430794</div>
+                <div class="field"><strong>Comissão:</strong> 20%</div>
+            </div>
+
+            <button class="btn" onclick="criarAfiliado()">
+                <i class="fas fa-rocket"></i> Criar Afiliado Agora
+            </button>
+
+            <button class="btn btn-secondary" onclick="verificarExistente()">
+                <i class="fas fa-search"></i> Verificar se Já Existe
+            </button>
+
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner"></i>
+                <p style="margin-top: 10px; color: #6b7280;">Processando...</p>
+            </div>
+
+            <div id="resultado"></div>
+
+            <p style="margin-top: 30px; font-size: 0.9rem; color: #9ca3af;">
+                Após criar, teste o login em:<br>
+                <a href="../afiliado/login.html" style="color: #3b82f6; font-weight: 600;">kainow.com.br/afiliado/login.html</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        console.log('🔥 Firebase conectado!');
+
+        // Verificar se já existe
+        async function verificarExistente() {
+            const loading = document.getElementById('loading');
+            const resultado = document.getElementById('resultado');
+            
+            loading.classList.add('active');
+            resultado.innerHTML = '';
+
+            try {
+                console.log('🔍 Verificando se teste1 já existe...');
+
+                const snapshot = await db.collection('affiliates')
+                    .where('username', '==', 'teste1')
+                    .get();
+
+                loading.classList.remove('active');
+
+                if (snapshot.empty) {
+                    resultado.innerHTML = `
+                        <div class="info-box">
+                            <h3><i class="fas fa-check-circle"></i> Username "teste1" está disponível!</h3>
+                            <p style="margin-top: 10px; color: #1e40af;">
+                                Pode criar sem problemas. Clique no botão "Criar Afiliado Agora".
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    const doc = snapshot.docs[0];
+                    const data = doc.data();
+
+                    resultado.innerHTML = `
+                        <div class="error-box">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Username "teste1" JÁ EXISTE!</h3>
+                            <p style="margin-top: 15px;"><strong>Dados cadastrados:</strong></p>
+                            <div class="field"><strong>Nome:</strong> ${data.name}</div>
+                            <div class="field"><strong>Senha:</strong> ${data.password}</div>
+                            <div class="field"><strong>Email:</strong> ${data.email}</div>
+                            <div class="field"><strong>PIX:</strong> ${data.pixKey}</div>
+                            <div class="field"><strong>Comissão:</strong> ${data.commission}%</div>
+                            
+                            <p style="margin-top: 15px; color: #991b1b;">
+                                <strong>Senha atual:</strong> ${data.password === 'kainowjaih9i' ? '✅ Correta' : '❌ Diferente'}
+                            </p>
+
+                            ${data.password !== 'kainowjaih9i' ? `
+                                <button class="btn" onclick="atualizarSenha('${doc.id}')" style="margin-top: 15px;">
+                                    <i class="fas fa-key"></i> Atualizar Senha para "kainowjaih9i"
+                                </button>
+                            ` : `
+                                <p style="margin-top: 15px; color: #065f46; font-weight: 600;">
+                                    ✅ Login deve funcionar com estes dados!<br>
+                                    Se ainda não funciona, limpe o cache do navegador.
+                                </p>
+                            `}
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                loading.classList.remove('active');
+                console.error('❌ Erro:', error);
+                resultado.innerHTML = `
+                    <div class="error-box">
+                        <h3><i class="fas fa-times-circle"></i> Erro ao Verificar</h3>
+                        <p><strong>Mensagem:</strong> ${error.message}</p>
+                        <p><strong>Code:</strong> ${error.code || 'N/A'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Criar afiliado
+        async function criarAfiliado() {
+            if (!confirm('Confirma a criação do afiliado "teste1"?')) return;
+
+            const loading = document.getElementById('loading');
+            const resultado = document.getElementById('resultado');
+            
+            loading.classList.add('active');
+            resultado.innerHTML = '';
+
+            try {
+                console.log('🚀 Criando afiliado teste1...');
+
+                // Verificar se já existe
+                const checkSnapshot = await db.collection('affiliates')
+                    .where('username', '==', 'teste1')
+                    .get();
+
+                if (!checkSnapshot.empty) {
+                    loading.classList.remove('active');
+                    resultado.innerHTML = `
+                        <div class="error-box">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Username "teste1" JÁ EXISTE!</h3>
+                            <p style="margin-top: 10px;">
+                                Use o botão "Verificar se Já Existe" para ver os dados cadastrados.
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Criar novo afiliado
+                const docRef = await db.collection('affiliates').add({
+                    username: "teste1",
+                    password: "kainowjaih9i",
+                    name: "jose silva",
+                    email: "teste@email.com",
+                    cpf: "000.000.000-00",
+                    phone: "(00)00000-0000",
+                    pixKey: "11013430794",
+                    commission: 20,
+                    active: true,
+                    sales: 0,
+                    totalCommission: 0,
+                    created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: null
+                });
+
+                console.log('✅ Afiliado criado! ID:', docRef.id);
+
+                loading.classList.remove('active');
+                resultado.innerHTML = `
+                    <div class="success-box">
+                        <h3><i class="fas fa-check-circle"></i> Afiliado Criado com Sucesso!</h3>
+                        
+                        <p style="margin: 15px 0;"><strong>Credenciais de Login:</strong></p>
+                        <div class="field"><strong>Username:</strong> teste1</div>
+                        <div class="field"><strong>Senha:</strong> kainowjaih9i</div>
+                        <div class="field"><strong>ID Firestore:</strong> ${docRef.id}</div>
+
+                        <p style="margin-top: 20px; color: #065f46; font-weight: 600;">
+                            ✅ Tudo pronto! Agora você pode fazer login.
+                        </p>
+
+                        <a href="../afiliado/login.html" class="btn" style="display: block; text-decoration: none; margin-top: 20px;">
+                            <i class="fas fa-sign-in-alt"></i> Ir Para Página de Login
+                        </a>
+                    </div>
+                `;
+
+            } catch (error) {
+                loading.classList.remove('active');
+                console.error('❌ Erro:', error);
+                resultado.innerHTML = `
+                    <div class="error-box">
+                        <h3><i class="fas fa-times-circle"></i> Erro ao Criar Afiliado</h3>
+                        <p style="margin-top: 10px;"><strong>Mensagem:</strong> ${error.message}</p>
+                        <p><strong>Code:</strong> ${error.code || 'N/A'}</p>
+
+                        ${error.code === 'permission-denied' ? `
+                            <p style="margin-top: 15px; color: #991b1b; font-weight: 600;">
+                                ⚠️ Problema de Permissão!<br><br>
+                                Verifique as regras do Firestore:<br>
+                                Devem estar como: <code>allow read, write: if true;</code>
+                            </p>
+                        ` : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // Atualizar senha
+        async function atualizarSenha(docId) {
+            if (!confirm('Atualizar a senha para "kainowjaih9i"?')) return;
+
+            const loading = document.getElementById('loading');
+            const resultado = document.getElementById('resultado');
+            
+            loading.classList.add('active');
+
+            try {
+                console.log('🔄 Atualizando senha...');
+
+                await db.collection('affiliates').doc(docId).update({
+                    password: "kainowjaih9i"
+                });
+
+                console.log('✅ Senha atualizada!');
+
+                loading.classList.remove('active');
+                resultado.innerHTML = `
+                    <div class="success-box">
+                        <h3><i class="fas fa-check-circle"></i> Senha Atualizada!</h3>
+                        
+                        <p style="margin: 15px 0;"><strong>Nova Credencial:</strong></p>
+                        <div class="field"><strong>Username:</strong> teste1</div>
+                        <div class="field"><strong>Senha:</strong> kainowjaih9i</div>
+
+                        <p style="margin-top: 20px; color: #065f46; font-weight: 600;">
+                            ✅ Agora o login deve funcionar!
+                        </p>
+
+                        <a href="../afiliado/login.html" class="btn" style="display: block; text-decoration: none; margin-top: 20px;">
+                            <i class="fas fa-sign-in-alt"></i> Testar Login Agora
+                        </a>
+                    </div>
+                `;
+
+            } catch (error) {
+                loading.classList.remove('active');
+                console.error('❌ Erro:', error);
+                resultado.innerHTML = `
+                    <div class="error-box">
+                        <h3><i class="fas fa-times-circle"></i> Erro ao Atualizar Senha</h3>
+                        <p><strong>Mensagem:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-verificar ao carregar
+        window.addEventListener('load', () => {
+            setTimeout(verificarExistente, 500);
+        });
+    </script>
+
+</body>
+</html>

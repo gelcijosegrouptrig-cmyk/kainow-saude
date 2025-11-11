@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Busca Afiliado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">🔍 Debug - Busca Afiliado</h1>
+        
+        <div id="output" class="space-y-4"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(message, type = 'info') {
+            const colors = {
+                'info': 'blue',
+                'success': 'green',
+                'error': 'red',
+                'warning': 'yellow'
+            };
+            const color = colors[type] || 'gray';
+            
+            const div = document.createElement('div');
+            div.className = `p-4 bg-${color}-50 border-l-4 border-${color}-500 rounded`;
+            div.innerHTML = `<pre class="text-sm text-${color}-800">${message}</pre>`;
+            output.appendChild(div);
+        }
+
+        async function testar() {
+            try {
+                log('🚀 Iniciando teste de debug...', 'info');
+
+                // 1. Verificar sessão
+                log('\n📋 PASSO 1: Verificando sessão...', 'info');
+                
+                const sessionLS = localStorage.getItem('kainow_affiliate_session');
+                const sessionSS = sessionStorage.getItem('kainow_affiliate_session');
+                
+                if (!sessionLS && !sessionSS) {
+                    log('❌ ERRO: Nenhuma sessão encontrada!\n\nVocê precisa fazer login primeiro.', 'error');
+                    log('\n🔗 Clique aqui para fazer login: <a href="login.html" class="underline">login.html</a>', 'warning');
+                    return;
+                }
+
+                const sessionStr = sessionLS || sessionSS;
+                const session = JSON.parse(sessionStr);
+                
+                log('✅ Sessão encontrada!', 'success');
+                log(JSON.stringify(session, null, 2), 'info');
+
+                // 2. Configurar Firebase
+                log('\n📋 PASSO 2: Configurando Firebase...', 'info');
+                
+                const firebaseConfig = {
+                    apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+                    authDomain: "kainowsaude.firebaseapp.com",
+                    projectId: "kainowsaude",
+                    storageBucket: "kainowsaude.firebasestorage.app",
+                    messagingSenderId: "230049250523",
+                    appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+                };
+
+                firebase.initializeApp(firebaseConfig);
+                const db = firebase.firestore();
+                
+                log('✅ Firebase configurado!', 'success');
+
+                // 3. Buscar no Firestore
+                log('\n📋 PASSO 3: Buscando afiliado no Firestore...', 'info');
+                log(`Username da sessão: "${session.username}"`, 'info');
+
+                const affiliateQuery = db.collection('affiliates')
+                    .where('username', '==', session.username)
+                    .limit(1);
+
+                log('🔍 Executando query...', 'info');
+                const snapshot = await affiliateQuery.get();
+
+                log(`📊 Resultado: ${snapshot.size} documento(s) encontrado(s)`, 'info');
+
+                if (snapshot.empty) {
+                    log('\n❌ ERRO: Afiliado NÃO encontrado no Firestore!', 'error');
+                    log(`\n🔍 Buscado por username: "${session.username}"`, 'warning');
+                    
+                    // Tentar buscar todos os afiliados
+                    log('\n📋 PASSO 4: Buscando TODOS os afiliados para comparar...', 'info');
+                    const allSnapshot = await db.collection('affiliates').get();
+                    
+                    log(`📊 Total de afiliados no Firestore: ${allSnapshot.size}`, 'info');
+                    
+                    if (allSnapshot.size > 0) {
+                        log('\n📋 Lista de usernames no Firestore:', 'info');
+                        allSnapshot.forEach((doc, index) => {
+                            const data = doc.data();
+                            log(`${index + 1}. ID: ${doc.id} | Username: "${data.username}" | Nome: ${data.name}`, 'info');
+                        });
+                        
+                        log('\n⚠️ DIAGNÓSTICO:', 'warning');
+                        log('O afiliado existe no Firestore mas com username diferente!', 'warning');
+                        log(`\nUsername na SESSÃO: "${session.username}"`, 'warning');
+                        log('Username no FIRESTORE: Veja a lista acima', 'warning');
+                        log('\n💡 SOLUÇÃO: Você precisa recriar o afiliado com o username correto.', 'warning');
+                    } else {
+                        log('\n⚠️ DIAGNÓSTICO:', 'warning');
+                        log('Não existem afiliados no Firestore!', 'warning');
+                        log('\n💡 SOLUÇÃO: Use admin/criar-afiliado-auto.html para criar.', 'warning');
+                    }
+                    
+                    return;
+                }
+
+                // 4. Afiliado encontrado!
+                const affiliateDoc = snapshot.docs[0];
+                const affiliate = affiliateDoc.data();
+
+                log('\n✅ SUCESSO: Afiliado encontrado!', 'success');
+                log('\n📄 Dados completos:', 'success');
+                log(JSON.stringify({
+                    'ID Firestore': affiliateDoc.id,
+                    'Username': affiliate.username,
+                    'Nome': affiliate.name,
+                    'Email': affiliate.email,
+                    'CPF': affiliate.cpf,
+                    'Telefone': affiliate.phone,
+                    'PIX': affiliate.pixKey,
+                    'Comissão': affiliate.commission + '%',
+                    'Vendas': affiliate.sales || 0,
+                    'Comissão Total': 'R$ ' + (affiliate.totalCommission || 0).toFixed(2),
+                    'Ativo': affiliate.active ? 'Sim' : 'Não',
+                    'Último Login': affiliate.lastLogin ? new Date(affiliate.lastLogin.toDate()).toLocaleString('pt-BR') : 'Nunca'
+                }, null, 2), 'success');
+
+                log('\n🎉 CONCLUSÃO: O sistema está funcionando corretamente!', 'success');
+                log('\nO dashboard deve carregar sem erros.', 'success');
+                log('\nSe ainda houver erro no dashboard, limpe o cache do navegador (Ctrl+Shift+Del).', 'info');
+
+            } catch (error) {
+                log('\n❌ ERRO CRÍTICO:', 'error');
+                log(error.message, 'error');
+                log('\nStack trace:', 'error');
+                log(error.stack, 'error');
+            }
+        }
+
+        // Executar teste
+        testar();
+    </script>
+</body>
+</html>

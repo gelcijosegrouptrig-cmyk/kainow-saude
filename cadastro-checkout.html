@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - KaiNow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- bcrypt.js para hash de senha -->
+    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-blue-600">
+                    <i class="fas fa-heartbeat mr-2"></i>
+                    KaiNow Saúde
+                </h1>
+                <a href="/" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-home mr-2"></i>Início
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Banner do Afiliado -->
+        <div id="affiliate-banner" class="hidden mb-6 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-xl p-6 shadow-lg">
+            <div class="flex items-center">
+                <div class="bg-white text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mr-4">
+                    <i class="fas fa-user-friends text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm opacity-90">✨ Você foi indicado por:</p>
+                    <h3 class="text-2xl font-bold" id="affiliate-name">Carregando...</h3>
+                    <p class="text-xs opacity-75">Garantindo sua comissão de <span id="affiliate-commission">20</span>%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações do Programa -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2" id="program-name">
+                        <i class="fas fa-venus text-pink-500 mr-2"></i>
+                        KaiNow Mulher
+                    </h2>
+                    <p class="text-gray-600" id="program-description">
+                        Plano de saúde completo focado no bem-estar feminino
+                    </p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">Valor mensal</p>
+                    <p class="text-4xl font-bold text-blue-600" id="program-price">R$ 49,90</p>
+                    <p class="text-xs text-gray-500">por mês</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg">
+                <div class="text-center">
+                    <i class="fas fa-stethoscope text-3xl text-blue-600 mb-2"></i>
+                    <p class="text-sm font-bold text-gray-700">Telemedicina 24h</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-pills text-3xl text-blue-600 mb-2"></i>
+                    <p class="text-sm font-bold text-gray-700">Descontos em Farmácias</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-calendar-check text-3xl text-blue-600 mb-2"></i>
+                    <p class="text-sm font-bold text-gray-700">Agendamento Online</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulário de Cadastro -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-user-plus mr-2 text-blue-600"></i>
+                    Complete seu Cadastro
+                </h3>
+                <p class="text-gray-600">
+                    Preencha seus dados para continuar com a assinatura
+                </p>
+            </div>
+
+            <form id="register-form" class="space-y-6">
+                <!-- Nome Completo -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2"></i>Nome Completo *
+                    </label>
+                    <input 
+                        type="text" 
+                        id="nome"
+                        required
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                        placeholder="Seu nome completo"
+                    >
+                </div>
+
+                <!-- Email e CPF -->
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            <i class="fas fa-envelope mr-2"></i>Email *
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email"
+                            required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                            placeholder="seu@email.com"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            <i class="fas fa-id-card mr-2"></i>CPF *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="cpf"
+                            required
+                            maxlength="14"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                            placeholder="000.000.000-00"
+                        >
+                    </div>
+                </div>
+
+                <!-- Telefone e Data de Nascimento -->
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            <i class="fas fa-phone mr-2"></i>Telefone *
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="telefone"
+                            required
+                            maxlength="15"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                            placeholder="(11) 99999-9999"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            <i class="fas fa-calendar mr-2"></i>Data de Nascimento *
+                        </label>
+                        <input 
+                            type="date" 
+                            id="dataNascimento"
+                            required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                        >
+                    </div>
+                </div>
+
+                <!-- Senha e Confirmação -->
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2"></i>Criar Senha *
+                        </label>
+                        <input 
+                            type="password" 
+                            id="senha"
+                            required
+                            minlength="6"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                            placeholder="Mínimo 6 caracteres"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2"></i>Confirmar Senha *
+                        </label>
+                        <input 
+                            type="password" 
+                            id="confirmarSenha"
+                            required
+                            minlength="6"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                            placeholder="Digite novamente"
+                        >
+                    </div>
+                </div>
+
+                <!-- Termos -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <label class="flex items-start">
+                        <input 
+                            type="checkbox" 
+                            id="termos"
+                            required
+                            class="mt-1 mr-3 w-5 h-5"
+                        >
+                        <span class="text-sm text-gray-700">
+                            Li e concordo com os 
+                            <a href="#" class="text-blue-600 hover:underline">Termos de Uso</a> e 
+                            <a href="#" class="text-blue-600 hover:underline">Política de Privacidade</a>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Resumo do Pagamento -->
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
+                    <h4 class="font-bold text-gray-800 mb-4">
+                        <i class="fas fa-receipt mr-2"></i>Resumo da Assinatura
+                    </h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Plano:</span>
+                            <span class="font-bold" id="summary-plan">KaiNow Mulher</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Valor mensal:</span>
+                            <span class="font-bold" id="summary-price">R$ 49,90</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>Renovação automática</span>
+                            <span>Todo dia 5</span>
+                        </div>
+                        <div class="pt-3 border-t border-blue-300 flex justify-between">
+                            <span class="font-bold text-gray-800">Total hoje:</span>
+                            <span class="text-2xl font-bold text-blue-600" id="summary-total">R$ 49,90</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão de Enviar -->
+                <button 
+                    type="submit"
+                    id="submit-btn"
+                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-lg font-bold text-lg hover:shadow-lg transition transform hover:scale-105"
+                >
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Continuar para Pagamento
+                </button>
+
+                <p class="text-xs text-center text-gray-500">
+                    <i class="fas fa-lock mr-1"></i>
+                    Seus dados estão protegidos e seguros
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuração Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Obter parâmetros da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const affiliateRef = urlParams.get('ref');
+        const programId = urlParams.get('program') || 'mulher';
+
+        // Dados dos programas
+        const programs = {
+            'mulher': { name: 'KaiNow Mulher', price: 49.90, icon: 'fa-venus', color: 'pink', description: 'Plano de saúde focado no bem-estar feminino' },
+            'senior': { name: 'KaiNow Sênior', price: 59.90, icon: 'fa-user-shield', color: 'amber', description: 'Cuidado especial para a melhor idade' },
+            'farma': { name: 'KaiNow Farma', price: 19.90, icon: 'fa-pills', color: 'green', description: 'Descontos exclusivos em medicamentos' },
+            'acolher': { name: 'KaiNow Acolher', price: 24.90, icon: 'fa-hands-holding-child', color: 'blue', description: 'Apoio psicológico e emocional' },
+            'orienta': { name: 'KaiNow Orienta', price: 19.90, icon: 'fa-lightbulb', color: 'purple', description: 'Orientações médicas especializadas' },
+            'vivaleve': { name: 'KaiNow Viva Leve', price: 24.90, icon: 'fa-spa', color: 'teal', description: 'Qualidade de vida e bem-estar' }
+        };
+
+        const currentProgram = programs[programId];
+
+        // Atualizar informações do programa
+        document.getElementById('program-name').innerHTML = `<i class="fas ${currentProgram.icon} text-${currentProgram.color}-500 mr-2"></i>${currentProgram.name}`;
+        document.getElementById('program-description').textContent = currentProgram.description;
+        document.getElementById('program-price').textContent = `R$ ${currentProgram.price.toFixed(2).replace('.', ',')}`;
+        document.getElementById('summary-plan').textContent = currentProgram.name;
+        document.getElementById('summary-price').textContent = `R$ ${currentProgram.price.toFixed(2).replace('.', ',')}`;
+        document.getElementById('summary-total').textContent = `R$ ${currentProgram.price.toFixed(2).replace('.', ',')}`;
+
+        // Buscar informações do afiliado
+        let affiliateData = null;
+
+        if (affiliateRef) {
+            db.collection('affiliates')
+                .where('username', '==', affiliateRef)
+                .limit(1)
+                .get()
+                .then(snapshot => {
+                    if (!snapshot.empty) {
+                        affiliateData = snapshot.docs[0].data();
+                        document.getElementById('affiliate-banner').classList.remove('hidden');
+                        document.getElementById('affiliate-name').textContent = affiliateData.name;
+                        document.getElementById('affiliate-commission').textContent = affiliateData.commission || 20;
+                        console.log('✅ Afiliado encontrado:', affiliateData);
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erro ao buscar afiliado:', error);
+                });
+        }
+
+        // Máscaras de input
+        document.getElementById('cpf').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = value;
+        });
+
+        document.getElementById('telefone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+            e.target.value = value;
+        });
+
+        // Processar formulário
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const senha = document.getElementById('senha').value;
+            const confirmarSenha = document.getElementById('confirmarSenha').value;
+
+            if (senha !== confirmarSenha) {
+                alert('❌ As senhas não coincidem!');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...';
+
+            try {
+                // 🔐 FAZER HASH DA SENHA (Segurança!)
+                console.log('🔐 Gerando hash da senha...');
+                
+                // Verificar se bcrypt está disponível
+                if (typeof bcrypt === 'undefined') {
+                    console.error('❌ bcrypt não carregou! Tentando aguardar...');
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    if (typeof bcrypt === 'undefined') {
+                        throw new Error('bcrypt não está disponível. Por favor, recarregue a página.');
+                    }
+                }
+                
+                const senhaHash = bcrypt.hashSync(senha, 10); // 10 rounds (balanceado)
+                console.log('✅ Hash gerado com sucesso');
+                
+                const clientData = {
+                    nome: document.getElementById('nome').value.trim(),
+                    email: document.getElementById('email').value.trim().toLowerCase(),
+                    cpf: document.getElementById('cpf').value.trim(),
+                    telefone: document.getElementById('telefone').value.trim(),
+                    dataNascimento: document.getElementById('dataNascimento').value,
+                    senha: senhaHash, // ✅ SENHA COM HASH!
+                    
+                    programa: programId,
+                    programaNome: currentProgram.name,
+                    valorMensal: currentProgram.price,
+                    
+                    indicadoPor: affiliateRef || null,
+                    afiliado: affiliateData ? {
+                        username: affiliateData.username,
+                        nome: affiliateData.name,
+                        comissao: affiliateData.commission || 20,
+                        pixKey: affiliateData.pixKey
+                    } : null,
+                    
+                    status: 'aguardando_pagamento',
+                    dataCadastro: firebase.firestore.FieldValue.serverTimestamp(),
+                    pagamentoId: null,
+                    dataPagamento: null
+                };
+
+                console.log('📝 Salvando cliente (senha com hash):', { ...clientData, senha: '[HASH PROTEGIDO]' });
+
+                // Salvar no Firestore
+                const docRef = await db.collection('clientes').add(clientData);
+
+                console.log('✅ Cliente cadastrado! ID:', docRef.id);
+
+                // Salvar ID do cliente na sessão
+                sessionStorage.setItem('kainow_client_id', docRef.id);
+                sessionStorage.setItem('kainow_client_data', JSON.stringify(clientData));
+
+                // Redirecionar para pagamento
+                window.location.href = `pagamento-pix.html?client=${docRef.id}&program=${programId}${affiliateRef ? '&ref=' + affiliateRef : ''}`;
+
+            } catch (error) {
+                console.error('❌ Erro ao cadastrar:', error);
+                alert('❌ Erro ao processar cadastro: ' + error.message);
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Continuar para Pagamento';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamentos - KaiNow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center">
+                        <i class="fas fa-heartbeat text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">KaiNow Saúde</h1>
+                        <p class="text-sm text-gray-600" id="header-nome">Cliente</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-blue-600 font-semibold">
+                        <i class="fas fa-home mr-1"></i> Início
+                    </a>
+                    <a href="agendamentos.html" class="text-blue-600 font-semibold">
+                        <i class="fas fa-calendar-alt mr-1"></i> Consultas
+                    </a>
+                    <a href="perfil.html" class="text-gray-700 hover:text-blue-600 font-semibold">
+                        <i class="fas fa-user mr-1"></i> Perfil
+                    </a>
+                    <button onclick="fazerLogout()" class="text-red-600 hover:text-red-800 font-semibold">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Sair
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-5xl">
+
+        <!-- Título -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-calendar-alt text-blue-600 mr-3"></i>
+                Minhas Consultas
+            </h2>
+            <p class="text-gray-600">Agende e gerencie suas consultas médicas</p>
+        </div>
+
+        <!-- Botão Agendar Nova Consulta -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white mb-8 shadow-xl">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-2xl font-bold mb-2">Agendar Nova Consulta</h3>
+                    <p class="opacity-90">Entre em contato via WhatsApp para marcar sua consulta</p>
+                </div>
+                <a 
+                    href="https://wa.me/5511999999999?text=Olá! Gostaria de agendar uma consulta." 
+                    target="_blank"
+                    class="bg-white text-blue-600 px-8 py-4 rounded-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all whitespace-nowrap"
+                >
+                    <i class="fab fa-whatsapp mr-2"></i>
+                    Agendar via WhatsApp
+                </a>
+            </div>
+        </div>
+
+        <!-- Lista de Consultas -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">
+                Próximas Consultas
+            </h3>
+
+            <!-- Mensagem vazia -->
+            <div class="text-center py-12 text-gray-500">
+                <i class="fas fa-calendar-times text-6xl mb-4 text-gray-300"></i>
+                <p class="text-lg font-semibold mb-2">Nenhuma consulta agendada</p>
+                <p class="text-sm">Clique no botão acima para agendar sua primeira consulta</p>
+            </div>
+
+            <!-- Exemplo de consulta (comentado) -->
+            <!--
+            <div class="border-l-4 border-blue-600 bg-blue-50 p-6 rounded-r-xl mb-4">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg mb-2">
+                            <i class="fas fa-user-md text-blue-600 mr-2"></i>
+                            Dr. João Silva - Cardiologia
+                        </h4>
+                        <p class="text-gray-600 mb-1">
+                            <i class="fas fa-calendar mr-2"></i>
+                            Segunda-feira, 15 de Janeiro de 2025
+                        </p>
+                        <p class="text-gray-600">
+                            <i class="fas fa-clock mr-2"></i>
+                            14:00 - 15:00
+                        </p>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm">
+                            <i class="fas fa-video mr-1"></i> Entrar
+                        </button>
+                        <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm">
+                            <i class="fas fa-times mr-1"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            -->
+        </div>
+
+    </main>
+
+    <script>
+        // Verificar autenticação
+        function verificarAuth() {
+            const sessionData = localStorage.getItem('kainow_cliente_session') || 
+                               sessionStorage.getItem('kainow_cliente_session');
+            
+            if (!sessionData) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            return JSON.parse(sessionData);
+        }
+
+        // Logout
+        function fazerLogout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                localStorage.removeItem('kainow_cliente_session');
+                sessionStorage.removeItem('kainow_cliente_session');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Carregar dados
+        window.addEventListener('load', function() {
+            const cliente = verificarAuth();
+            if (cliente) {
+                document.getElementById('header-nome').textContent = cliente.nome.split(' ')[0];
+            }
+        });
+    </script>
+
+</body>
+</html>

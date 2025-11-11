@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Divulgador KaiNow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white text-blue-600 w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl">
+                        <span id="header-initial">D</span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold" id="header-name">Divulgador</h1>
+                        <p class="text-sm opacity-90" id="header-id">ID: AFF...</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <button 
+                        onclick="window.location.href='trocar-senha.html'"
+                        class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition"
+                    >
+                        <i class="fas fa-key mr-2"></i>
+                        Trocar Senha
+                    </button>
+                    <button 
+                        onclick="logout()"
+                        class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition"
+                    >
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Loading -->
+        <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 text-center">
+                <i class="fas fa-spinner fa-spin text-6xl text-blue-600 mb-4"></i>
+                <p class="text-xl font-bold text-gray-800">Carregando seus dados...</p>
+                <p class="text-sm text-gray-600 mt-2">Conectando ao Firestore</p>
+            </div>
+        </div>
+
+        <!-- Alerta Primeiro Acesso -->
+        <div id="first-access-alert" class="hidden mb-6 bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
+            <div class="flex items-start">
+                <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl mr-4"></i>
+                <div class="flex-1">
+                    <h3 class="font-bold text-yellow-800 mb-2">🔐 Primeiro Acesso - Troque sua Senha!</h3>
+                    <p class="text-yellow-700 text-sm mb-3">
+                        Por segurança, você deve trocar a senha padrão para uma senha pessoal.
+                    </p>
+                    <button 
+                        onclick="window.location.href='trocar-senha.html'"
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-bold transition"
+                    >
+                        Trocar Senha Agora
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards de Estatísticas -->
+        <div class="grid md:grid-cols-4 gap-6 mb-8">
+            <!-- Total de Vendas -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Total de Vendas</p>
+                        <h2 class="text-3xl font-bold text-gray-800" id="total-sales">0</h2>
+                    </div>
+                    <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center">
+                        <i class="fas fa-shopping-cart text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500">Vendas realizadas</p>
+            </div>
+
+            <!-- Comissão Total -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Comissão Total</p>
+                        <h2 class="text-3xl font-bold text-green-600" id="total-commission">R$ 0,00</h2>
+                    </div>
+                    <div class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500">Ganhos acumulados</p>
+            </div>
+
+            <!-- Taxa de Comissão -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Sua Comissão</p>
+                        <h2 class="text-3xl font-bold text-purple-600" id="commission-rate">0%</h2>
+                    </div>
+                    <div class="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center">
+                        <i class="fas fa-percentage text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500">Por cada venda</p>
+            </div>
+
+            <!-- Cliques no Link -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-600 text-sm mb-1">Cliques no Link</p>
+                        <h2 class="text-3xl font-bold text-orange-600" id="total-clicks">0</h2>
+                    </div>
+                    <div class="bg-orange-100 w-12 h-12 rounded-full flex items-center justify-center">
+                        <i class="fas fa-mouse-pointer text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500">Visitantes únicos</p>
+            </div>
+        </div>
+
+        <!-- Informações PIX -->
+        <div class="bg-gradient-to-r from-green-50 to-teal-50 border-2 border-green-200 rounded-xl p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-green-500 w-16 h-16 rounded-full flex items-center justify-center">
+                        <i class="fab fa-pix text-white text-3xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">Recebimento via PIX</h3>
+                        <p class="text-gray-600 text-sm">Chave: <strong id="pix-key">Não cadastrada</strong></p>
+                        <p class="text-gray-600 text-sm">Tipo: <strong id="pix-type">-</strong></p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600 mb-1">Próximo Pagamento</p>
+                    <p class="text-2xl font-bold text-green-600" id="next-payment">R$ 0,00</p>
+                    <p class="text-xs text-gray-500">Todo dia 5</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personalizar Link -->
+        <div id="customize-slug-card" class="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-blue-500 w-14 h-14 rounded-full flex items-center justify-center">
+                        <i class="fas fa-edit text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">
+                            🎯 Personalize Seu Link de Divulgação
+                        </h3>
+                        <p class="text-gray-600 text-sm">
+                            Link atual: <strong>?ref=<span id="current-ref"></span></strong>
+                        </p>
+                        <p class="text-gray-500 text-xs mt-1" id="slug-status">
+                            Você pode personalizar uma única vez!
+                        </p>
+                    </div>
+                </div>
+                <button 
+                    id="customize-btn"
+                    onclick="openCustomizeSlugModal()"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold transition"
+                >
+                    <i class="fas fa-magic mr-2"></i>
+                    Personalizar
+                </button>
+            </div>
+        </div>
+
+        <!-- Seus Links de Divulgação -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-link text-blue-500 mr-2"></i>
+                Seus Links de Divulgação
+            </h2>
+            <p class="text-gray-600 mb-6">Compartilhe estes links para ganhar comissões!</p>
+            
+            <div id="affiliate-links" class="space-y-4">
+                <!-- Links serão inseridos aqui -->
+            </div>
+        </div>
+
+        <!-- Modal Personalizar Slug -->
+        <div id="customize-slug-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-2xl w-full p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-edit text-blue-600 mr-2"></i>
+                        Personalizar Link
+                    </h3>
+                    <button onclick="closeCustomizeSlugModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-6">
+                    <h4 class="font-bold text-gray-800 mb-2">
+                        <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                        Como funciona?
+                    </h4>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                        <li>✅ Crie um nome único e fácil de lembrar</li>
+                        <li>✅ Use apenas letras minúsculas, números e hífen</li>
+                        <li>✅ Exemplo: <code class="bg-white px-2 py-1 rounded">joaosilva</code>, <code class="bg-white px-2 py-1 rounded">maria-vendas</code></li>
+                        <li>⚠️ <strong>Atenção:</strong> Você pode personalizar apenas UMA VEZ!</li>
+                    </ul>
+                </div>
+
+                <form id="customize-slug-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            Seu Nome/Apelido no Link
+                        </label>
+                        <input 
+                            type="text" 
+                            id="new-slug-input"
+                            placeholder="Ex: joaosilva, maria-vendas, vendedor123"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                            pattern="[a-z0-9-]+"
+                            maxlength="30"
+                            required
+                        >
+                        <p class="text-xs text-gray-500 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Digite apenas letras minúsculas (a-z), números (0-9) e hífen (-)
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-300 rounded-lg p-4">
+                        <p class="text-sm text-gray-600 mb-2">
+                            <strong>Preview do seu link:</strong>
+                        </p>
+                        <p class="font-mono text-blue-600 text-sm break-all" id="slug-preview">
+                            https://kainow.com.br/programa-mulher.html?ref=<span id="preview-slug">seunome</span>
+                        </p>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button 
+                            type="submit"
+                            class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition"
+                        >
+                            <i class="fas fa-check mr-2"></i>
+                            Confirmar e Salvar
+                        </button>
+                        <button 
+                            type="button"
+                            onclick="closeCustomizeSlugModal()"
+                            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg transition"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                        <p class="text-sm text-yellow-800">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <strong>Importante:</strong> Após salvar, você NÃO poderá alterar novamente!
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Histórico de Vendas -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-history text-purple-500 mr-2"></i>
+                    Histórico de Vendas
+                </h2>
+                <button 
+                    onclick="window.location.href='relatorios.html'"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
+                >
+                    <i class="fas fa-file-alt mr-2"></i>
+                    Ver Relatório Completo
+                </button>
+            </div>
+            
+            <div id="sales-history" class="overflow-x-auto">
+                <!-- Histórico será inserido aqui -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Configuração Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Verificar autenticação
+        function checkAuth() {
+            const session = localStorage.getItem('kainow_affiliate_session') || 
+                           sessionStorage.getItem('kainow_affiliate_session');
+            
+            if (!session) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            return JSON.parse(session);
+        }
+
+        // Atualizar preview do slug em tempo real
+        document.getElementById('new-slug-input')?.addEventListener('input', function(e) {
+            let value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+            e.target.value = value;
+            document.getElementById('preview-slug').textContent = value || 'seunome';
+        });
+
+        // Abrir modal de personalizar slug
+        async function openCustomizeSlugModal() {
+            const session = checkAuth();
+            if (!session) return;
+
+            try {
+                // Buscar afiliado no Firestore
+                const affiliateQuery = db.collection('affiliates')
+                    .where('username', '==', session.username)
+                    .limit(1);
+
+                const snapshot = await affiliateQuery.get();
+
+                if (snapshot.empty) {
+                    alert('❌ Erro: Afiliado não encontrado!');
+                    return;
+                }
+
+                const affiliate = snapshot.docs[0].data();
+
+                // Verificar se já personalizou
+                if (affiliate.slugCustomized) {
+                    alert('❌ Você já personalizou seu link! Não é possível alterar novamente.');
+                    return;
+                }
+
+                document.getElementById('customize-slug-modal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Erro ao abrir modal:', error);
+                alert('❌ Erro ao verificar dados. Tente novamente.');
+            }
+        }
+
+        // Fechar modal
+        function closeCustomizeSlugModal() {
+            document.getElementById('customize-slug-modal').classList.add('hidden');
+            document.getElementById('customize-slug-form').reset();
+            document.getElementById('preview-slug').textContent = 'seunome';
+        }
+
+        // Salvar slug personalizado
+        document.getElementById('customize-slug-form')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const session = checkAuth();
+            if (!session) return;
+
+            let newSlug = document.getElementById('new-slug-input').value.toLowerCase().trim();
+            
+            // Validar slug
+            if (!newSlug || newSlug.length < 3) {
+                alert('❌ O nome deve ter pelo menos 3 caracteres!');
+                return;
+            }
+
+            // Remover caracteres não permitidos
+            newSlug = newSlug.replace(/[^a-z0-9-]/g, '');
+            
+            if (newSlug.length < 3) {
+                alert('❌ O nome deve conter letras, números ou hífen!');
+                return;
+            }
+
+            try {
+                // Buscar afiliado atual no Firestore
+                const affiliateQuery = db.collection('affiliates')
+                    .where('username', '==', session.username)
+                    .limit(1);
+
+                const snapshot = await affiliateQuery.get();
+
+                if (snapshot.empty) {
+                    alert('❌ Erro: Afiliado não encontrado!');
+                    return;
+                }
+
+                const affiliateDoc = snapshot.docs[0];
+
+                // Verificar se slug já existe em outro afiliado
+                const slugQuery = db.collection('affiliates')
+                    .where('customSlug', '==', newSlug)
+                    .get();
+
+                const slugSnapshot = await slugQuery;
+                
+                if (!slugSnapshot.empty && slugSnapshot.docs[0].id !== affiliateDoc.id) {
+                    alert('❌ Este nome já está em uso! Escolha outro.');
+                    return;
+                }
+
+                // Confirmar alteração
+                if (!confirm(`⚠️ Tem certeza que deseja usar "${newSlug}"?\n\nVocê NÃO poderá alterar depois!`)) {
+                    return;
+                }
+
+                // Salvar slug no Firestore
+                await affiliateDoc.ref.update({
+                    customSlug: newSlug,
+                    slugCustomized: true,
+                    slugCustomizedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Fechar modal e recarregar
+                closeCustomizeSlugModal();
+                
+                alert('✅ Link personalizado com sucesso!\n\nSeu novo link: ?ref=' + newSlug);
+                
+                loadAffiliateData();
+            } catch (error) {
+                console.error('Erro ao salvar slug:', error);
+                alert('❌ Erro ao personalizar link. Tente novamente.');
+            }
+        });
+
+        // Carregar dados do afiliado
+        async function loadAffiliateData() {
+            const session = checkAuth();
+            if (!session) return;
+
+            console.log('🔍 Sessão carregada:', session);
+            console.log('👤 Buscando por username:', session.username);
+
+            try {
+                // Aguardar mais tempo para conexão
+                const affiliateQuery = db.collection('affiliates')
+                    .where('username', '==', session.username)
+                    .limit(1);
+
+                console.log('📡 Executando query no Firestore...');
+                console.log('⏳ Aguardando resposta (timeout: 10 segundos)...');
+                
+                // Criar timeout de 10 segundos
+                const queryPromise = affiliateQuery.get();
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout: Firestore não respondeu em 10 segundos')), 10000)
+                );
+                
+                const snapshot = await Promise.race([queryPromise, timeoutPromise]);
+
+                console.log('📊 Resultado da busca:', {
+                    empty: snapshot.empty,
+                    size: snapshot.size
+                });
+
+                if (snapshot.empty) {
+                    console.error('❌ Nenhum documento encontrado para username:', session.username);
+                    console.warn('🔄 REDIRECIONANDO PARA MODO OFFLINE...');
+                    
+                    // Redirecionar IMEDIATAMENTE para modo offline
+                    alert('⚠️ PROBLEMA DE CONEXÃO DETECTADO!\n\n' +
+                          'Não foi possível conectar ao servidor Firebase.\n\n' +
+                          '🔌 Você será redirecionado para o MODO OFFLINE.\n\n' +
+                          'No modo offline você pode:\n' +
+                          '✅ Acessar seus links de divulgação\n' +
+                          '✅ Copiar e compartilhar normalmente\n' +
+                          '⚠️ Estatísticas podem estar desatualizadas');
+                    
+                    window.location.href = 'dashboard-offline.html';
+                    return;
+                }
+
+                console.log('✅ Afiliado encontrado no Firestore!');
+
+                // Esconder loading
+                document.getElementById('loading-overlay').classList.add('hidden');
+
+                const affiliateDoc = snapshot.docs[0];
+                const affiliate = {
+                    id: affiliateDoc.id,
+                    ...affiliateDoc.data()
+                };
+
+                console.log('📄 Dados do afiliado:', affiliate);
+                console.log('🆔 ID do documento:', affiliateDoc.id);
+                console.log('📛 Nome:', affiliate.name);
+                console.log('👤 Username:', affiliate.username);
+
+                // Atualizar header
+                document.getElementById('header-name').textContent = affiliate.name;
+                document.getElementById('header-id').textContent = 'ID: ' + affiliate.username;
+                document.getElementById('header-initial').textContent = affiliate.name.charAt(0).toUpperCase();
+
+                // Verificar primeiro acesso (se lastLogin é null)
+                if (!affiliate.lastLogin) {
+                    document.getElementById('first-access-alert').classList.remove('hidden');
+                }
+
+                // Atualizar estatísticas
+                const totalSales = affiliate.sales || 0;
+                const totalCommission = affiliate.totalCommission || 0;
+                const commissionRate = affiliate.commission || 0;
+                
+                document.getElementById('total-sales').textContent = totalSales;
+                document.getElementById('total-commission').textContent = 'R$ ' + totalCommission.toFixed(2).replace('.', ',');
+                document.getElementById('commission-rate').textContent = commissionRate + '%';
+                
+                // Cliques (sempre 0 por enquanto, pois não temos tracking implementado)
+                document.getElementById('total-clicks').textContent = '0';
+
+                // Próximo pagamento (soma das comissões não pagas)
+                document.getElementById('next-payment').textContent = 'R$ ' + totalCommission.toFixed(2).replace('.', ',');
+
+                // Informações PIX
+                document.getElementById('pix-key').textContent = affiliate.pixKey || 'Não cadastrada';
+                document.getElementById('pix-type').textContent = 'CPF/EMAIL/FONE';
+
+                // Atualizar card de personalização
+                updateCustomizeCard(affiliate);
+
+                // Gerar links
+                generateAffiliateLinks(affiliate);
+
+                // Mostrar histórico
+                showSalesHistory(affiliate);
+
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados:', error);
+                console.error('🔍 Tipo de erro:', error.code, error.message);
+                
+                // Esconder loading
+                document.getElementById('loading-overlay').classList.add('hidden');
+                
+                // Detectar erro de conexão
+                const isConnectionError = 
+                    error.code === 'unavailable' ||
+                    error.message.includes('Failed to get document') ||
+                    error.message.includes('network') ||
+                    error.message.includes('offline') ||
+                    error.message.includes('CORS') ||
+                    error.message.includes('firestore');
+                
+                if (isConnectionError) {
+                    console.warn('⚠️ ERRO DE CONEXÃO DETECTADO!');
+                    console.warn('🔄 Redirecionando para dashboard offline...');
+                    
+                    alert('⚠️ PROBLEMA DE CONEXÃO DETECTADO!\n\n' +
+                          'Não foi possível conectar ao servidor Firebase.\n\n' +
+                          '🔌 Você será redirecionado para o MODO OFFLINE.\n\n' +
+                          'No modo offline você pode:\n' +
+                          '✅ Acessar seus links de divulgação\n' +
+                          '✅ Copiar e compartilhar normalmente\n' +
+                          '⚠️ Estatísticas podem estar desatualizadas');
+                    
+                    // Redirecionar para dashboard offline
+                    window.location.href = 'dashboard-offline.html';
+                } else {
+                    alert('❌ Erro ao carregar dados do afiliado.\n\n' +
+                          'Detalhes: ' + error.message + '\n\n' +
+                          'Possível problema de conexão com Firestore.\n' +
+                          'Verifique sua internet e tente novamente.');
+                }
+            }
+        }
+
+        // Atualizar card de personalização
+        function updateCustomizeCard(affiliate) {
+            const refValue = affiliate.customSlug || affiliate.username;
+            const customizeBtn = document.getElementById('customize-btn');
+            const slugStatus = document.getElementById('slug-status');
+            const currentRef = document.getElementById('current-ref');
+            
+            if (currentRef) {
+                currentRef.textContent = refValue;
+            }
+
+            if (customizeBtn && slugStatus) {
+                if (affiliate.slugCustomized) {
+                    // Já personalizou - desabilitar botão
+                    customizeBtn.disabled = true;
+                    customizeBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                    customizeBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    customizeBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Personalizado';
+                    
+                    if (affiliate.slugCustomizedAt) {
+                        let date;
+                        if (affiliate.slugCustomizedAt.toDate) {
+                            date = affiliate.slugCustomizedAt.toDate().toLocaleDateString('pt-BR');
+                        } else {
+                            date = new Date(affiliate.slugCustomizedAt).toLocaleDateString('pt-BR');
+                        }
+                        slugStatus.innerHTML = `✅ <strong>Link personalizado em ${date}</strong>`;
+                    } else {
+                        slugStatus.innerHTML = `✅ <strong>Link personalizado</strong>`;
+                    }
+                    slugStatus.classList.add('text-green-600');
+                } else {
+                    // Ainda pode personalizar
+                    slugStatus.innerHTML = '⚠️ <strong>Você pode personalizar uma única vez!</strong>';
+                    slugStatus.classList.add('text-yellow-600');
+                }
+            }
+        }
+
+        // Gerar links de divulgação
+        function generateAffiliateLinks(affiliate) {
+            const products = [
+                { id: 'mulher', name: 'KaiNow Mulher', price: '49,90', icon: 'fa-venus', color: 'pink' },
+                { id: 'senior', name: 'KaiNow Sênior', price: '59,90', icon: 'fa-user-shield', color: 'amber' },
+                { id: 'farma', name: 'KaiNow Farma', price: '19,90', icon: 'fa-pills', color: 'green' },
+                { id: 'acolher', name: 'KaiNow Acolher', price: '24,90', icon: 'fa-hands-holding-child', color: 'blue' },
+                { id: 'orienta', name: 'KaiNow Orienta', price: '19,90', icon: 'fa-lightbulb', color: 'purple' },
+                { id: 'vivaleve', name: 'KaiNow Viva Leve', price: '24,90', icon: 'fa-spa', color: 'teal' }
+            ];
+
+            const linksContainer = document.getElementById('affiliate-links');
+            
+            // Usar slug personalizado se existir, senão usar username
+            const refParam = affiliate.customSlug || affiliate.username;
+            
+            linksContainer.innerHTML = products.map(product => {
+                const link = `https://kainow.com.br/programa-${product.id}.html?ref=${refParam}`;
+                const commission = (parseFloat(product.price.replace(',', '.')) * affiliate.commission / 100).toFixed(2).replace('.', ',');
+                
+                return `
+                    <div class="border-2 border-gray-200 hover:border-${product.color}-300 rounded-lg p-4 transition">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4 flex-1">
+                                <div class="bg-${product.color}-100 w-12 h-12 rounded-full flex items-center justify-center">
+                                    <i class="fas ${product.icon} text-${product.color}-600 text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-gray-800">${product.name}</h4>
+                                    <p class="text-sm text-gray-600">R$ ${product.price}/mês • Você ganha R$ ${commission}</p>
+                                    <div class="flex items-center mt-2">
+                                        <input 
+                                            type="text" 
+                                            value="${link}" 
+                                            readonly 
+                                            id="link-${product.id}"
+                                            class="flex-1 text-xs bg-gray-50 border border-gray-300 rounded px-2 py-1 mr-2"
+                                        >
+                                        <button 
+                                            onclick="copyLink('link-${product.id}')"
+                                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition"
+                                        >
+                                            <i class="fas fa-copy mr-1"></i>Copiar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Mostrar histórico de vendas
+        function showSalesHistory(affiliate) {
+            const historyContainer = document.getElementById('sales-history');
+            
+            if (!affiliate.sales || affiliate.sales.length === 0) {
+                historyContainer.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-inbox text-6xl mb-4 opacity-20"></i>
+                        <p class="text-lg">Nenhuma venda registrada ainda</p>
+                        <p class="text-sm mt-2">Compartilhe seus links para começar a ganhar!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            historyContainer.innerHTML = `
+                <table class="w-full">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Data</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Produto</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Valor</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Comissão</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        ${affiliate.sales.map(sale => `
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm">${new Date(sale.date).toLocaleDateString('pt-BR')}</td>
+                                <td class="px-4 py-3 text-sm font-medium">${sale.product}</td>
+                                <td class="px-4 py-3 text-sm">R$ ${sale.amount.toFixed(2).replace('.', ',')}</td>
+                                <td class="px-4 py-3 text-sm font-bold text-green-600">R$ ${sale.commission.toFixed(2).replace('.', ',')}</td>
+                                <td class="px-4 py-3 text-sm">
+                                    <span class="inline-block px-2 py-1 text-xs font-bold rounded-full ${
+                                        sale.status === 'pago' ? 'bg-green-100 text-green-800' :
+                                        sale.status === 'pendente' ? 'bg-yellow-100 text-yellow-800' :
+                                        'bg-gray-100 text-gray-800'
+                                    }">
+                                        ${sale.status.toUpperCase()}
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Copiar link
+        function copyLink(inputId) {
+            const input = document.getElementById(inputId);
+            input.select();
+            document.execCommand('copy');
+            
+            // Feedback visual
+            const button = input.nextElementSibling;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check mr-1"></i>Copiado!';
+            button.classList.add('bg-green-500');
+            button.classList.remove('bg-blue-500');
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('bg-green-500');
+                button.classList.add('bg-blue-500');
+            }, 2000);
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Deseja sair do painel?')) {
+                localStorage.removeItem('kainow_affiliate_session');
+                sessionStorage.removeItem('kainow_affiliate_session');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Inicializar
+        loadAffiliateData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login do Divulgador - KaiNow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="inline-block bg-gradient-to-r from-blue-500 to-purple-600 text-white w-20 h-20 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-users text-4xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Painel do Divulgador</h1>
+            <p class="text-gray-600">Acompanhe suas vendas e comissões</p>
+            <p class="text-xs text-green-600 mt-2">
+                <i class="fas fa-cloud mr-1"></i>Sistema Online (Firebase)
+            </p>
+        </div>
+
+        <!-- Formulário de Login -->
+        <form id="login-form" class="space-y-6">
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fas fa-user mr-2"></i>Usuário ou Email
+                </label>
+                <input 
+                    type="text" 
+                    id="username"
+                    placeholder="Digite seu usuário ou email"
+                    required
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition"
+                >
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fas fa-lock mr-2"></i>Senha
+                </label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="password"
+                        placeholder="Digite sua senha"
+                        required
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition pr-12"
+                    >
+                    <button 
+                        type="button"
+                        onclick="togglePassword()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                        <i id="toggle-icon" class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center">
+                <input 
+                    type="checkbox" 
+                    id="remember" 
+                    class="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                >
+                <label for="remember" class="ml-2 text-sm text-gray-700">
+                    Lembrar-me
+                </label>
+            </div>
+
+            <button 
+                type="submit"
+                id="login-btn"
+                class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-bold hover:shadow-lg transition transform hover:scale-105"
+            >
+                <i class="fas fa-sign-in-alt mr-2"></i>Entrar no Painel
+            </button>
+        </form>
+
+        <!-- Links Úteis -->
+        <div class="mt-6 text-center space-y-2">
+            <p class="text-sm text-gray-600">
+                Não tem acesso?
+            </p>
+            <a href="https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20me%20tornar%20um%20divulgador%20KaiNow" 
+               target="_blank"
+               class="text-blue-600 hover:text-blue-700 font-semibold flex items-center justify-center">
+                <i class="fab fa-whatsapp mr-2"></i>Fale com o Suporte
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-sm text-gray-500">
+            <p>© 2025 KaiNow Saúde</p>
+            <p class="mt-1">Sistema de Divulgadores</p>
+        </div>
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script>
+        // ✅ Credenciais Firebase Reais - Configurado em 10/11/2025
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        console.log('🔥 Firebase inicializado com sucesso!');
+    </script>
+
+    <script>
+        // Toggle mostrar/ocultar senha
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggle-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Processar login com Firebase
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            const loginBtn = document.getElementById('login-btn');
+
+            // Desabilitar botão durante processamento
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Entrando...';
+
+            try {
+                console.log('🔍 Buscando afiliado:', username);
+
+                // Buscar afiliado no Firestore
+                let affiliateQuery;
+                
+                // Verificar se é email ou username
+                if (username.includes('@')) {
+                    // É email
+                    affiliateQuery = db.collection('affiliates')
+                        .where('email', '==', username)
+                        .limit(1);
+                } else {
+                    // É username
+                    affiliateQuery = db.collection('affiliates')
+                        .where('username', '==', username)
+                        .limit(1);
+                }
+
+                const snapshot = await affiliateQuery.get();
+
+                if (snapshot.empty) {
+                    throw new Error('Usuário não encontrado');
+                }
+
+                const affiliateDoc = snapshot.docs[0];
+                const affiliate = affiliateDoc.data();
+
+                console.log('✅ Afiliado encontrado:', affiliate.name);
+
+                // Verificar senha (bcrypt seria ideal, mas por simplicidade usamos comparação direta)
+                // ⚠️ EM PRODUÇÃO, USE BCRYPT!
+                if (affiliate.password !== password) {
+                    throw new Error('Senha incorreta');
+                }
+
+                console.log('✅ Senha correta!');
+
+                // Login bem-sucedido - Criar sessão
+                const sessionData = {
+                    affiliateId: affiliateDoc.id,
+                    username: affiliate.username,
+                    name: affiliate.name,
+                    email: affiliate.email,
+                    commission: affiliate.commission || 25,
+                    slug: affiliate.slug || '',
+                    pixKey: affiliate.pixKey || '',
+                    loginTime: new Date().toISOString(),
+                    loginMethod: 'firebase'
+                };
+
+                // Salvar sessão
+                if (remember) {
+                    localStorage.setItem('kainow_affiliate_session', JSON.stringify(sessionData));
+                    console.log('💾 Sessão salva no localStorage (persistente)');
+                } else {
+                    sessionStorage.setItem('kainow_affiliate_session', JSON.stringify(sessionData));
+                    console.log('💾 Sessão salva no sessionStorage (temporária)');
+                }
+
+                // Registrar último login no Firestore
+                await affiliateDoc.ref.update({
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                console.log('📊 Último login registrado');
+
+                // 🔍 TESTE DE CONECTIVIDADE: Verificar se Firestore está acessível
+                console.log('🔍 Testando conectividade com Firestore...');
+                
+                try {
+                    // Timeout de 3 segundos para testar conectividade
+                    const testPromise = db.collection('affiliates')
+                        .where('username', '==', affiliate.username)
+                        .limit(1)
+                        .get();
+                    
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('timeout')), 3000)
+                    );
+                    
+                    await Promise.race([testPromise, timeoutPromise]);
+                    
+                    console.log('✅ Firestore OK - Redirecionando para dashboard.html');
+                    window.location.href = 'dashboard.html';
+                    
+                } catch (connectivityError) {
+                    console.warn('⚠️ Firestore inacessível - Redirecionando para dashboard-offline.html');
+                    console.warn('Erro:', connectivityError.message);
+                    
+                    // Redirecionar para versão offline
+                    window.location.href = 'dashboard-offline.html';
+                }
+
+            } catch (error) {
+                console.error('❌ Erro no login:', error);
+                
+                let errorMessage = 'Erro ao fazer login. Tente novamente.';
+                
+                if (error.message === 'Usuário não encontrado') {
+                    errorMessage = 'Usuário não encontrado.\n\nVerifique se digitou corretamente.';
+                } else if (error.message === 'Senha incorreta') {
+                    errorMessage = 'Senha incorreta.\n\nVerifique sua senha e tente novamente.';
+                } else if (error.code === 'unavailable' || error.message.includes('Failed to get document') || error.message.includes('network')) {
+                    errorMessage = '⚠️ PROBLEMA DE CONEXÃO DETECTADO!\n\nNão foi possível conectar ao servidor Firebase.\n\nIsso pode ser:\n• Problema na sua internet\n• Firewall/Antivírus bloqueando\n• Problema temporário do Firebase\n\n💡 Solução: Aguarde alguns segundos e tente novamente.\nSe persistir, entre em contato com o suporte.';
+                }
+                
+                alert('❌ ' + errorMessage);
+
+                // Reabilitar botão
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>Entrar no Painel';
+            }
+        });
+
+        // Verificar se já está logado
+        window.addEventListener('DOMContentLoaded', async function() {
+            const session = localStorage.getItem('kainow_affiliate_session') || 
+                           sessionStorage.getItem('kainow_affiliate_session');
+            
+            if (session) {
+                console.log('✅ Sessão ativa encontrada');
+                
+                try {
+                    // Testar conectividade antes de redirecionar
+                    console.log('🔍 Testando conectividade...');
+                    
+                    const sessionData = JSON.parse(session);
+                    const testPromise = db.collection('affiliates')
+                        .where('username', '==', sessionData.username)
+                        .limit(1)
+                        .get();
+                    
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('timeout')), 3000)
+                    );
+                    
+                    await Promise.race([testPromise, timeoutPromise]);
+                    
+                    console.log('✅ Firestore OK - Redirecionando para dashboard.html');
+                    window.location.href = 'dashboard.html';
+                    
+                } catch (error) {
+                    console.warn('⚠️ Firestore inacessível - Redirecionando para dashboard-offline.html');
+                    window.location.href = 'dashboard-offline.html';
+                }
+            }
+        });
+
+        // Migrar dados do localStorage antigo para Firestore (executar uma vez)
+        async function migrarDadosLocalStorage() {
+            try {
+                const affiliatesLocal = JSON.parse(localStorage.getItem('kainow_affiliates') || '[]');
+                
+                if (affiliatesLocal.length === 0) {
+                    console.log('ℹ️  Nenhum dado local para migrar');
+                    return;
+                }
+
+                console.log(`🔄 Migrando ${affiliatesLocal.length} afiliados para Firebase...`);
+
+                for (const affiliate of affiliatesLocal) {
+                    // Verificar se já existe
+                    const existing = await db.collection('affiliates')
+                        .where('username', '==', affiliate.username)
+                        .get();
+
+                    if (existing.empty) {
+                        // Adicionar ao Firestore
+                        await db.collection('affiliates').add({
+                            ...affiliate,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        console.log(`✅ Migrado: ${affiliate.name}`);
+                    } else {
+                        console.log(`⏭️  Já existe: ${affiliate.name}`);
+                    }
+                }
+
+                console.log('✅ Migração concluída!');
+                alert('✅ Dados migrados para Firebase com sucesso!');
+
+            } catch (error) {
+                console.error('❌ Erro na migração:', error);
+                alert('❌ Erro ao migrar dados: ' + error.message);
+            }
+        }
+
+        // Descomente a linha abaixo para executar a migração UMA VEZ
+        // migrarDadosLocalStorage();
+    </script>
+</body>
+</html>

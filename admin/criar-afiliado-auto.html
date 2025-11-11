@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Afiliado - Geração Automática</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        label {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.9rem;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            padding-right: 45px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+        
+        input:disabled {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .generate-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        .generate-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .credential-box {
+            background: #1f2937;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 15px 0;
+        }
+        
+        .copy-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+        
+        .copy-btn:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <h1><i class="fas fa-magic"></i> Criar Afiliado com Geração Automática</h1>
+            <p class="subtitle">
+                Username e Senha são gerados automaticamente a partir do nome
+            </p>
+
+            <div class="info-box">
+                <h3 style="color: #1e40af; margin-bottom: 10px;">
+                    <i class="fas fa-info-circle"></i> Como Funciona:
+                </h3>
+                <ul style="margin-left: 20px; color: #1e40af; line-height: 1.8;">
+                    <li><strong>Username:</strong> Gerado automaticamente do nome (ex: joaosilva → joaosilva123)</li>
+                    <li><strong>Senha:</strong> Gerada automaticamente (kainow + 8 caracteres aleatórios)</li>
+                    <li>Você pode <strong>gerar novamente</strong> clicando no botão 🎲</li>
+                    <li>Ou <strong>editar manualmente</strong> se preferir</li>
+                </ul>
+            </div>
+
+            <form id="formAfiliado">
+                <div class="form-grid">
+                    <!-- Nome Completo -->
+                    <div style="grid-column: 1 / -1;">
+                        <label><i class="fas fa-id-card"></i> Nome Completo *</label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            required 
+                            placeholder="Ex: João Silva"
+                            oninput="generateCredentials()"
+                        >
+                    </div>
+
+                    <!-- Username (Auto-gerado) -->
+                    <div>
+                        <label><i class="fas fa-user"></i> Username (Auto-gerado)</label>
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                id="username" 
+                                required 
+                                placeholder="Será gerado..."
+                                readonly
+                            >
+                            <button type="button" class="generate-btn" onclick="generateUsername()" title="Gerar Novo">
+                                🎲
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Senha (Auto-gerada) -->
+                    <div>
+                        <label><i class="fas fa-lock"></i> Senha (Auto-gerada)</label>
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                id="password" 
+                                required 
+                                placeholder="Será gerada..."
+                                readonly
+                            >
+                            <button type="button" class="generate-btn" onclick="generatePassword()" title="Gerar Nova">
+                                🎲
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label><i class="fas fa-envelope"></i> Email *</label>
+                        <input type="email" id="email" required placeholder="Ex: joao@email.com">
+                    </div>
+
+                    <!-- CPF -->
+                    <div>
+                        <label><i class="fas fa-id-card-alt"></i> CPF *</label>
+                        <input type="text" id="cpf" required placeholder="Ex: 000.000.000-00">
+                    </div>
+
+                    <!-- Telefone -->
+                    <div>
+                        <label><i class="fas fa-phone"></i> Telefone *</label>
+                        <input type="text" id="phone" required placeholder="Ex: (11)99999-9999">
+                    </div>
+
+                    <!-- PIX -->
+                    <div>
+                        <label><i class="fas fa-money-bill"></i> Chave PIX *</label>
+                        <input type="text" id="pixKey" required placeholder="CPF, Email ou Telefone">
+                    </div>
+
+                    <!-- Comissão -->
+                    <div>
+                        <label><i class="fas fa-percent"></i> Comissão (%) *</label>
+                        <input type="number" id="commission" required value="20" min="0" max="100">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="btnSubmit">
+                    <i class="fas fa-plus-circle"></i> Criar Afiliado
+                </button>
+            </form>
+
+            <div id="resultado"></div>
+        </div>
+
+        <p style="text-align: center; color: white; margin-top: 20px;">
+            <a href="dashboard-admin.html" style="color: white; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+            </a>
+        </p>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Gerar username a partir do nome
+        function generateUsername() {
+            const name = document.getElementById('name').value.trim();
+            if (!name) return;
+
+            // Remove acentos e caracteres especiais
+            let username = name
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+                .replace(/[^a-z0-9\s]/g, '') // Remove caracteres especiais
+                .replace(/\s+/g, ''); // Remove espaços
+
+            // Pega apenas primeiro e último nome
+            const parts = name.split(' ').filter(p => p.length > 0);
+            if (parts.length >= 2) {
+                const firstName = parts[0].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const lastName = parts[parts.length - 1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                username = firstName + lastName;
+            }
+
+            // Adiciona número aleatório (3 dígitos)
+            const randomNum = Math.floor(100 + Math.random() * 900);
+            username = username + randomNum;
+
+            document.getElementById('username').value = username;
+        }
+
+        // Gerar senha aleatória
+        function generatePassword() {
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let password = 'kainow';
+            
+            for (let i = 0; i < 8; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            document.getElementById('password').value = password;
+        }
+
+        // Gerar credenciais automaticamente ao digitar nome
+        function generateCredentials() {
+            generateUsername();
+            generatePassword();
+        }
+
+        // Form Submit
+        document.getElementById('formAfiliado').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('btnSubmit');
+            const resultado = document.getElementById('resultado');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
+            resultado.innerHTML = '';
+
+            const dados = {
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value.trim(),
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                cpf: document.getElementById('cpf').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                pixKey: document.getElementById('pixKey').value.trim(),
+                commission: parseFloat(document.getElementById('commission').value),
+                active: true,
+                sales: 0,
+                totalCommission: 0,
+                created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                lastLogin: null
+            };
+
+            try {
+                // Verificar se username já existe
+                const checkSnapshot = await db.collection('affiliates')
+                    .where('username', '==', dados.username)
+                    .get();
+
+                if (!checkSnapshot.empty) {
+                    throw new Error(`Username "${dados.username}" já existe! Clique no botão 🎲 para gerar outro.`);
+                }
+
+                // Criar no Firestore
+                const docRef = await db.collection('affiliates').add(dados);
+
+                // Verificar se foi criado
+                const docSnapshot = await docRef.get();
+                
+                if (!docSnapshot.exists) {
+                    throw new Error('Erro ao verificar criação do afiliado');
+                }
+
+                // Verificar se realmente existe no Firestore
+                const verifySnapshot = await db.collection('affiliates')
+                    .where('username', '==', dados.username)
+                    .get();
+                
+                const exists = !verifySnapshot.empty;
+                const savedData = exists ? verifySnapshot.docs[0].data() : null;
+
+                // Sucesso!
+                resultado.innerHTML = `
+                    <div class="alert-success">
+                        <h3 style="color: #065f46; margin-bottom: 15px; font-size: 1.3rem;">
+                            <i class="fas fa-check-circle"></i>
+                            ✅ Afiliado Criado com Sucesso!
+                        </h3>
+                        
+                        <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #10b981;">
+                            <p style="color: #065f46; font-weight: 600; margin-bottom: 5px;">
+                                <i class="fas fa-check-double"></i> Status: CONFIRMADO NO FIRESTORE
+                            </p>
+                            <p style="color: #059669; font-size: 0.9rem;">
+                                O afiliado foi salvo e verificado no banco de dados!
+                            </p>
+                        </div>
+
+                        <p style="margin: 15px 0; color: #065f46; font-weight: 600;">
+                            📋 Credenciais Geradas Automaticamente:
+                        </p>
+
+                        <div class="credential-box">
+<strong>👤 Usuário:</strong> ${dados.username}
+<button class="copy-btn" onclick="copyText('${dados.username}')">
+    <i class="fas fa-copy"></i> Copiar
+</button>
+
+<strong>🔑 Senha:</strong> ${dados.password}
+<button class="copy-btn" onclick="copyText('${dados.password}')">
+    <i class="fas fa-copy"></i> Copiar
+</button>
+
+<strong>📄 ID Firestore:</strong> ${docRef.id}
+<button class="copy-btn" onclick="copyText('${docRef.id}')">
+    <i class="fas fa-copy"></i> Copiar
+</button>
+
+<strong>📧 Email:</strong> ${dados.email}
+<strong>📱 Telefone:</strong> ${dados.phone}
+<strong>💳 PIX:</strong> ${dados.pixKey}
+<strong>💰 Comissão:</strong> ${dados.commission}%
+                        </div>
+
+                        <p style="margin: 20px 0; padding: 15px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; color: #1e40af; border-left: 4px solid #3b82f6;">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Importante:</strong> O afiliado já pode fazer login! Copie as credenciais e envie para ele.
+                        </p>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                            <button onclick="copyMessage('${dados.name}', '${dados.username}', '${dados.password}', '${dados.pixKey}', '${dados.commission}')" 
+                                    style="background: #10b981; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-copy"></i> Copiar Mensagem WhatsApp
+                            </button>
+                            
+                            <button onclick="window.open('buscar-afiliado.html?q=${dados.username}', '_blank')"
+                                    style="background: #8b5cf6; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-search"></i> Ver no Sistema
+                            </button>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                            <a href="../afiliado/login.html?u=${dados.username}&p=${dados.password}" 
+                               target="_blank"
+                               style="background: #3b82f6; color: white; padding: 12px; border: none; border-radius: 8px; text-decoration: none; text-align: center; font-weight: 600;">
+                                <i class="fas fa-sign-in-alt"></i> Testar Login Agora
+                            </a>
+
+                            <button onclick="location.reload()" 
+                                    style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-plus"></i> Criar Outro Afiliado
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Erro:', error);
+                resultado.innerHTML = `
+                    <div class="alert-error">
+                        <h3 style="color: #991b1b; margin-bottom: 10px;">
+                            <i class="fas fa-times-circle"></i>
+                            ❌ Erro ao Criar Afiliado
+                        </h3>
+                        <p style="color: #991b1b;"><strong>Mensagem:</strong> ${error.message}</p>
+                        ${error.code ? `<p style="color: #991b1b; margin-top: 10px;"><strong>Código:</strong> ${error.code}</p>` : ''}
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plus-circle"></i> Criar Afiliado';
+            }
+        });
+
+        // Copiar texto
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Copiado para a área de transferência!');
+            });
+        }
+
+        // Copiar mensagem completa para WhatsApp
+        function copyMessage(name, username, password, pix, commission) {
+            const message = `🎉 Olá ${name}!
+
+Você foi cadastrado como divulgador da KaiNow Saúde!
+
+🔐 CREDENCIAIS DE ACESSO:
+👤 Usuário: ${username}
+🔑 Senha: ${password}
+
+🌐 Acesse seu painel:
+https://kainow.com.br/afiliado/login.html
+
+💰 Sua comissão: ${commission}%
+💳 Recebimento PIX: ${pix}
+
+⚠️ IMPORTANTE: Troque sua senha no primeiro acesso!
+
+Qualquer dúvida, estou à disposição! 😊`;
+
+            navigator.clipboard.writeText(message).then(() => {
+                alert('✅ Mensagem copiada! Cole no WhatsApp.');
+            });
+        }
+    </script>
+
+</body>
+</html>

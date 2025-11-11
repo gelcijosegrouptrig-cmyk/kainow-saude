@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Usuários - KaiNow Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .menu-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .menu-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .user-row {
+            transition: all 0.3s;
+        }
+        .user-row:hover {
+            background: #f8fafc;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge-blocked {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        .search-box input {
+            padding-left: 3rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 text-white fixed h-full">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fas fa-user-shield"></i>
+                    KaiNow Admin
+                </h1>
+            </div>
+            
+            <nav class="p-4 space-y-2">
+                <a href="dashboard.html" class="menu-link">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span class="ml-3">Dashboard</span>
+                </a>
+                <a href="programas.html" class="menu-link">
+                    <i class="fas fa-heartbeat w-5"></i>
+                    <span class="ml-3">Programas</span>
+                </a>
+                <a href="especialidades.html" class="menu-link">
+                    <i class="fas fa-stethoscope w-5"></i>
+                    <span class="ml-3">Especialidades</span>
+                </a>
+                <a href="precos.html" class="menu-link">
+                    <i class="fas fa-dollar-sign w-5"></i>
+                    <span class="ml-3">Preços</span>
+                </a>
+                <a href="usuarios.html" class="menu-link active">
+                    <i class="fas fa-users w-5"></i>
+                    <span class="ml-3">Usuários</span>
+                </a>
+                <a href="agendamentos.html" class="menu-link">
+                    <i class="fas fa-calendar-check w-5"></i>
+                    <span class="ml-3">Agendamentos</span>
+                </a>
+                <a href="relatorios.html" class="menu-link">
+                    <i class="fas fa-chart-bar w-5"></i>
+                    <span class="ml-3">Relatórios</span>
+                </a>
+                <a href="configuracoes.html" class="menu-link">
+                    <i class="fas fa-cog w-5"></i>
+                    <span class="ml-3">Configurações</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white border-opacity-20">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium" id="admin-name">Admin</p>
+                        <p class="text-xs opacity-75">Administrador</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                            <i class="fas fa-users text-blue-600"></i>
+                            Gerenciador de Usuários
+                        </h2>
+                        <p class="text-gray-600 mt-2">Gerencie todos os usuários do sistema</p>
+                    </div>
+                    <button onclick="exportUsers()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 shadow-lg">
+                        <i class="fas fa-file-export"></i>
+                        Exportar Usuários
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Total de Usuários</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-1" id="total-users">1,284</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Usuários Ativos</p>
+                            <p class="text-3xl font-bold text-green-600 mt-1" id="active-users">1,142</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Aguardando Aprovação</p>
+                            <p class="text-3xl font-bold text-yellow-600 mt-1" id="pending-users">87</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">Usuários Bloqueados</p>
+                            <p class="text-3xl font-bold text-red-600 mt-1" id="blocked-users">55</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-ban text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div class="flex gap-4 items-center">
+                    <div class="flex-1 search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" placeholder="Buscar por nome, email ou CPF..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">Todos os status</option>
+                        <option value="active">Ativos</option>
+                        <option value="pending">Pendentes</option>
+                        <option value="blocked">Bloqueados</option>
+                    </select>
+                    <select id="sort-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="name">Ordenar por nome</option>
+                        <option value="date">Ordenar por data de cadastro</option>
+                        <option value="subscriptions">Ordenar por assinaturas</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Usuário</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">CPF</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Assinaturas</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table" class="divide-y divide-gray-200">
+                        <!-- Table rows will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="empty-state" class="hidden text-center py-12">
+                <i class="fas fa-search text-gray-300 text-6xl mb-4"></i>
+                <p class="text-gray-500 text-lg">Nenhum usuário encontrado</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-6">
+                <p class="text-sm text-gray-600">
+                    Mostrando <span id="showing-from">1</span> a <span id="showing-to">10</span> de <span id="showing-total">1284</span> usuários
+                </p>
+                <div class="flex gap-2">
+                    <button onclick="previousPage()" id="prev-btn" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg">1</button>
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                    <button onclick="nextPage()" id="next-btn" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for View/Edit User -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-800" id="modal-title">
+                    <i class="fas fa-user-circle text-blue-600 mr-2"></i>
+                    Detalhes do Usuário
+                </h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div id="user-details" class="space-y-4">
+                <!-- User details will be loaded here -->
+            </div>
+
+            <div class="flex gap-3 pt-6 border-t mt-6">
+                <button onclick="approveUser()" id="btn-approve" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition">
+                    <i class="fas fa-check mr-2"></i>
+                    Aprovar Usuário
+                </button>
+                <button onclick="blockUser()" id="btn-block" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-semibold transition">
+                    <i class="fas fa-ban mr-2"></i>
+                    Bloquear Usuário
+                </button>
+                <button onclick="closeModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition">
+                    <i class="fas fa-times mr-2"></i>
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication Check
+        function checkAuth() {
+            const adminSession = localStorage.getItem('kainow_admin_session');
+            if (!adminSession) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            try {
+                const session = JSON.parse(adminSession);
+                document.getElementById('admin-name').textContent = session.username;
+                return session;
+            } catch (e) {
+                console.error('Erro ao carregar sessão:', e);
+                window.location.href = 'login.html';
+                return null;
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                localStorage.removeItem('kainow_admin_session');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Generate Mock Users
+        function generateMockUsers() {
+            const existingUsers = localStorage.getItem('kainow_admin_users');
+            if (existingUsers) {
+                return JSON.parse(existingUsers);
+            }
+
+            const firstNames = ['João', 'Maria', 'Pedro', 'Ana', 'Carlos', 'Juliana', 'Fernando', 'Beatriz', 'Rafael', 'Carla'];
+            const lastNames = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Costa', 'Ferreira', 'Rodrigues', 'Almeida', 'Pereira', 'Lima'];
+            const statuses = ['active', 'active', 'active', 'active', 'active', 'active', 'pending', 'pending', 'blocked'];
+            
+            const users = [];
+            for (let i = 1; i <= 50; i++) {
+                const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+                const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+                const name = `${firstName} ${lastName}`;
+                const cpf = String(Math.floor(Math.random() * 100000000000)).padStart(11, '0');
+                const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@email.com`;
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                const subscriptionsCount = Math.floor(Math.random() * 4);
+                
+                users.push({
+                    id: `user-${i}`,
+                    name,
+                    cpf,
+                    email,
+                    status,
+                    subscriptionsCount,
+                    registrationDate: new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString(),
+                    lastAccess: new Date(2025, 0, Math.floor(Math.random() * 8) + 1).toISOString()
+                });
+            }
+            
+            localStorage.setItem('kainow_admin_users', JSON.stringify(users));
+            return users;
+        }
+
+        let allUsers = [];
+        let currentPage = 1;
+        const usersPerPage = 10;
+        let currentUserId = null;
+
+        // Load Users
+        function loadUsers() {
+            allUsers = generateMockUsers();
+            applyFilters();
+        }
+
+        // Apply Filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const sortBy = document.getElementById('sort-select').value;
+            
+            let filtered = allUsers.filter(user => {
+                const matchesSearch = user.name.toLowerCase().includes(searchTerm) ||
+                                    user.email.toLowerCase().includes(searchTerm) ||
+                                    user.cpf.includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            // Sort
+            if (sortBy === 'name') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortBy === 'date') {
+                filtered.sort((a, b) => new Date(b.registrationDate) - new Date(a.registrationDate));
+            } else if (sortBy === 'subscriptions') {
+                filtered.sort((a, b) => b.subscriptionsCount - a.subscriptionsCount);
+            }
+            
+            renderTable(filtered);
+            updateStats(allUsers);
+        }
+
+        // Render Table
+        function renderTable(users) {
+            const tbody = document.getElementById('users-table');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            const start = (currentPage - 1) * usersPerPage;
+            const end = start + usersPerPage;
+            const pageUsers = users.slice(start, end);
+            
+            tbody.innerHTML = pageUsers.map(user => {
+                const statusClass = user.status === 'active' ? 'badge-active' : 
+                                  user.status === 'pending' ? 'badge-pending' : 'badge-blocked';
+                const statusText = user.status === 'active' ? 'Ativo' : 
+                                 user.status === 'pending' ? 'Pendente' : 'Bloqueado';
+                
+                return `
+                    <tr class="user-row">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <span class="font-bold text-blue-600">${user.name.charAt(0)}</span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">${user.name}</p>
+                                    <p class="text-xs text-gray-500">Cadastrado em ${new Date(user.registrationDate).toLocaleDateString('pt-BR')}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="text-sm text-gray-600 font-mono">${user.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')}</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="text-sm text-gray-600">${user.email}</p>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="text-lg font-bold text-blue-600">${user.subscriptionsCount}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="badge ${statusClass}">${statusText}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="viewUser('${user.id}')" 
+                                class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-eye mr-1"></i>Ver Detalhes
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Update pagination
+            document.getElementById('showing-from').textContent = start + 1;
+            document.getElementById('showing-to').textContent = Math.min(end, users.length);
+            document.getElementById('showing-total').textContent = users.length;
+        }
+
+        // Update Stats
+        function updateStats(users) {
+            const active = users.filter(u => u.status === 'active').length;
+            const pending = users.filter(u => u.status === 'pending').length;
+            const blocked = users.filter(u => u.status === 'blocked').length;
+            
+            document.getElementById('total-users').textContent = users.length;
+            document.getElementById('active-users').textContent = active;
+            document.getElementById('pending-users').textContent = pending;
+            document.getElementById('blocked-users').textContent = blocked;
+        }
+
+        // View User
+        function viewUser(userId) {
+            currentUserId = userId;
+            const user = allUsers.find(u => u.id === userId);
+            
+            if (!user) return;
+            
+            const statusClass = user.status === 'active' ? 'badge-active' : 
+                              user.status === 'pending' ? 'badge-pending' : 'badge-blocked';
+            const statusText = user.status === 'active' ? 'Ativo' : 
+                             user.status === 'pending' ? 'Pendente' : 'Bloqueado';
+            
+            document.getElementById('user-details').innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nome Completo</label>
+                        <p class="text-gray-800 text-lg">${user.name}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">CPF</label>
+                            <p class="text-gray-800 font-mono">${user.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                            <span class="badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                        <p class="text-gray-800">${user.email}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Data de Cadastro</label>
+                            <p class="text-gray-800">${new Date(user.registrationDate).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Último Acesso</label>
+                            <p class="text-gray-800">${new Date(user.lastAccess).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Assinaturas Ativas</label>
+                        <p class="text-2xl font-bold text-blue-600">${user.subscriptionsCount}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Update buttons visibility
+            const btnApprove = document.getElementById('btn-approve');
+            const btnBlock = document.getElementById('btn-block');
+            
+            if (user.status === 'pending') {
+                btnApprove.classList.remove('hidden');
+                btnBlock.textContent = 'Rejeitar';
+            } else if (user.status === 'active') {
+                btnApprove.classList.add('hidden');
+                btnBlock.textContent = 'Bloquear Usuário';
+            } else {
+                btnApprove.textContent = 'Desbloquear Usuário';
+                btnApprove.classList.remove('hidden');
+                btnBlock.classList.add('hidden');
+            }
+            
+            document.getElementById('userModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('userModal').classList.remove('show');
+            currentUserId = null;
+        }
+
+        // Approve User
+        function approveUser() {
+            if (!currentUserId) return;
+            
+            const userIndex = allUsers.findIndex(u => u.id === currentUserId);
+            if (userIndex === -1) return;
+            
+            if (allUsers[userIndex].status === 'blocked') {
+                allUsers[userIndex].status = 'active';
+                showNotification('Usuário desbloqueado com sucesso!', 'success');
+            } else {
+                allUsers[userIndex].status = 'active';
+                showNotification('Usuário aprovado com sucesso!', 'success');
+            }
+            
+            localStorage.setItem('kainow_admin_users', JSON.stringify(allUsers));
+            closeModal();
+            applyFilters();
+        }
+
+        // Block User
+        function blockUser() {
+            if (!currentUserId) return;
+            
+            if (!confirm('Tem certeza que deseja bloquear este usuário?')) return;
+            
+            const userIndex = allUsers.findIndex(u => u.id === currentUserId);
+            if (userIndex === -1) return;
+            
+            allUsers[userIndex].status = 'blocked';
+            localStorage.setItem('kainow_admin_users', JSON.stringify(allUsers));
+            showNotification('Usuário bloqueado com sucesso!', 'success');
+            closeModal();
+            applyFilters();
+        }
+
+        // Export Users
+        function exportUsers() {
+            const csv = ['Nome,CPF,Email,Status,Assinaturas,Data de Cadastro'];
+            
+            allUsers.forEach(user => {
+                csv.push(`${user.name},${user.cpf},${user.email},${user.status},${user.subscriptionsCount},${new Date(user.registrationDate).toLocaleDateString('pt-BR')}`);
+            });
+            
+            const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `usuarios-kainow-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            showNotification('Usuários exportados com sucesso!', 'success');
+        }
+
+        // Show Notification
+        function showNotification(message, type = 'success') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${colors[type]}`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fas ${icons[type]}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Pagination
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                applyFilters();
+            }
+        }
+
+        function nextPage() {
+            const maxPages = Math.ceil(allUsers.length / usersPerPage);
+            if (currentPage < maxPages) {
+                currentPage++;
+                applyFilters();
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+        document.getElementById('status-filter').addEventListener('change', applyFilters);
+        document.getElementById('sort-select').addEventListener('change', applyFilters);
+
+        // Initialize
+        checkAuth();
+        loadUsers();
+
+        // Close modal on outside click
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

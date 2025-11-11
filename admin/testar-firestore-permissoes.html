@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testar Permissões Firestore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-500 to-pink-500 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <h1 class="text-3xl font-bold mb-6 text-center text-purple-600">
+                🔒 Teste de Permissões Firestore
+            </h1>
+
+            <div class="space-y-6">
+                <!-- Teste 1: Leitura -->
+                <div class="border-2 border-gray-200 rounded-lg p-6">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full mr-3">1</span>
+                        Testar LEITURA
+                    </h2>
+                    <button 
+                        onclick="testarLeitura()"
+                        class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700"
+                    >
+                        📖 Tentar Ler Afiliados
+                    </button>
+                    <div id="resultado-leitura" class="mt-4"></div>
+                </div>
+
+                <!-- Teste 2: Escrita -->
+                <div class="border-2 border-gray-200 rounded-lg p-6">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="bg-green-100 text-green-600 px-3 py-1 rounded-full mr-3">2</span>
+                        Testar ESCRITA
+                    </h2>
+                    <button 
+                        onclick="testarEscrita()"
+                        class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700"
+                    >
+                        ✍️ Tentar Criar Afiliado Teste
+                    </button>
+                    <div id="resultado-escrita" class="mt-4"></div>
+                </div>
+
+                <!-- Teste 3: Deletar -->
+                <div class="border-2 border-gray-200 rounded-lg p-6">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full mr-3">3</span>
+                        Testar EXCLUSÃO
+                    </h2>
+                    <button 
+                        onclick="testarDelete()"
+                        class="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700"
+                    >
+                        🗑️ Tentar Deletar Teste
+                    </button>
+                    <div id="resultado-delete" class="mt-4"></div>
+                </div>
+            </div>
+
+            <!-- Resultado Geral -->
+            <div id="resultado-geral" class="mt-8"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        console.log('🔥 Firebase inicializado');
+
+        let testeId = null;
+
+        async function testarLeitura() {
+            const resultado = document.getElementById('resultado-leitura');
+            resultado.innerHTML = '<div class="text-center py-4"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>';
+
+            try {
+                console.log('📖 Testando leitura...');
+                const snapshot = await db.collection('affiliates').limit(5).get();
+
+                if (snapshot.empty) {
+                    resultado.innerHTML = `
+                        <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4">
+                            <p class="font-bold text-yellow-800">⚠️ LEITURA OK, MAS...</p>
+                            <p class="text-yellow-700 text-sm">Nenhum afiliado encontrado no banco.</p>
+                        </div>
+                    `;
+                } else {
+                    resultado.innerHTML = `
+                        <div class="bg-green-100 border-l-4 border-green-500 p-4">
+                            <p class="font-bold text-green-800">✅ LEITURA PERMITIDA!</p>
+                            <p class="text-green-700 text-sm">Encontrados ${snapshot.size} afiliados</p>
+                            <ul class="list-disc list-inside text-sm text-green-700 mt-2">
+                                ${snapshot.docs.map(doc => `<li>${doc.data().username || 'sem username'}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+                console.log('✅ Leitura OK:', snapshot.size);
+
+            } catch (error) {
+                console.error('❌ Erro na leitura:', error);
+                resultado.innerHTML = `
+                    <div class="bg-red-100 border-l-4 border-red-500 p-4">
+                        <p class="font-bold text-red-800">❌ LEITURA BLOQUEADA!</p>
+                        <p class="text-red-700 text-sm mt-2"><strong>Erro:</strong> ${error.message}</p>
+                        <p class="text-red-700 text-sm mt-2"><strong>Code:</strong> ${error.code}</p>
+                        <div class="mt-4 bg-red-50 p-3 rounded">
+                            <p class="text-red-800 font-bold text-sm">🔒 Solução:</p>
+                            <p class="text-red-700 text-xs mt-1">Vá em Firebase Console → Firestore → Rules</p>
+                            <p class="text-red-700 text-xs">Mude para: <code>allow read, write: if true;</code></p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function testarEscrita() {
+            const resultado = document.getElementById('resultado-escrita');
+            resultado.innerHTML = '<div class="text-center py-4"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div></div>';
+
+            try {
+                console.log('✍️ Testando escrita...');
+                
+                const testeData = {
+                    username: 'teste_' + Date.now(),
+                    name: 'Usuário Teste',
+                    email: 'teste@teste.com',
+                    password: 'senha123',
+                    cpf: '000.000.000-00',
+                    phone: '11999999999',
+                    pixKey: '11999999999',
+                    commission: 20,
+                    active: true,
+                    sales: 0,
+                    totalCommission: 0,
+                    created_at: new Date().toISOString()
+                };
+
+                const docRef = await db.collection('affiliates').add(testeData);
+                testeId = docRef.id;
+
+                console.log('✅ Escrita OK:', testeId);
+
+                // Verificar se foi criado
+                const verifySnapshot = await db.collection('affiliates')
+                    .where('username', '==', testeData.username)
+                    .get();
+
+                if (verifySnapshot.empty) {
+                    throw new Error('Documento criado mas não encontrado na verificação');
+                }
+
+                resultado.innerHTML = `
+                    <div class="bg-green-100 border-l-4 border-green-500 p-4">
+                        <p class="font-bold text-green-800">✅ ESCRITA PERMITIDA!</p>
+                        <p class="text-green-700 text-sm mt-2">Afiliado teste criado com sucesso</p>
+                        <p class="text-green-700 text-xs mt-1"><strong>ID:</strong> ${testeId}</p>
+                        <p class="text-green-700 text-xs"><strong>Username:</strong> ${testeData.username}</p>
+                        <div class="mt-3 bg-green-50 p-3 rounded">
+                            <p class="text-green-800 text-xs">✅ Documento foi criado E verificado no banco!</p>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('❌ Erro na escrita:', error);
+                resultado.innerHTML = `
+                    <div class="bg-red-100 border-l-4 border-red-500 p-4">
+                        <p class="font-bold text-red-800">❌ ESCRITA BLOQUEADA!</p>
+                        <p class="text-red-700 text-sm mt-2"><strong>Erro:</strong> ${error.message}</p>
+                        <p class="text-red-700 text-sm mt-2"><strong>Code:</strong> ${error.code}</p>
+                        <div class="mt-4 bg-red-50 p-3 rounded">
+                            <p class="text-red-800 font-bold text-sm">🔒 Solução:</p>
+                            <p class="text-red-700 text-xs mt-1">Vá em Firebase Console → Firestore → Rules</p>
+                            <p class="text-red-700 text-xs">Mude para: <code>allow read, write: if true;</code></p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function testarDelete() {
+            const resultado = document.getElementById('resultado-delete');
+
+            if (!testeId) {
+                resultado.innerHTML = `
+                    <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4">
+                        <p class="font-bold text-yellow-800">⚠️ Primeiro crie um afiliado teste</p>
+                        <p class="text-yellow-700 text-sm">Clique em "Testar ESCRITA" primeiro</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultado.innerHTML = '<div class="text-center py-4"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div></div>';
+
+            try {
+                console.log('🗑️ Testando delete...');
+                await db.collection('affiliates').doc(testeId).delete();
+
+                console.log('✅ Delete OK');
+
+                resultado.innerHTML = `
+                    <div class="bg-green-100 border-l-4 border-green-500 p-4">
+                        <p class="font-bold text-green-800">✅ EXCLUSÃO PERMITIDA!</p>
+                        <p class="text-green-700 text-sm mt-2">Afiliado teste deletado com sucesso</p>
+                        <p class="text-green-700 text-xs mt-1"><strong>ID deletado:</strong> ${testeId}</p>
+                    </div>
+                `;
+
+                testeId = null;
+
+            } catch (error) {
+                console.error('❌ Erro no delete:', error);
+                resultado.innerHTML = `
+                    <div class="bg-red-100 border-l-4 border-red-500 p-4">
+                        <p class="font-bold text-red-800">❌ EXCLUSÃO BLOQUEADA!</p>
+                        <p class="text-red-700 text-sm mt-2"><strong>Erro:</strong> ${error.message}</p>
+                        <p class="text-red-700 text-sm mt-2"><strong>Code:</strong> ${error.code}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Executar teste automático ao carregar
+        window.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Página carregada, executando testes automáticos...');
+            
+            document.getElementById('resultado-geral').innerHTML = `
+                <div class="bg-blue-100 border-2 border-blue-400 rounded-lg p-6 text-center">
+                    <p class="text-blue-800 font-bold text-lg mb-2">🧪 Execute os testes acima</p>
+                    <p class="text-blue-700 text-sm">Clique em cada botão para testar as permissões</p>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>

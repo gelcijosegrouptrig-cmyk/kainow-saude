@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Administrativo - KaiNow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen flex items-center justify-center p-4">
+    
+    <!-- Container Principal -->
+    <div class="w-full max-w-md">
+        
+        <!-- Card de Login -->
+        <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
+            
+            <!-- Logo e Título -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
+                    <i class="fas fa-shield-halved text-white text-3xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                    Área Administrativa
+                </h1>
+                <p class="text-gray-600">
+                    KaiNow Saúde - Painel de Controle
+                </p>
+            </div>
+
+            <!-- Alerta de Erro -->
+            <div id="error-alert" class="hidden mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+                    <p class="text-red-700 font-medium" id="error-message"></p>
+                </div>
+            </div>
+
+            <!-- Formulário de Login -->
+            <form id="login-form" class="space-y-6">
+                
+                <!-- Campo Usuário -->
+                <div>
+                    <label for="username" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2 text-blue-500"></i>
+                        Usuário
+                    </label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username"
+                        required
+                        autocomplete="username"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-200"
+                        placeholder="Digite seu usuário"
+                    >
+                </div>
+
+                <!-- Campo Senha -->
+                <div>
+                    <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2 text-blue-500"></i>
+                        Senha
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password"
+                            required
+                            autocomplete="current-password"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-200 pr-12"
+                            placeholder="Digite sua senha"
+                        >
+                        <button 
+                            type="button" 
+                            id="toggle-password"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                        >
+                            <i class="fas fa-eye" id="eye-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lembrar-me -->
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            id="remember-me"
+                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        >
+                        <span class="ml-2 text-sm text-gray-600">Lembrar-me</span>
+                    </label>
+                </div>
+
+                <!-- Botão Entrar -->
+                <button 
+                    type="submit"
+                    class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-4 rounded-xl hover:shadow-xl transform hover:scale-105 transition duration-300 flex items-center justify-center"
+                >
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    Entrar no Painel
+                </button>
+
+            </form>
+
+            <!-- Informações de Acesso (Remover em produção) -->
+            <div class="mt-8 p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
+                <p class="text-xs text-blue-800 font-semibold mb-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Credenciais de Teste:
+                </p>
+                <div class="text-xs text-blue-700 space-y-1">
+                    <p><strong>Usuário:</strong> admin</p>
+                    <p><strong>Senha:</strong> kainow2025</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Rodapé -->
+        <div class="text-center mt-6">
+            <p class="text-sm text-gray-600">
+                <i class="fas fa-lock mr-1"></i>
+                Área restrita - Acesso apenas para administradores
+            </p>
+            <a href="../index.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium mt-2 inline-block">
+                <i class="fas fa-arrow-left mr-1"></i>
+                Voltar ao site
+            </a>
+        </div>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Credenciais (em produção, usar backend real)
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'kainow2025'
+        };
+
+        // Toggle mostrar/ocultar senha
+        document.getElementById('toggle-password').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
+
+        // Mostrar erro
+        function showError(message) {
+            const errorAlert = document.getElementById('error-alert');
+            const errorMessage = document.getElementById('error-message');
+            
+            errorMessage.textContent = message;
+            errorAlert.classList.remove('hidden');
+            
+            setTimeout(() => {
+                errorAlert.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Processar login
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+            
+            // Validar credenciais
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                
+                // Criar sessão administrativa
+                const adminSession = {
+                    username: username,
+                    loginTime: new Date().toISOString(),
+                    isAdmin: true
+                };
+                
+                // Salvar sessão
+                if (rememberMe) {
+                    localStorage.setItem('kainow_admin_session', JSON.stringify(adminSession));
+                } else {
+                    sessionStorage.setItem('kainow_admin_session', JSON.stringify(adminSession));
+                }
+                
+                // Redirecionar para dashboard
+                window.location.href = 'dashboard-admin.html';
+                
+            } else {
+                showError('Usuário ou senha incorretos!');
+                
+                // Limpar campos
+                document.getElementById('password').value = '';
+                document.getElementById('username').focus();
+            }
+        });
+
+        // Verificar se já está logado
+        window.addEventListener('DOMContentLoaded', function() {
+            const sessionLocal = localStorage.getItem('kainow_admin_session');
+            const sessionTemp = sessionStorage.getItem('kainow_admin_session');
+            
+            if (sessionLocal || sessionTemp) {
+                window.location.href = 'dashboard-admin.html';
+            }
+        });
+    </script>
+
+</body>
+</html>

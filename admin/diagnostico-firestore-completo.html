@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Completo Firestore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold mb-8">🔥 Diagnóstico Completo Firestore</h1>
+        
+        <div id="output" class="space-y-4 font-mono text-sm"></div>
+        
+        <div id="actions" class="mt-8 hidden space-y-4">
+            <button onclick="corrigirRegras()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-6 rounded-lg">
+                🔧 INSTRUÇÕES PARA CORRIGIR REGRAS
+            </button>
+            <button onclick="criarAfiliado()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-lg">
+                ✅ CRIAR AFILIADO gelcisilva252
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const output = document.getElementById('output');
+        const actions = document.getElementById('actions');
+        let db;
+        let testesPassed = 0;
+        let testesFailed = 0;
+
+        function log(message, type = 'info') {
+            const colors = {
+                'info': 'text-blue-400',
+                'success': 'text-green-400',
+                'error': 'text-red-400',
+                'warning': 'text-yellow-400',
+                'title': 'text-purple-400 text-xl font-bold'
+            };
+            
+            const div = document.createElement('div');
+            div.className = `${colors[type] || colors['info']} py-2`;
+            div.innerHTML = message;
+            output.appendChild(div);
+            
+            // Auto scroll
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function separator() {
+            log('═══════════════════════════════════════════════════════════', 'info');
+        }
+
+        async function executarTestes() {
+            try {
+                log('🔥 DIAGNÓSTICO COMPLETO DO FIRESTORE', 'title');
+                log('Iniciado em: ' + new Date().toLocaleString('pt-BR'));
+                separator();
+
+                // TESTE 1: Configuração Firebase
+                log('\n📋 TESTE 1: Configuração Firebase', 'title');
+                log('Configurando Firebase...', 'info');
+                
+                const firebaseConfig = {
+                    apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+                    authDomain: "kainowsaude.firebaseapp.com",
+                    projectId: "kainowsaude",
+                    storageBucket: "kainowsaude.firebasestorage.app",
+                    messagingSenderId: "230049250523",
+                    appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+                };
+
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                
+                log('✅ Firebase inicializado com sucesso!', 'success');
+                log('Project ID: ' + firebaseConfig.projectId, 'info');
+                testesPassed++;
+                separator();
+
+                // TESTE 2: Conexão com Firestore
+                log('\n📋 TESTE 2: Conexão com Firestore', 'title');
+                log('Testando conexão...', 'info');
+                
+                try {
+                    // Tentar acessar settings
+                    const settings = db._settings;
+                    log('✅ Conexão estabelecida!', 'success');
+                    testesPassed++;
+                } catch (e) {
+                    log('⚠️ Não foi possível verificar conexão: ' + e.message, 'warning');
+                }
+                separator();
+
+                // TESTE 3: Listar TODOS os documentos
+                log('\n📋 TESTE 3: Listar TODOS os afiliados', 'title');
+                log('Executando query: db.collection("affiliates").get()...', 'info');
+                
+                try {
+                    const allSnapshot = await db.collection('affiliates').get();
+                    
+                    if (allSnapshot.empty) {
+                        log('⚠️ Coleção "affiliates" está VAZIA!', 'warning');
+                        log('Total de documentos: 0', 'warning');
+                        testesFailed++;
+                    } else {
+                        log('✅ Coleção acessada com sucesso!', 'success');
+                        log('Total de documentos: ' + allSnapshot.size, 'success');
+                        
+                        log('\n📄 Lista completa de afiliados:', 'info');
+                        allSnapshot.forEach((doc, index) => {
+                            const data = doc.data();
+                            log(`\n${index + 1}. ID: ${doc.id}`, 'info');
+                            log(`   Username: "${data.username}"`, 'info');
+                            log(`   Nome: ${data.name || 'N/A'}`, 'info');
+                            log(`   Email: ${data.email || 'N/A'}`, 'info');
+                            log(`   Ativo: ${data.active ? 'Sim' : 'Não'}`, 'info');
+                        });
+                        testesPassed++;
+                    }
+                } catch (error) {
+                    log('❌ ERRO ao listar documentos!', 'error');
+                    log('Mensagem: ' + error.message, 'error');
+                    log('Código: ' + error.code, 'error');
+                    
+                    if (error.code === 'permission-denied') {
+                        log('\n🚨 PROBLEMA IDENTIFICADO: PERMISSÕES BLOQUEADAS!', 'error');
+                        log('As regras do Firestore estão bloqueando o acesso.', 'error');
+                    }
+                    testesFailed++;
+                }
+                separator();
+
+                // TESTE 4: Buscar gelcisilva252 especificamente
+                log('\n📋 TESTE 4: Buscar "gelcisilva252"', 'title');
+                log('Executando query: where("username", "==", "gelcisilva252")...', 'info');
+                
+                try {
+                    const query = db.collection('affiliates')
+                        .where('username', '==', 'gelcisilva252')
+                        .limit(1);
+                    
+                    const snapshot = await query.get();
+                    
+                    if (snapshot.empty) {
+                        log('❌ Afiliado "gelcisilva252" NÃO ENCONTRADO!', 'error');
+                        log('O afiliado não existe no Firestore.', 'error');
+                        testesFailed++;
+                    } else {
+                        const doc = snapshot.docs[0];
+                        const data = doc.data();
+                        
+                        log('✅ Afiliado "gelcisilva252" ENCONTRADO!', 'success');
+                        log('\n📄 Dados completos:', 'success');
+                        log('ID: ' + doc.id, 'success');
+                        log('Username: ' + data.username, 'success');
+                        log('Senha: ' + data.password, 'success');
+                        log('Nome: ' + data.name, 'success');
+                        log('Email: ' + data.email, 'success');
+                        log('Comissão: ' + data.commission + '%', 'success');
+                        testesPassed++;
+                    }
+                } catch (error) {
+                    log('❌ ERRO ao buscar!', 'error');
+                    log('Mensagem: ' + error.message, 'error');
+                    log('Código: ' + error.code, 'error');
+                    
+                    if (error.code === 'permission-denied') {
+                        log('\n🚨 PROBLEMA: PERMISSÕES BLOQUEADAS!', 'error');
+                    }
+                    testesFailed++;
+                }
+                separator();
+
+                // TESTE 5: Tentar criar documento de teste
+                log('\n📋 TESTE 5: Testar permissão de ESCRITA', 'title');
+                log('Tentando criar documento de teste...', 'info');
+                
+                try {
+                    const testDoc = {
+                        test: true,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    
+                    const docRef = await db.collection('affiliates').add(testDoc);
+                    log('✅ Permissão de escrita OK!', 'success');
+                    log('Documento de teste criado: ' + docRef.id, 'success');
+                    
+                    // Deletar documento de teste
+                    await docRef.delete();
+                    log('🗑️ Documento de teste removido', 'info');
+                    testesPassed++;
+                    
+                } catch (error) {
+                    log('❌ ERRO ao escrever!', 'error');
+                    log('Mensagem: ' + error.message, 'error');
+                    log('Código: ' + error.code, 'error');
+                    
+                    if (error.code === 'permission-denied') {
+                        log('\n🚨 PROBLEMA: PERMISSÕES DE ESCRITA BLOQUEADAS!', 'error');
+                    }
+                    testesFailed++;
+                }
+                separator();
+
+                // RESULTADO FINAL
+                log('\n🎯 RESULTADO FINAL', 'title');
+                log('✅ Testes passados: ' + testesPassed, 'success');
+                log('❌ Testes falhos: ' + testesFailed, 'error');
+                
+                if (testesFailed > 0) {
+                    log('\n⚠️ DIAGNÓSTICO: PROBLEMAS DETECTADOS!', 'warning');
+                    
+                    if (testesFailed >= 3) {
+                        log('\n🚨 CAUSA MAIS PROVÁVEL: REGRAS DO FIRESTORE BLOQUEADAS', 'error');
+                        log('\nAs regras do Firestore estão impedindo leitura/escrita.', 'error');
+                        log('Você precisa abrir o Firebase Console e ajustar as regras.', 'error');
+                    } else {
+                        log('\n⚠️ CAUSA PROVÁVEL: AFILIADO NÃO EXISTE', 'warning');
+                        log('\nO afiliado "gelcisilva252" precisa ser criado.', 'warning');
+                    }
+                    
+                    actions.classList.remove('hidden');
+                } else {
+                    log('\n🎉 TUDO FUNCIONANDO PERFEITAMENTE!', 'success');
+                    log('\nO sistema está configurado corretamente.', 'success');
+                    log('Você pode fazer login normalmente.', 'success');
+                }
+                
+            } catch (error) {
+                log('\n❌ ERRO CRÍTICO NO DIAGNÓSTICO!', 'error');
+                log('Mensagem: ' + error.message, 'error');
+                log('Stack: ' + error.stack, 'error');
+            }
+        }
+
+        function corrigirRegras() {
+            log('\n\n═══════════════════════════════════════════════════════════', 'info');
+            log('🔧 INSTRUÇÕES PARA CORRIGIR REGRAS DO FIRESTORE', 'title');
+            log('═══════════════════════════════════════════════════════════', 'info');
+            
+            log('\n📋 PASSO A PASSO:', 'warning');
+            log('\n1. Abra o Firebase Console:', 'info');
+            log('   https://console.firebase.google.com', 'info');
+            
+            log('\n2. Selecione o projeto: kainowsaude', 'info');
+            
+            log('\n3. No menu lateral, clique em:', 'info');
+            log('   "Firestore Database"', 'info');
+            
+            log('\n4. Clique na aba "Regras" (Rules)', 'info');
+            
+            log('\n5. Apague TODO o conteúdo e cole isto:', 'info');
+            log('\n───────────────────────────────────────', 'warning');
+            log("rules_version = '2';", 'success');
+            log("service cloud.firestore {", 'success');
+            log("  match /databases/{database}/documents {", 'success');
+            log("    match /{document=**} {", 'success');
+            log("      allow read, write: if true;", 'success');
+            log("    }", 'success');
+            log("  }", 'success');
+            log("}", 'success');
+            log('───────────────────────────────────────\n', 'warning');
+            
+            log('6. Clique em "Publicar" (Publish)', 'info');
+            
+            log('\n7. Aguarde 2-3 minutos para propagar', 'info');
+            
+            log('\n8. Recarregue esta página e execute novamente', 'info');
+            
+            log('\n⚠️ IMPORTANTE: Esta regra é para DESENVOLVIMENTO!', 'warning');
+            log('Em produção, use regras mais restritivas.', 'warning');
+        }
+
+        async function criarAfiliado() {
+            log('\n\n═══════════════════════════════════════════════════════════', 'info');
+            log('✅ CRIANDO AFILIADO gelcisilva252', 'title');
+            log('═══════════════════════════════════════════════════════════', 'info');
+            
+            try {
+                const dados = {
+                    username: 'gelcisilva252',
+                    password: 'kainowipxujp',
+                    name: 'Gelci Silva',
+                    email: 'gelci.silva252@gmail.com',
+                    cpf: '000.000.000-00',
+                    phone: '11982142014',
+                    pixKey: '11013430794',
+                    commission: 20,
+                    active: true,
+                    sales: 0,
+                    totalCommission: 0,
+                    created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: null
+                };
+                
+                log('\n📝 Salvando no Firestore...', 'info');
+                const docRef = await db.collection('affiliates').add(dados);
+                
+                log('✅ AFILIADO CRIADO COM SUCESSO!', 'success');
+                log('\nID no Firestore: ' + docRef.id, 'success');
+                log('\n🔑 CREDENCIAIS:', 'success');
+                log('Username: gelcisilva252', 'success');
+                log('Senha: kainowipxujp', 'success');
+                
+                log('\n🔍 Verificando...', 'info');
+                const verify = await db.collection('affiliates')
+                    .where('username', '==', 'gelcisilva252')
+                    .get();
+                
+                if (!verify.empty) {
+                    log('✅ CONFIRMADO! Afiliado existe no Firestore!', 'success');
+                    log('\n🎉 AGORA VOCÊ PODE FAZER LOGIN!', 'success');
+                    log('\n🔗 Link: <a href="../afiliado/login.html" class="underline">afiliado/login.html</a>', 'info');
+                } else {
+                    log('⚠️ Criado mas não encontrado. Aguarde 30 segundos.', 'warning');
+                }
+                
+            } catch (error) {
+                log('❌ ERRO ao criar!', 'error');
+                log('Mensagem: ' + error.message, 'error');
+                log('Código: ' + error.code, 'error');
+                
+                if (error.code === 'permission-denied') {
+                    log('\n🚨 PROBLEMA: Sem permissão de escrita!', 'error');
+                    log('Execute "INSTRUÇÕES PARA CORRIGIR REGRAS" primeiro.', 'error');
+                }
+            }
+        }
+
+        // Executar testes automaticamente
+        executarTestes();
+    </script>
+</body>
+</html>

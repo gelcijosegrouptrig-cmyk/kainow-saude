@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Login Automático - KaiNow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-cyan-50 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full">
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-4">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-check text-white text-3xl"></i>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">🔐 Login Automático</h1>
+                <p class="text-gray-600">Sistema de teste do login KaiNow</p>
+            </div>
+
+            <!-- Status -->
+            <div id="status-container" class="space-y-4">
+                <!-- Os cards de status serão adicionados aqui -->
+            </div>
+
+            <!-- Resultado -->
+            <div id="resultado" class="hidden mt-6 p-6 rounded-xl"></div>
+
+            <!-- Botões -->
+            <div class="mt-8 flex gap-4">
+                <button onclick="irParaIndex()" class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 rounded-lg font-bold hover:from-blue-700 hover:to-cyan-700 transition">
+                    <i class="fas fa-home mr-2"></i>Ir para Página Principal
+                </button>
+                <button onclick="limparETestar()" class="flex-1 bg-gradient-to-r from-red-600 to-pink-600 text-white py-3 rounded-lg font-bold hover:from-red-700 hover:to-pink-700 transition">
+                    <i class="fas fa-redo mr-2"></i>Limpar e Testar Novamente
+                </button>
+            </div>
+
+            <!-- Debug Info -->
+            <div class="mt-8 p-4 bg-gray-100 rounded-lg">
+                <h3 class="font-bold text-gray-800 mb-2">📋 Informações de Debug:</h3>
+                <pre id="debug-info" class="text-xs text-gray-600 overflow-auto max-h-40"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        let statusNum = 0;
+
+        function addStatus(icone, titulo, mensagem, cor = 'blue', tempo = 0) {
+            setTimeout(() => {
+                statusNum++;
+                const container = document.getElementById('status-container');
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-lg bg-${cor}-50 border-2 border-${cor}-200 animate-fadeIn`;
+                div.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0">
+                            <i class="${icone} text-${cor}-600 text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-bold text-${cor}-800">${statusNum}. ${titulo}</div>
+                            <div class="text-${cor}-600 text-sm mt-1">${mensagem}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+                
+                // Scroll suave para o novo elemento
+                div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, tempo);
+        }
+
+        function mostrarResultado(sucesso, mensagem, dados = null) {
+            const div = document.getElementById('resultado');
+            div.classList.remove('hidden');
+            
+            if (sucesso) {
+                div.className = 'mt-6 p-6 rounded-xl bg-green-50 border-2 border-green-300';
+                div.innerHTML = `
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fas fa-check-circle text-green-600 text-3xl"></i>
+                        <div>
+                            <div class="font-bold text-green-800 text-xl">✅ ${mensagem}</div>
+                            <div class="text-green-600 text-sm mt-1">O sistema está funcionando perfeitamente!</div>
+                        </div>
+                    </div>
+                    ${dados ? `
+                        <div class="mt-4 p-4 bg-white rounded-lg border border-green-200">
+                            <div class="font-bold text-gray-800 mb-2">📦 Dados da Sessão:</div>
+                            <pre class="text-xs text-gray-600 overflow-auto">${JSON.stringify(dados, null, 2)}</pre>
+                        </div>
+                    ` : ''}
+                    <div class="mt-4 p-3 bg-green-100 rounded-lg">
+                        <div class="text-green-800 text-sm">
+                            <strong>✨ Próximo passo:</strong> Clique em "Ir para Página Principal" para ver o nome no menu!
+                        </div>
+                    </div>
+                `;
+            } else {
+                div.className = 'mt-6 p-6 rounded-xl bg-red-50 border-2 border-red-300';
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-exclamation-circle text-red-600 text-3xl"></i>
+                        <div>
+                            <div class="font-bold text-red-800 text-xl">❌ ${mensagem}</div>
+                            <div class="text-red-600 text-sm mt-1">Algo deu errado durante o teste.</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function atualizarDebug(info) {
+            const debug = document.getElementById('debug-info');
+            debug.textContent = JSON.stringify(info, null, 2);
+        }
+
+        async function testarLogin() {
+            try {
+                // 1. Verificar ambiente
+                addStatus('fas fa-cog', 'Verificando Sistema', 'Checando se as funções de autenticação estão disponíveis...', 'blue', 0);
+                
+                const debugInfo = {
+                    timestamp: new Date().toISOString(),
+                    navegador: navigator.userAgent,
+                    funcoes: {
+                        realizarLogin: typeof realizarLogin,
+                        estaLogado: typeof estaLogado,
+                        obterSessao: typeof obterSessao,
+                        salvarSessao: typeof salvarSessao
+                    }
+                };
+                
+                await new Promise(r => setTimeout(r, 500));
+
+                if (typeof realizarLogin !== 'function') {
+                    throw new Error('Função realizarLogin não está disponível! Verifique se auth.js foi carregado.');
+                }
+
+                addStatus('fas fa-check-circle', 'Sistema OK', 'Todas as funções estão disponíveis e prontas!', 'green', 300);
+
+                // 2. Verificar estado antes do login
+                addStatus('fas fa-search', 'Verificando Estado Inicial', 'Checando se já existe uma sessão ativa...', 'blue', 800);
+                
+                await new Promise(r => setTimeout(r, 500));
+                
+                const jaLogado = estaLogado();
+                debugInfo.antesDoLogin = {
+                    estaLogado: jaLogado,
+                    sessao: obterSessao()
+                };
+                
+                if (jaLogado) {
+                    addStatus('fas fa-info-circle', 'Já Logado', 'Você já está logado! Limpando sessão antiga...', 'yellow', 1300);
+                    localStorage.removeItem('kainow_user_session');
+                    await new Promise(r => setTimeout(r, 500));
+                }
+
+                // 3. Fazer login
+                addStatus('fas fa-key', 'Iniciando Login', 'Enviando credenciais: CPF 111.444.777-35...', 'blue', 1800);
+                
+                await new Promise(r => setTimeout(r, 500));
+
+                const resultado = await realizarLogin('111.444.777-35', 'teste123');
+                
+                debugInfo.login = {
+                    sucesso: resultado.success,
+                    usuario: resultado.usuario
+                };
+
+                addStatus('fas fa-check-circle', 'Login Realizado', 'Credenciais aceitas! Sessão criada com sucesso.', 'green', 2300);
+
+                // 4. Verificar se salvou
+                addStatus('fas fa-database', 'Verificando Salvamento', 'Checando se a sessão foi salva no localStorage...', 'blue', 2800);
+                
+                await new Promise(r => setTimeout(r, 500));
+
+                const sessaoSalva = obterSessao();
+                debugInfo.depoisDoLogin = {
+                    estaLogado: estaLogado(),
+                    sessao: sessaoSalva,
+                    localStorage: localStorage.getItem('kainow_user_session')
+                };
+
+                if (!sessaoSalva) {
+                    throw new Error('Sessão não foi salva no localStorage!');
+                }
+
+                addStatus('fas fa-check-circle', 'Sessão Salva', `Dados salvos: ${sessaoSalva.nome}`, 'green', 3300);
+
+                // 5. Verificar estado final
+                addStatus('fas fa-user-check', 'Verificação Final', 'Confirmando que o usuário está logado...', 'blue', 3800);
+                
+                await new Promise(r => setTimeout(r, 500));
+
+                const agoraLogado = estaLogado();
+                debugInfo.verificacaoFinal = {
+                    estaLogado: agoraLogado,
+                    nomeUsuario: sessaoSalva.nome
+                };
+
+                if (!agoraLogado) {
+                    throw new Error('estaLogado() retorna false mesmo com sessão salva!');
+                }
+
+                addStatus('fas fa-trophy', 'Teste Concluído', 'Todas as verificações passaram com sucesso!', 'green', 4300);
+
+                // Atualizar debug
+                atualizarDebug(debugInfo);
+
+                // Mostrar resultado
+                setTimeout(() => {
+                    mostrarResultado(true, 'Login Automático Funcionou!', sessaoSalva);
+                }, 4800);
+
+            } catch (error) {
+                console.error('❌ Erro no teste:', error);
+                addStatus('fas fa-times-circle', 'Erro Detectado', error.message, 'red', 0);
+                
+                const debugInfo = {
+                    erro: error.message,
+                    stack: error.stack
+                };
+                atualizarDebug(debugInfo);
+                
+                setTimeout(() => {
+                    mostrarResultado(false, 'Falha no Login Automático');
+                }, 500);
+            }
+        }
+
+        function irParaIndex() {
+            window.location.href = 'index.html';
+        }
+
+        function limparETestar() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        // Iniciar teste automaticamente
+        window.addEventListener('load', () => {
+            console.log('🚀 Página de login automático carregada!');
+            console.log('🔐 Iniciando teste de login em 1 segundo...');
+            setTimeout(() => {
+                testarLogin();
+            }, 1000);
+        });
+    </script>
+
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</body>
+</html>

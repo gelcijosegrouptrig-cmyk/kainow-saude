@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criação em Massa de Afiliados - KaiNow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #64748b;
+        }
+
+        .btn-voltar {
+            float: right;
+            background: #e5e7eb;
+            color: #374151;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-voltar:hover {
+            background: #d1d5db;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #64748b;
+        }
+
+        .tab-button:hover {
+            background: #f8fafc;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="password"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e3a8a;
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box h3 {
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+
+        .info-box ol {
+            margin-left: 20px;
+            color: #1e40af;
+        }
+
+        .info-box li {
+            margin: 8px 0;
+        }
+
+        .preview-table {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .affiliate-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .affiliate-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .affiliate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+
+        .affiliate-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .affiliate-stats {
+            background: linear-gradient(135deg, #f3e8ff 0%, #dbeafe 100%);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: right;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #7c3aed;
+        }
+
+        .affiliate-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            color: #64748b;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-item i {
+            width: 20px;
+            color: #7c3aed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #64748b;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .total-badge {
+            background: linear-gradient(135deg, #f3e8ff 0%, #dbeafe 100%);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .total-badge p {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #7c3aed;
+        }
+
+        .btn-refresh {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-refresh:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn-voltar {
+                float: none;
+                display: block;
+                margin-top: 15px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab-button {
+                font-size: 1rem;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <a href="../index.html" class="btn-voltar">
+                <i class="fas fa-home"></i> Voltar
+            </a>
+            <h1><i class="fas fa-users-cog"></i> Criação em Massa de Afiliados</h1>
+            <p>Sistema otimizado para cadastrar múltiplos afiliados rapidamente</p>
+        </div>
+
+        <!-- Tabs Card -->
+        <div class="card">
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab('individual')">
+                    <i class="fas fa-user-plus"></i> Individual
+                </button>
+                <button class="tab-button" onclick="switchTab('csv')">
+                    <i class="fas fa-file-csv"></i> Importar CSV
+                </button>
+                <button class="tab-button" onclick="switchTab('lista')">
+                    <i class="fas fa-list"></i> Afiliados
+                </button>
+            </div>
+
+            <!-- Tab 1: Individual -->
+            <div id="tab-individual" class="tab-content active">
+                <h2><i class="fas fa-user-plus"></i> Criar Afiliado Individual</h2>
+                
+                <form id="formIndividual" style="margin-top: 30px;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Nome de Usuário *</label>
+                            <input type="text" id="username" required placeholder="Ex: joaosilva">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Senha *</label>
+                            <input type="text" id="password" required placeholder="Ex: senha123">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-id-card"></i> Nome Completo *</label>
+                            <input type="text" id="name" required placeholder="Ex: João Silva">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email *</label>
+                            <input type="email" id="email" required placeholder="Ex: joao@email.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-id-card-alt"></i> CPF *</label>
+                            <input type="text" id="cpf" required placeholder="Ex: 000.000.000-00">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Telefone *</label>
+                            <input type="text" id="phone" required placeholder="Ex: (11)99999-9999">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-money-bill"></i> Chave PIX *</label>
+                            <input type="text" id="pixKey" required placeholder="Ex: joao@pix.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-percent"></i> Comissão (%) *</label>
+                            <input type="number" id="commission" required value="25" min="0" max="100">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="margin-top: 20px;">
+                        <i class="fas fa-plus-circle"></i> Criar Afiliado
+                    </button>
+                </form>
+
+                <div id="resultadoIndividual"></div>
+            </div>
+
+            <!-- Tab 2: CSV -->
+            <div id="tab-csv" class="tab-content">
+                <h2><i class="fas fa-file-csv"></i> Importar Afiliados via CSV</h2>
+
+                <div class="info-box" style="margin-top: 30px;">
+                    <h3><i class="fas fa-info-circle"></i> Como usar:</h3>
+                    <ol>
+                        <li>Baixe o modelo CSV clicando no botão abaixo</li>
+                        <li>Preencha os dados dos afiliados no arquivo</li>
+                        <li>Carregue o arquivo CSV preenchido</li>
+                        <li>Clique em "Importar Afiliados"</li>
+                    </ol>
+                </div>
+
+                <button onclick="downloadModelo()" class="btn-success" style="margin-bottom: 30px;">
+                    <i class="fas fa-download"></i> Baixar Modelo CSV
+                </button>
+
+                <div class="form-group">
+                    <label><i class="fas fa-upload"></i> Selecione o arquivo CSV:</label>
+                    <input type="file" id="csvFile" accept=".csv">
+                </div>
+
+                <div id="previewCSV"></div>
+
+                <button onclick="importarCSV()" id="btnImportar" class="btn-primary" disabled style="margin-top: 20px;">
+                    <i class="fas fa-cloud-upload-alt"></i> Importar Afiliados
+                </button>
+
+                <div id="resultadoCSV"></div>
+            </div>
+
+            <!-- Tab 3: Lista -->
+            <div id="tab-lista" class="tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2><i class="fas fa-list"></i> Afiliados Cadastrados</h2>
+                    <button onclick="carregarAfiliados()" class="btn-refresh">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+
+                <div id="listaAfiliados">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>Carregando afiliados...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let csvData = [];
+
+        // Switch Tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'lista') {
+                carregarAfiliados();
+            }
+        }
+
+        // Form Individual
+        document.getElementById('formIndividual').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
+
+            const afiliadoData = {
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value,
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                cpf: document.getElementById('cpf').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                pixKey: document.getElementById('pixKey').value.trim(),
+                commission: parseFloat(document.getElementById('commission').value),
+                active: true,
+                sales: 0,
+                totalCommission: 0,
+                created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                lastLogin: null
+            };
+
+            try {
+                const snapshot = await db.collection('affiliates')
+                    .where('username', '==', afiliadoData.username)
+                    .get();
+
+                if (!snapshot.empty) {
+                    showAlert('resultadoIndividual', 'error', 
+                        `❌ Nome de usuário "${afiliadoData.username}" já existe!`);
+                    return;
+                }
+
+                await db.collection('affiliates').add(afiliadoData);
+
+                showAlert('resultadoIndividual', 'success', 
+                    `✅ Afiliado "${afiliadoData.name}" criado com sucesso!`);
+
+                e.target.reset();
+                document.getElementById('commission').value = '25';
+
+            } catch (error) {
+                console.error('Erro:', error);
+                showAlert('resultadoIndividual', 'error', 
+                    `❌ Erro ao criar afiliado: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plus-circle"></i> Criar Afiliado';
+            }
+        });
+
+        // Download Modelo CSV
+        function downloadModelo() {
+            const headers = ['username', 'password', 'name', 'email', 'cpf', 'phone', 'pixKey', 'commission'];
+            const exemplo = ['joaosilva', 'senha123', 'João Silva', 'joao@email.com', '000.000.000-00', '(11)99999-9999', 'joao@pix.com', '25'];
+            
+            const csvContent = headers.join(',') + '\n' + exemplo.join(',');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'modelo-afiliados-kainow.csv';
+            link.click();
+        }
+
+        // Upload CSV
+        document.getElementById('csvFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const text = event.target.result;
+                csvData = parseCSV(text);
+                mostrarPreview(csvData);
+                document.getElementById('btnImportar').disabled = false;
+            };
+            reader.readAsText(file);
+        });
+
+        // Parse CSV
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            
+            return lines.slice(1).map(line => {
+                const values = line.split(',').map(v => v.trim());
+                const obj = {};
+                headers.forEach((header, index) => {
+                    obj[header] = values[index];
+                });
+                return obj;
+            });
+        }
+
+        // Preview CSV
+        function mostrarPreview(data) {
+            const html = `
+                <div class="alert alert-info">
+                    <h3><i class="fas fa-check-circle"></i> Preview dos Dados (${data.length} afiliados)</h3>
+                    <div class="preview-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Comissão</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.slice(0, 5).map(item => `
+                                    <tr>
+                                        <td>${item.username}</td>
+                                        <td>${item.name}</td>
+                                        <td>${item.email}</td>
+                                        <td>${item.commission}%</td>
+                                    </tr>
+                                `).join('')}
+                                ${data.length > 5 ? `
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; color: #64748b;">
+                                            ... e mais ${data.length - 5} afiliados
+                                        </td>
+                                    </tr>
+                                ` : ''}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            document.getElementById('previewCSV').innerHTML = html;
+        }
+
+        // Importar CSV
+        async function importarCSV() {
+            if (csvData.length === 0) {
+                showAlert('resultadoCSV', 'error', '❌ Nenhum dado para importar!');
+                return;
+            }
+
+            const btn = document.getElementById('btnImportar');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importando...';
+
+            let sucessos = 0;
+            let erros = [];
+
+            for (const item of csvData) {
+                try {
+                    const snapshot = await db.collection('affiliates')
+                        .where('username', '==', item.username.trim())
+                        .get();
+
+                    if (!snapshot.empty) {
+                        erros.push(`${item.username} (já existe)`);
+                        continue;
+                    }
+
+                    await db.collection('affiliates').add({
+                        username: item.username.trim(),
+                        password: item.password,
+                        name: item.name.trim(),
+                        email: item.email.trim(),
+                        cpf: item.cpf.trim(),
+                        phone: item.phone.trim(),
+                        pixKey: item.pixKey.trim(),
+                        commission: parseFloat(item.commission),
+                        active: true,
+                        sales: 0,
+                        totalCommission: 0,
+                        created_at: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: null
+                    });
+
+                    sucessos++;
+
+                } catch (error) {
+                    erros.push(`${item.username} (${error.message})`);
+                }
+            }
+
+            let mensagem = '';
+            
+            if (sucessos > 0) {
+                mensagem += `<div class="alert alert-success">
+                    <strong><i class="fas fa-check-circle"></i> ${sucessos} afiliado(s) criado(s) com sucesso!</strong>
+                </div>`;
+            }
+
+            if (erros.length > 0) {
+                mensagem += `<div class="alert alert-error">
+                    <strong><i class="fas fa-exclamation-triangle"></i> ${erros.length} erro(s):</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        ${erros.map(e => `<li>${e}</li>`).join('')}
+                    </ul>
+                </div>`;
+            }
+
+            document.getElementById('resultadoCSV').innerHTML = mensagem;
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Importar Afiliados';
+
+            csvData = [];
+            document.getElementById('csvFile').value = '';
+            document.getElementById('previewCSV').innerHTML = '';
+        }
+
+        // Carregar Afiliados
+        async function carregarAfiliados() {
+            const container = document.getElementById('listaAfiliados');
+            container.innerHTML = `<div class="loading">
+                <i class="fas fa-spinner"></i>
+                <p>Carregando afiliados...</p>
+            </div>`;
+
+            try {
+                const snapshot = await db.collection('affiliates')
+                    .orderBy('created_at', 'desc')
+                    .get();
+
+                if (snapshot.empty) {
+                    container.innerHTML = `<div class="loading">
+                        <i class="fas fa-users" style="opacity: 0.3;"></i>
+                        <p>Nenhum afiliado cadastrado ainda</p>
+                    </div>`;
+                    return;
+                }
+
+                const html = `
+                    <div class="total-badge">
+                        <p><i class="fas fa-users"></i> Total: ${snapshot.size} afiliado(s) cadastrado(s)</p>
+                    </div>
+                    ${snapshot.docs.map(doc => {
+                        const data = doc.data();
+                        return `
+                            <div class="affiliate-card">
+                                <div class="affiliate-header">
+                                    <div>
+                                        <div class="affiliate-name">${data.name}</div>
+                                        <span class="status-badge ${data.active ? 'status-active' : 'status-inactive'}">
+                                            <i class="fas fa-${data.active ? 'check' : 'times'}-circle"></i>
+                                            ${data.active ? 'Ativo' : 'Inativo'}
+                                        </span>
+                                    </div>
+                                    <div class="affiliate-stats">
+                                        <div class="stat-label">Total Ganho</div>
+                                        <div class="stat-value">R$ ${(data.totalCommission || 0).toFixed(2)}</div>
+                                        <div class="stat-label" style="margin-top: 10px;">
+                                            <i class="fas fa-shopping-cart"></i> ${data.sales || 0} vendas
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="affiliate-info">
+                                    <div class="info-item">
+                                        <i class="fas fa-user"></i>
+                                        <strong>Username:</strong> ${data.username}
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-envelope"></i>
+                                        <strong>Email:</strong> ${data.email}
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-phone"></i>
+                                        <strong>Telefone:</strong> ${data.phone}
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-id-card"></i>
+                                        <strong>CPF:</strong> ${data.cpf}
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-money-bill"></i>
+                                        <strong>PIX:</strong> ${data.pixKey}
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-percent"></i>
+                                        <strong>Comissão:</strong> ${data.commission}%
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                `;
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Erro:', error);
+                container.innerHTML = `<div class="alert alert-error">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Erro ao carregar afiliados:</strong>
+                    <p>${error.message}</p>
+                </div>`;
+            }
+        }
+
+        // Show Alert
+        function showAlert(elementId, type, message) {
+            const className = type === 'success' ? 'alert-success' : 'alert-error';
+            document.getElementById(elementId).innerHTML = `
+                <div class="alert ${className}">
+                    <strong>${message}</strong>
+                </div>
+            `;
+        }
+
+        // Init
+        carregarAfiliados();
+    </script>
+
+</body>
+</html>

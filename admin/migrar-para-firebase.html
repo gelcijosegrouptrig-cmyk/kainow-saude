@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migração para Firebase - KaiNow Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">
+                        <i class="fas fa-cloud-upload-alt text-blue-500 mr-3"></i>
+                        Migração para Firebase
+                    </h1>
+                    <p class="text-gray-600 mt-2">
+                        Migrar dados do localStorage para Firebase Firestore
+                    </p>
+                </div>
+                <a href="gerenciar-afiliados.html" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </a>
+            </div>
+        </div>
+
+        <!-- Status Card -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                Status da Configuração
+            </h2>
+            
+            <div id="firebase-status" class="space-y-3">
+                <div class="flex items-center">
+                    <i class="fas fa-spinner fa-spin text-gray-400 mr-3"></i>
+                    <span class="text-gray-600">Verificando conexão Firebase...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dados Locais -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-database text-purple-500 mr-2"></i>
+                Dados no localStorage
+            </h2>
+            
+            <div id="local-data" class="text-gray-600">
+                Carregando...
+            </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-cogs text-green-500 mr-2"></i>
+                Ações de Migração
+            </h2>
+            
+            <div class="space-y-4">
+                <button 
+                    onclick="migrarAfiliados()"
+                    id="migrar-btn"
+                    class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-bold hover:shadow-lg transition transform hover:scale-105"
+                >
+                    <i class="fas fa-cloud-upload-alt mr-2"></i>
+                    Migrar Afiliados para Firebase
+                </button>
+
+                <button 
+                    onclick="listarFirebase()"
+                    class="w-full bg-green-500 text-white py-3 px-6 rounded-lg font-bold hover:bg-green-600 transition"
+                >
+                    <i class="fas fa-list mr-2"></i>
+                    Listar Afiliados no Firebase
+                </button>
+
+                <button 
+                    onclick="testarConexao()"
+                    class="w-full bg-yellow-500 text-white py-3 px-6 rounded-lg font-bold hover:bg-yellow-600 transition"
+                >
+                    <i class="fas fa-vial mr-2"></i>
+                    Testar Conexão Firebase
+                </button>
+            </div>
+        </div>
+
+        <!-- Log de Operações -->
+        <div class="bg-gray-900 rounded-lg shadow-lg p-6 mt-6">
+            <h2 class="text-xl font-bold text-white mb-4">
+                <i class="fas fa-terminal text-green-400 mr-2"></i>
+                Log de Operações
+            </h2>
+            
+            <div id="log" class="bg-black rounded p-4 font-mono text-sm text-green-400 h-64 overflow-y-auto">
+                <div>🚀 Sistema iniciado...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script>
+        // ✅ Credenciais Firebase Reais - Configurado em 10/11/2025
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        log('✅ Firebase inicializado');
+    </script>
+
+    <script>
+        // Função auxiliar para log
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        // Verificar status do Firebase
+        async function verificarFirebase() {
+            try {
+                // Tentar ler coleção
+                const testRef = await db.collection('affiliates').limit(1).get();
+                
+                const statusDiv = document.getElementById('firebase-status');
+                statusDiv.innerHTML = `
+                    <div class="flex items-center text-green-600">
+                        <i class="fas fa-check-circle mr-3"></i>
+                        <span class="font-semibold">Firebase conectado com sucesso!</span>
+                    </div>
+                    <div class="ml-8 mt-2 text-sm text-gray-600">
+                        Projeto: ${firebaseConfig.projectId}
+                    </div>
+                `;
+                
+                log('✅ Conexão Firebase OK');
+            } catch (error) {
+                const statusDiv = document.getElementById('firebase-status');
+                statusDiv.innerHTML = `
+                    <div class="flex items-center text-red-600">
+                        <i class="fas fa-times-circle mr-3"></i>
+                        <span class="font-semibold">Erro na conexão Firebase</span>
+                    </div>
+                    <div class="ml-8 mt-2 text-sm text-gray-600">
+                        ${error.message}
+                    </div>
+                `;
+                
+                log('❌ Erro Firebase: ' + error.message);
+            }
+        }
+
+        // Carregar dados locais
+        function carregarDadosLocais() {
+            const affiliatesLocal = JSON.parse(localStorage.getItem('kainow_affiliates') || '[]');
+            
+            const localDataDiv = document.getElementById('local-data');
+            
+            if (affiliatesLocal.length === 0) {
+                localDataDiv.innerHTML = `
+                    <div class="text-yellow-600 flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Nenhum afiliado encontrado no localStorage
+                    </div>
+                `;
+                log('⚠️  Nenhum dado local encontrado');
+            } else {
+                localDataDiv.innerHTML = `
+                    <div class="text-green-600 flex items-center mb-3">
+                        <i class="fas fa-database mr-2"></i>
+                        <span class="font-semibold">${affiliatesLocal.length} afiliados encontrados</span>
+                    </div>
+                    <div class="space-y-2">
+                        ${affiliatesLocal.map(a => `
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded">
+                                <div>
+                                    <div class="font-semibold">${a.name}</div>
+                                    <div class="text-sm text-gray-500">@${a.username}</div>
+                                </div>
+                                <div class="text-sm text-gray-500">${a.email}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                log(`📊 ${affiliatesLocal.length} afiliados no localStorage`);
+            }
+        }
+
+        // Migrar afiliados para Firebase
+        async function migrarAfiliados() {
+            const migrarBtn = document.getElementById('migrar-btn');
+            migrarBtn.disabled = true;
+            migrarBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Migrando...';
+
+            try {
+                const affiliatesLocal = JSON.parse(localStorage.getItem('kainow_affiliates') || '[]');
+                
+                if (affiliatesLocal.length === 0) {
+                    alert('⚠️  Nenhum afiliado para migrar');
+                    return;
+                }
+
+                log(`🔄 Iniciando migração de ${affiliatesLocal.length} afiliados...`);
+
+                let migrados = 0;
+                let existentes = 0;
+                let erros = 0;
+
+                for (const affiliate of affiliatesLocal) {
+                    try {
+                        // Verificar se já existe
+                        const existing = await db.collection('affiliates')
+                            .where('username', '==', affiliate.username)
+                            .get();
+
+                        if (existing.empty) {
+                            // Adicionar ao Firestore
+                            await db.collection('affiliates').add({
+                                ...affiliate,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                migradoEm: new Date().toISOString()
+                            });
+                            
+                            migrados++;
+                            log(`✅ Migrado: ${affiliate.name} (@${affiliate.username})`);
+                        } else {
+                            existentes++;
+                            log(`⏭️  Já existe: ${affiliate.name} (@${affiliate.username})`);
+                        }
+                    } catch (error) {
+                        erros++;
+                        log(`❌ Erro ao migrar ${affiliate.name}: ${error.message}`);
+                    }
+                }
+
+                log('');
+                log('📊 RESULTADO DA MIGRAÇÃO:');
+                log(`✅ Migrados: ${migrados}`);
+                log(`⏭️  Já existentes: ${existentes}`);
+                log(`❌ Erros: ${erros}`);
+                log('');
+
+                alert(
+                    '✅ MIGRAÇÃO CONCLUÍDA!\n\n' +
+                    `Migrados: ${migrados}\n` +
+                    `Já existentes: ${existentes}\n` +
+                    `Erros: ${erros}`
+                );
+
+            } catch (error) {
+                log('❌ Erro na migração: ' + error.message);
+                alert('❌ Erro na migração: ' + error.message);
+            } finally {
+                migrarBtn.disabled = false;
+                migrarBtn.innerHTML = '<i class="fas fa-cloud-upload-alt mr-2"></i>Migrar Afiliados para Firebase';
+            }
+        }
+
+        // Listar afiliados no Firebase
+        async function listarFirebase() {
+            try {
+                log('🔍 Buscando afiliados no Firebase...');
+                
+                const snapshot = await db.collection('affiliates').get();
+                
+                if (snapshot.empty) {
+                    log('⚠️  Nenhum afiliado no Firebase');
+                    alert('⚠️  Nenhum afiliado encontrado no Firebase');
+                    return;
+                }
+
+                log('');
+                log(`📊 ${snapshot.size} afiliados no Firebase:`);
+                log('');
+
+                snapshot.forEach((doc, index) => {
+                    const data = doc.data();
+                    log(`${index + 1}. ${data.name} (@${data.username}) - ${data.email}`);
+                });
+
+                log('');
+
+                alert(`✅ ${snapshot.size} afiliados encontrados no Firebase!\n\nVeja o log para detalhes.`);
+
+            } catch (error) {
+                log('❌ Erro ao listar: ' + error.message);
+                alert('❌ Erro ao listar afiliados: ' + error.message);
+            }
+        }
+
+        // Testar conexão
+        async function testarConexao() {
+            log('🧪 Testando conexão Firebase...');
+            
+            try {
+                // Criar documento de teste
+                const testRef = await db.collection('_test').add({
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    message: 'Teste de conexão'
+                });
+
+                log('✅ Documento de teste criado: ' + testRef.id);
+
+                // Ler documento de teste
+                const testDoc = await testRef.get();
+                log('✅ Documento de teste lido com sucesso');
+
+                // Deletar documento de teste
+                await testRef.delete();
+                log('✅ Documento de teste deletado');
+
+                log('');
+                log('✅ TESTE CONCLUÍDO COM SUCESSO!');
+                log('   Firebase está funcionando perfeitamente.');
+                log('');
+
+                alert('✅ Teste concluído!\n\nFirebase está funcionando perfeitamente.');
+
+            } catch (error) {
+                log('❌ Erro no teste: ' + error.message);
+                alert('❌ Erro no teste: ' + error.message);
+            }
+        }
+
+        // Inicializar ao carregar página
+        window.addEventListener('DOMContentLoaded', function() {
+            verificarFirebase();
+            carregarDadosLocais();
+        });
+    </script>
+</body>
+</html>

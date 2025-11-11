@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - Divulgador KaiNow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <button 
+                        onclick="window.location.href='dashboard.html'"
+                        class="bg-white bg-opacity-20 hover:bg-opacity-30 w-10 h-10 rounded-full flex items-center justify-center transition"
+                    >
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold">Relatórios Detalhados</h1>
+                        <p class="text-sm opacity-90">Análise completa de desempenho</p>
+                    </div>
+                </div>
+                
+                <button 
+                    onclick="exportarRelatorio()"
+                    class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition"
+                >
+                    <i class="fas fa-file-excel mr-2"></i>
+                    Exportar Excel
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Filtros -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-filter text-blue-500 mr-2"></i>
+                Filtros
+            </h2>
+            <div class="grid md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Período</label>
+                    <select 
+                        id="period-filter"
+                        onchange="applyFilters()"
+                        class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                    >
+                        <option value="todos">Todos os períodos</option>
+                        <option value="hoje">Hoje</option>
+                        <option value="7dias">Últimos 7 dias</option>
+                        <option value="30dias" selected>Últimos 30 dias</option>
+                        <option value="mes">Este mês</option>
+                        <option value="ano">Este ano</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Produto</label>
+                    <select 
+                        id="product-filter"
+                        onchange="applyFilters()"
+                        class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                    >
+                        <option value="todos">Todos os produtos</option>
+                        <option value="mulher">KaiNow Mulher</option>
+                        <option value="senior">KaiNow Sênior</option>
+                        <option value="farma">KaiNow Farma</option>
+                        <option value="acolher">KaiNow Acolher</option>
+                        <option value="orienta">KaiNow Orienta</option>
+                        <option value="vivaleve">KaiNow Viva Leve</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Status</label>
+                    <select 
+                        id="status-filter"
+                        onchange="applyFilters()"
+                        class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                    >
+                        <option value="todos">Todos os status</option>
+                        <option value="pago">Pago</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="processando">Processando</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-end">
+                    <button 
+                        onclick="resetFilters()"
+                        class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 rounded-lg transition"
+                    >
+                        <i class="fas fa-redo mr-2"></i>
+                        Limpar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumo do Período -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                <p class="text-gray-600 text-sm mb-2">Vendas no Período</p>
+                <h3 class="text-4xl font-bold text-gray-800" id="period-sales">0</h3>
+                <p class="text-xs text-gray-500 mt-2" id="period-comparison"></p>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                <p class="text-gray-600 text-sm mb-2">Comissões no Período</p>
+                <h3 class="text-4xl font-bold text-green-600" id="period-commission">R$ 0,00</h3>
+                <p class="text-xs text-gray-500 mt-2" id="commission-comparison"></p>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                <p class="text-gray-600 text-sm mb-2">Taxa de Conversão</p>
+                <h3 class="text-4xl font-bold text-purple-600" id="conversion-rate">0%</h3>
+                <p class="text-xs text-gray-500 mt-2">Cliques → Vendas</p>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <!-- Gráfico de Vendas por Dia -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                    Vendas por Dia
+                </h3>
+                <div style="height: 300px;">
+                    <canvas id="sales-chart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Gráfico de Produtos Mais Vendidos -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-chart-pie text-purple-500 mr-2"></i>
+                    Produtos Mais Vendidos
+                </h3>
+                <div style="height: 300px;">
+                    <canvas id="products-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela Detalhada -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-table text-gray-700 mr-2"></i>
+                    Vendas Detalhadas
+                </h2>
+                <div class="flex space-x-2">
+                    <input 
+                        type="text"
+                        id="search-input"
+                        placeholder="Buscar..."
+                        onkeyup="searchTable()"
+                        class="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                    >
+                </div>
+            </div>
+            
+            <div id="sales-table" class="overflow-x-auto">
+                <!-- Tabela será inserida aqui -->
+            </div>
+            
+            <div class="mt-4 flex justify-between items-center">
+                <p class="text-sm text-gray-600">
+                    Mostrando <span id="showing-count">0</span> de <span id="total-count">0</span> vendas
+                </p>
+                <div id="pagination" class="flex space-x-2">
+                    <!-- Paginação será inserida aqui -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Produtos Sem Vendas -->
+        <div class="mt-8 bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6">
+            <h3 class="text-xl font-bold text-yellow-800 mb-4">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Produtos sem Vendas
+            </h3>
+            <div id="no-sales-products" class="grid md:grid-cols-3 gap-4">
+                <!-- Produtos sem vendas serão inseridos aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allSales = [];
+        let filteredSales = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // Verificar autenticação
+        function checkAuth() {
+            const session = localStorage.getItem('kainow_affiliate_session') || 
+                           sessionStorage.getItem('kainow_affiliate_session');
+            
+            if (!session) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            return JSON.parse(session);
+        }
+
+        // Carregar dados
+        function loadData() {
+            const session = checkAuth();
+            if (!session) return;
+
+            const affiliates = JSON.parse(localStorage.getItem('kainow_affiliates') || '[]');
+            const affiliate = affiliates.find(a => a.id === session.affiliateId);
+
+            if (!affiliate) {
+                alert('❌ Erro: Afiliado não encontrado!');
+                return;
+            }
+
+            allSales = affiliate.sales || [];
+            applyFilters();
+            renderCharts();
+            checkProductsWithoutSales(affiliate);
+        }
+
+        // Aplicar filtros
+        function applyFilters() {
+            const period = document.getElementById('period-filter').value;
+            const product = document.getElementById('product-filter').value;
+            const status = document.getElementById('status-filter').value;
+
+            filteredSales = allSales.filter(sale => {
+                // Filtro de período
+                const saleDate = new Date(sale.date);
+                const now = new Date();
+                let periodMatch = true;
+
+                if (period === 'hoje') {
+                    periodMatch = saleDate.toDateString() === now.toDateString();
+                } else if (period === '7dias') {
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    periodMatch = saleDate >= weekAgo;
+                } else if (period === '30dias') {
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    periodMatch = saleDate >= monthAgo;
+                } else if (period === 'mes') {
+                    periodMatch = saleDate.getMonth() === now.getMonth() && 
+                                 saleDate.getFullYear() === now.getFullYear();
+                } else if (period === 'ano') {
+                    periodMatch = saleDate.getFullYear() === now.getFullYear();
+                }
+
+                // Filtro de produto
+                const productMatch = product === 'todos' || sale.product.toLowerCase().includes(product);
+
+                // Filtro de status
+                const statusMatch = status === 'todos' || sale.status === status;
+
+                return periodMatch && productMatch && statusMatch;
+            });
+
+            updateSummary();
+            renderTable();
+            renderCharts();
+        }
+
+        // Resetar filtros
+        function resetFilters() {
+            document.getElementById('period-filter').value = '30dias';
+            document.getElementById('product-filter').value = 'todos';
+            document.getElementById('status-filter').value = 'todos';
+            applyFilters();
+        }
+
+        // Atualizar resumo
+        function updateSummary() {
+            const totalSales = filteredSales.length;
+            const totalCommission = filteredSales.reduce((sum, sale) => sum + sale.commission, 0);
+            
+            // Buscar cliques
+            const session = checkAuth();
+            const conversions = JSON.parse(localStorage.getItem('kainow_conversions') || '[]');
+            const myClicks = conversions.filter(c => c.affiliateId === session.affiliateId).length;
+            const conversionRate = myClicks > 0 ? ((totalSales / myClicks) * 100).toFixed(1) : 0;
+
+            document.getElementById('period-sales').textContent = totalSales;
+            document.getElementById('period-commission').textContent = 'R$ ' + totalCommission.toFixed(2).replace('.', ',');
+            document.getElementById('conversion-rate').textContent = conversionRate + '%';
+
+            document.getElementById('total-count').textContent = totalSales;
+        }
+
+        // Renderizar tabela
+        function renderTable() {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageSales = filteredSales.slice(start, end);
+
+            const tableContainer = document.getElementById('sales-table');
+
+            if (pageSales.length === 0) {
+                tableContainer.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-inbox text-6xl mb-4 opacity-20"></i>
+                        <p class="text-lg">Nenhuma venda encontrada</p>
+                        <p class="text-sm mt-2">Ajuste os filtros ou compartilhe seus links!</p>
+                    </div>
+                `;
+                document.getElementById('showing-count').textContent = '0';
+                return;
+            }
+
+            tableContainer.innerHTML = `
+                <table class="w-full">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Data</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Produto</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Cliente</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Valor</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Comissão</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        ${pageSales.map(sale => `
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm">${new Date(sale.date).toLocaleDateString('pt-BR')}</td>
+                                <td class="px-4 py-3 text-sm font-medium">${sale.product}</td>
+                                <td class="px-4 py-3 text-sm">${sale.customer || 'Cliente'}</td>
+                                <td class="px-4 py-3 text-sm">R$ ${sale.amount.toFixed(2).replace('.', ',')}</td>
+                                <td class="px-4 py-3 text-sm font-bold text-green-600">R$ ${sale.commission.toFixed(2).replace('.', ',')}</td>
+                                <td class="px-4 py-3 text-sm">
+                                    <span class="inline-block px-2 py-1 text-xs font-bold rounded-full ${
+                                        sale.status === 'pago' ? 'bg-green-100 text-green-800' :
+                                        sale.status === 'pendente' ? 'bg-yellow-100 text-yellow-800' :
+                                        'bg-gray-100 text-gray-800'
+                                    }">
+                                        ${sale.status.toUpperCase()}
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('showing-count').textContent = pageSales.length;
+            renderPagination();
+        }
+
+        // Renderizar paginação
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
+            const paginationContainer = document.getElementById('pagination');
+
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            
+            for (let i = 1; i <= totalPages; i++) {
+                html += `
+                    <button 
+                        onclick="changePage(${i})"
+                        class="px-4 py-2 rounded ${
+                            i === currentPage 
+                                ? 'bg-blue-500 text-white' 
+                                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                        } transition"
+                    >
+                        ${i}
+                    </button>
+                `;
+            }
+
+            paginationContainer.innerHTML = html;
+        }
+
+        // Mudar página
+        function changePage(page) {
+            currentPage = page;
+            renderTable();
+        }
+
+        // Buscar na tabela
+        function searchTable() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            filteredSales = allSales.filter(sale => 
+                sale.product.toLowerCase().includes(searchTerm) ||
+                (sale.customer && sale.customer.toLowerCase().includes(searchTerm)) ||
+                sale.status.toLowerCase().includes(searchTerm)
+            );
+
+            currentPage = 1;
+            updateSummary();
+            renderTable();
+        }
+
+        // Renderizar gráficos
+        function renderCharts() {
+            renderSalesChart();
+            renderProductsChart();
+        }
+
+        // Gráfico de vendas por dia
+        function renderSalesChart() {
+            const ctx = document.getElementById('sales-chart').getContext('2d');
+            
+            // Destruir gráfico anterior se existir
+            if (window.salesChart) {
+                window.salesChart.destroy();
+            }
+
+            // Agrupar vendas por dia
+            const salesByDay = {};
+            filteredSales.forEach(sale => {
+                const day = new Date(sale.date).toLocaleDateString('pt-BR');
+                salesByDay[day] = (salesByDay[day] || 0) + 1;
+            });
+
+            const labels = Object.keys(salesByDay);
+            const data = Object.values(salesByDay);
+
+            window.salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Vendas',
+                        data: data,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de produtos
+        function renderProductsChart() {
+            const ctx = document.getElementById('products-chart').getContext('2d');
+            
+            // Destruir gráfico anterior se existir
+            if (window.productsChart) {
+                window.productsChart.destroy();
+            }
+
+            // Contar vendas por produto
+            const productSales = {};
+            filteredSales.forEach(sale => {
+                productSales[sale.product] = (productSales[sale.product] || 0) + 1;
+            });
+
+            const labels = Object.keys(productSales);
+            const data = Object.values(productSales);
+
+            window.productsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            'rgb(236, 72, 153)',
+                            'rgb(251, 191, 36)',
+                            'rgb(34, 197, 94)',
+                            'rgb(59, 130, 246)',
+                            'rgb(168, 85, 247)',
+                            'rgb(20, 184, 166)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Verificar produtos sem vendas
+        function checkProductsWithoutSales(affiliate) {
+            const products = [
+                { id: 'mulher', name: 'KaiNow Mulher', icon: 'fa-venus', color: 'pink' },
+                { id: 'senior', name: 'KaiNow Sênior', icon: 'fa-user-shield', color: 'amber' },
+                { id: 'farma', name: 'KaiNow Farma', icon: 'fa-pills', color: 'green' },
+                { id: 'acolher', name: 'KaiNow Acolher', icon: 'fa-hands-holding-child', color: 'blue' },
+                { id: 'orienta', name: 'KaiNow Orienta', icon: 'fa-lightbulb', color: 'purple' },
+                { id: 'vivaleve', name: 'KaiNow Viva Leve', icon: 'fa-spa', color: 'teal' }
+            ];
+
+            const productsWithoutSales = products.filter(product => 
+                !allSales.some(sale => sale.product.toLowerCase().includes(product.id))
+            );
+
+            const container = document.getElementById('no-sales-products');
+
+            if (productsWithoutSales.length === 0) {
+                container.innerHTML = '<p class="text-green-700 font-bold">🎉 Parabéns! Você já vendeu todos os produtos!</p>';
+                return;
+            }
+
+            container.innerHTML = productsWithoutSales.map(product => `
+                <div class="bg-white border-2 border-yellow-300 rounded-lg p-4 text-center">
+                    <i class="fas ${product.icon} text-3xl text-${product.color}-500 mb-2"></i>
+                    <p class="font-bold text-gray-800">${product.name}</p>
+                    <p class="text-xs text-gray-600 mt-1">0 vendas</p>
+                </div>
+            `).join('');
+        }
+
+        // Exportar relatório
+        function exportarRelatorio() {
+            alert('🚧 Função de exportar em desenvolvimento!\n\nEm breve você poderá exportar seus relatórios em Excel.');
+        }
+
+        // Inicializar
+        loadData();
+    </script>
+</body>
+</html>

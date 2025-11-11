@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prontuários - KaiNow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-link { @apply flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-all duration-200; }
+        .sidebar-link.active { @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="toggleMobileMenu()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-xl z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <i class="fas fa-heartbeat mr-2"></i>KaiNow Saúde
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">Área do Paciente</p>
+        </div>
+        <nav class="p-4 space-y-2">
+            <a href="dashboard.html" class="sidebar-link">
+                <i class="fas fa-home w-6"></i><span>Home</span>
+            </a>
+            <a href="agendamentos.html" class="sidebar-link">
+                <i class="fas fa-calendar-alt w-6"></i><span>Agendamentos</span>
+            </a>
+            <a href="prontuarios.html" class="sidebar-link active">
+                <i class="fas fa-file-medical w-6"></i><span>Prontuários</span>
+            </a>
+            <a href="historico.html" class="sidebar-link">
+                <i class="fas fa-history w-6"></i><span>Histórico</span>
+            </a>
+            <a href="perfil.html" class="sidebar-link">
+                <i class="fas fa-user-circle w-6"></i><span>Perfil</span>
+            </a>
+        </nav>
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
+            <button onclick="logout()" class="w-full flex items-center justify-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition font-semibold">
+                <i class="fas fa-sign-out-alt mr-2"></i>Sair
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="md:ml-64 min-h-screen">
+        <header class="bg-white shadow-sm sticky top-0 z-30">
+            <div class="flex items-center justify-between px-4 md:px-8 py-4">
+                <button onclick="toggleMobileMenu()" class="md:hidden text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                <div class="flex-1">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">Prontuários Médicos</h2>
+                    <p class="text-sm text-gray-500">Acesse seus documentos e resultados</p>
+                </div>
+                <button class="hidden md:block bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+                    <i class="fas fa-download mr-2"></i>Baixar Todos
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8">
+            <!-- Filtros -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">
+                    <i class="fas fa-filter text-gray-600 mr-2"></i>Filtrar Prontuários
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo</label>
+                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option>Todos os tipos</option>
+                            <option>Consultas</option>
+                            <option>Exames</option>
+                            <option>Receitas</option>
+                            <option>Atestados</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Especialidade</label>
+                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option>Todas</option>
+                            <option>Cardiologia</option>
+                            <option>Dermatologia</option>
+                            <option>Ginecologia</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Período</label>
+                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option>Últimos 30 dias</option>
+                            <option>Últimos 3 meses</option>
+                            <option>Últimos 6 meses</option>
+                            <option>Último ano</option>
+                            <option>Todos</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+                            <i class="fas fa-search mr-2"></i>Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de Prontuários -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Prontuário 1 - Consulta -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-600 p-4">
+                        <div class="flex items-center justify-between text-white">
+                            <div class="flex items-center">
+                                <i class="fas fa-stethoscope text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-xs opacity-90">Consulta</p>
+                                    <h3 class="font-bold">Cardiologia</h3>
+                                </div>
+                            </div>
+                            <span class="bg-white/20 px-2 py-1 rounded text-xs font-semibold">Novo</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="far fa-calendar w-5 text-purple-600"></i>
+                                <span>10/11/2025</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-user-md w-5 text-purple-600"></i>
+                                <span>Dr. João Silva</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-file-pdf w-5 text-purple-600"></i>
+                                <span>prontuario_cardiologia.pdf</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </button>
+                            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prontuário 2 - Exame -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-4">
+                        <div class="flex items-center justify-between text-white">
+                            <div class="flex items-center">
+                                <i class="fas fa-vial text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-xs opacity-90">Exame</p>
+                                    <h3 class="font-bold">Sangue Completo</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="far fa-calendar w-5 text-blue-600"></i>
+                                <span>05/11/2025</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-hospital w-5 text-blue-600"></i>
+                                <span>Lab KaiNow</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-file-pdf w-5 text-blue-600"></i>
+                                <span>exame_sangue.pdf</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </button>
+                            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prontuário 3 - Receita -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-4">
+                        <div class="flex items-center justify-between text-white">
+                            <div class="flex items-center">
+                                <i class="fas fa-prescription text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-xs opacity-90">Receita</p>
+                                    <h3 class="font-bold">Medicamentos</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="far fa-calendar w-5 text-green-600"></i>
+                                <span>01/11/2025</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-user-md w-5 text-green-600"></i>
+                                <span>Dra. Maria Santos</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-file-pdf w-5 text-green-600"></i>
+                                <span>receita_medicamentos.pdf</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </button>
+                            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prontuário 4 - Atestado -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                    <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-4">
+                        <div class="flex items-center justify-between text-white">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-signature text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-xs opacity-90">Atestado</p>
+                                    <h3 class="font-bold">Médico</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="far fa-calendar w-5 text-amber-600"></i>
+                                <span>28/10/2025</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-user-md w-5 text-amber-600"></i>
+                                <span>Dr. Carlos Lima</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-file-pdf w-5 text-amber-600"></i>
+                                <span>atestado_medico.pdf</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </button>
+                            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prontuário 5 - Dermatologia -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                    <div class="bg-gradient-to-r from-pink-500 to-rose-600 p-4">
+                        <div class="flex items-center justify-between text-white">
+                            <div class="flex items-center">
+                                <i class="fas fa-hand-sparkles text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-xs opacity-90">Consulta</p>
+                                    <h3 class="font-bold">Dermatologia</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="far fa-calendar w-5 text-pink-600"></i>
+                                <span>20/10/2025</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-user-md w-5 text-pink-600"></i>
+                                <span>Dra. Ana Costa</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-file-pdf w-5 text-pink-600"></i>
+                                <span>prontuario_dermatologia.pdf</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </button>
+                            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prontuário 6 - Exame Imagem -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
+                        <div class="flex items-center justify-between text-white">
+                            <div class="flex items-center">
+                                <i class="fas fa-x-ray text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-xs opacity-90">Exame</p>
+                                    <h3 class="font-bold">Raio-X Tórax</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="far fa-calendar w-5 text-indigo-600"></i>
+                                <span>15/10/2025</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-hospital w-5 text-indigo-600"></i>
+                                <span>Centro Diagnóstico</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-file-pdf w-5 text-indigo-600"></i>
+                                <span>raio_x_torax.pdf</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </button>
+                            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paginação -->
+            <div class="flex justify-center mt-8">
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold">1</button>
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">2</button>
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">3</button>
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

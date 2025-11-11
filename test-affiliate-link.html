@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Teste de Link de Afiliado - KaiNow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 mb-8">
+            <h1 class="text-4xl font-bold mb-4 text-blue-600">
+                🧪 Teste de Link de Afiliado
+            </h1>
+            <p class="text-gray-600 mb-6">
+                Cole o link de afiliado aqui para testar se está funcionando corretamente.
+            </p>
+
+            <!-- Input para colar link -->
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                    🔗 Cole o link do afiliado aqui:
+                </label>
+                <input 
+                    type="text" 
+                    id="affiliateLink"
+                    placeholder="https://kainow.com.br/programa-mulher.html?ref=AFF1762769339920"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                >
+                <button 
+                    onclick="testLink()"
+                    class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition"
+                >
+                    🚀 Testar Link
+                </button>
+            </div>
+
+            <!-- Resultado do Teste -->
+            <div id="result" class="hidden">
+                <!-- Será preenchido dinamicamente -->
+            </div>
+        </div>
+
+        <!-- Status Atual -->
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <h2 class="text-2xl font-bold mb-4 text-purple-600">
+                📊 Status do Rastreamento Atual
+            </h2>
+            <div id="currentStatus" class="space-y-4">
+                <!-- Será preenchido dinamicamente -->
+            </div>
+            
+            <button 
+                onclick="clearTracking()"
+                class="mt-6 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg transition"
+            >
+                🗑️ Limpar Rastreamento
+            </button>
+        </div>
+    </div>
+
+    <script src="js/affiliate-tracker.js"></script>
+    
+    <script>
+        // Função para testar o link
+        function testLink() {
+            const linkInput = document.getElementById('affiliateLink');
+            const link = linkInput.value.trim();
+            
+            if (!link) {
+                alert('❌ Cole um link de afiliado primeiro!');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.remove('hidden');
+
+            try {
+                const url = new URL(link);
+                const refParam = url.searchParams.get('ref');
+                const domain = url.hostname;
+                const path = url.pathname;
+
+                let html = '<div class="space-y-4">';
+
+                // 1. Validar domínio
+                const correctDomain = 'kainow.com.br';
+                const domainValid = domain === correctDomain || domain === 'kainowsaude.kainow.com.br' || domain === 'hbvidaesaude.pages.dev' || domain === 'hbvidaesaude.me';
+                
+                html += `
+                    <div class="border-2 ${domainValid ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'} rounded-lg p-4">
+                        <h3 class="font-bold mb-2 ${domainValid ? 'text-green-700' : 'text-red-700'}">
+                            ${domainValid ? '✅' : '❌'} 1. Domínio
+                        </h3>
+                        <p class="text-sm text-gray-700">
+                            <strong>Encontrado:</strong> ${domain}<br>
+                            <strong>Esperado:</strong> ${correctDomain}
+                        </p>
+                        ${!domainValid ? `
+                            <p class="mt-2 text-red-600 text-sm font-bold">
+                                ⚠️ O domínio está incorreto! Os links devem usar: ${correctDomain}
+                            </p>
+                        ` : ''}
+                    </div>
+                `;
+
+                // 2. Validar parâmetro ref
+                const refValid = refParam && refParam.startsWith('AFF');
+                
+                html += `
+                    <div class="border-2 ${refValid ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'} rounded-lg p-4">
+                        <h3 class="font-bold mb-2 ${refValid ? 'text-green-700' : 'text-red-700'}">
+                            ${refValid ? '✅' : '❌'} 2. Parâmetro ?ref=
+                        </h3>
+                        <p class="text-sm text-gray-700">
+                            <strong>Valor:</strong> ${refParam || 'NÃO ENCONTRADO'}<br>
+                            <strong>Formato:</strong> ${refValid ? 'Correto (AFFxxxxxxxxxx)' : 'Incorreto'}
+                        </p>
+                        ${!refValid ? `
+                            <p class="mt-2 text-red-600 text-sm font-bold">
+                                ⚠️ O parâmetro ?ref= está faltando ou incorreto!
+                            </p>
+                        ` : ''}
+                    </div>
+                `;
+
+                // 3. Validar caminho
+                const validPaths = [
+                    '/programa-mulher.html',
+                    '/programa-senior.html',
+                    '/programa-farma.html',
+                    '/programa-acolher.html',
+                    '/programa-orienta.html',
+                    '/programa-vivaleve.html'
+                ];
+                const pathValid = validPaths.includes(path);
+                
+                html += `
+                    <div class="border-2 ${pathValid ? 'border-green-200 bg-green-50' : 'border-yellow-200 bg-yellow-50'} rounded-lg p-4">
+                        <h3 class="font-bold mb-2 ${pathValid ? 'text-green-700' : 'text-yellow-700'}">
+                            ${pathValid ? '✅' : '⚠️'} 3. Caminho da Página
+                        </h3>
+                        <p class="text-sm text-gray-700">
+                            <strong>Caminho:</strong> ${path}<br>
+                            <strong>Válido:</strong> ${pathValid ? 'Sim' : 'Verificar'}
+                        </p>
+                    </div>
+                `;
+
+                // 4. Simular salvamento
+                if (refValid) {
+                    html += `
+                        <div class="border-2 border-blue-200 bg-blue-50 rounded-lg p-4">
+                            <h3 class="font-bold mb-2 text-blue-700">
+                                🧪 4. Simulação de Salvamento
+                            </h3>
+                            <p class="text-sm text-gray-700 mb-3">
+                                Clique no botão abaixo para simular o salvamento deste afiliado:
+                            </p>
+                            <button 
+                                onclick="saveTestAffiliate('${refParam}')"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold transition"
+                            >
+                                💾 Salvar Referência de Teste
+                            </button>
+                        </div>
+                    `;
+                }
+
+                // 5. Link correto
+                html += `
+                    <div class="border-2 border-purple-200 bg-purple-50 rounded-lg p-4">
+                        <h3 class="font-bold mb-2 text-purple-700">
+                            🔗 5. Acessar Link Original
+                        </h3>
+                        <a href="${link}" target="_blank" class="block bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-bold text-center transition">
+                            🚀 Abrir Link em Nova Aba
+                        </a>
+                        <p class="text-xs text-gray-600 mt-2 text-center">
+                            Abra o Console (F12) na nova aba para ver os logs
+                        </p>
+                    </div>
+                `;
+
+                html += '</div>';
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="border-2 border-red-200 bg-red-50 rounded-lg p-4">
+                        <h3 class="font-bold mb-2 text-red-700">❌ Erro ao Analisar Link</h3>
+                        <p class="text-sm text-gray-700">${error.message}</p>
+                    </div>
+                `;
+            }
+
+            updateCurrentStatus();
+        }
+
+        // Salvar afiliado de teste
+        function saveTestAffiliate(refId) {
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 30);
+
+            const affiliateData = {
+                id: refId,
+                timestamp: new Date().toISOString(),
+                expiry: expiryDate.toISOString(),
+                page: '/test-affiliate-link.html'
+            };
+
+            localStorage.setItem('kainow_affiliate_ref', JSON.stringify(affiliateData));
+            document.cookie = `kainow_ref=${refId}; expires=${expiryDate.toUTCString()}; path=/`;
+            
+            alert('✅ Referência de afiliado salva com sucesso!\n\n' + 
+                  'ID: ' + refId + '\n' +
+                  'Validade: 30 dias');
+            
+            updateCurrentStatus();
+        }
+
+        // Atualizar status atual
+        function updateCurrentStatus() {
+            const statusDiv = document.getElementById('currentStatus');
+            
+            // Verificar localStorage
+            const savedRef = localStorage.getItem('kainow_affiliate_ref');
+            const savedRefData = savedRef ? JSON.parse(savedRef) : null;
+            
+            // Verificar cookie
+            const cookies = document.cookie.split(';').map(c => c.trim());
+            const refCookie = cookies.find(c => c.startsWith('kainow_ref='));
+            const cookieValue = refCookie ? refCookie.split('=')[1] : null;
+            
+            // Verificar afiliados cadastrados
+            const affiliates = localStorage.getItem('kainow_affiliates');
+            const affiliatesData = affiliates ? JSON.parse(affiliates) : [];
+            const currentAffiliate = savedRefData ? affiliatesData.find(a => a.id === savedRefData.id) : null;
+            
+            let html = '<div class="space-y-3">';
+            
+            // Status do rastreamento
+            if (savedRefData) {
+                const expiryDate = new Date(savedRefData.expiry);
+                const now = new Date();
+                const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+                
+                html += `
+                    <div class="border-2 border-green-200 bg-green-50 rounded-lg p-4">
+                        <h3 class="font-bold text-green-700 mb-2">✅ Rastreamento Ativo</h3>
+                        <div class="text-sm text-gray-700 space-y-1">
+                            <p><strong>ID do Afiliado:</strong> ${savedRefData.id}</p>
+                            <p><strong>Válido por:</strong> ${daysLeft} dias</p>
+                            <p><strong>Página de Entrada:</strong> ${savedRefData.page}</p>
+                            ${currentAffiliate ? `
+                                <div class="mt-3 pt-3 border-t border-green-200">
+                                    <p class="font-bold text-green-800">👤 Informações do Divulgador:</p>
+                                    <p><strong>Nome:</strong> ${currentAffiliate.name}</p>
+                                    <p><strong>Email:</strong> ${currentAffiliate.email}</p>
+                                    <p><strong>Comissão:</strong> ${currentAffiliate.commission}%</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="border-2 border-gray-200 bg-gray-50 rounded-lg p-4">
+                        <h3 class="font-bold text-gray-700 mb-2">ℹ️ Nenhum Rastreamento Ativo</h3>
+                        <p class="text-sm text-gray-600">Nenhuma referência de afiliado encontrada.</p>
+                    </div>
+                `;
+            }
+            
+            // Cookie status
+            html += `
+                <div class="border-2 border-blue-200 bg-blue-50 rounded-lg p-4">
+                    <h3 class="font-bold text-blue-700 mb-2">🍪 Status do Cookie</h3>
+                    <p class="text-sm text-gray-700">
+                        <strong>kainow_ref:</strong> ${cookieValue || 'Não definido'}
+                    </p>
+                </div>
+            `;
+            
+            html += '</div>';
+            statusDiv.innerHTML = html;
+        }
+
+        // Limpar rastreamento
+        function clearTracking() {
+            if (!confirm('Deseja limpar TODOS os dados de rastreamento?')) return;
+            
+            localStorage.removeItem('kainow_affiliate_ref');
+            localStorage.removeItem('kainow_conversions');
+            document.cookie = 'kainow_ref=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            
+            alert('✅ Rastreamento limpo com sucesso!');
+            updateCurrentStatus();
+        }
+
+        // Atualizar status ao carregar
+        updateCurrentStatus();
+    </script>
+</body>
+</html>

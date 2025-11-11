@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔬 Teste de Login - KaiNow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">🔬 Teste de Sistema de Login</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">📝 Informações do Sistema</h2>
+            <div class="space-y-2 font-mono text-sm">
+                <p><strong>Chave de Sessão:</strong> <span id="session-key" class="text-blue-600"></span></p>
+                <p><strong>Funções Disponíveis:</strong></p>
+                <ul class="ml-6 list-disc">
+                    <li>estaLogado: <span id="func-estalogado" class="font-bold"></span></li>
+                    <li>obterSessao: <span id="func-obtersessao" class="font-bold"></span></li>
+                    <li>salvarSessao: <span id="func-salvarsessao" class="font-bold"></span></li>
+                    <li>realizarLogin: <span id="func-realizarlogin" class="font-bold"></span></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">🔐 Status de Autenticação</h2>
+            <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                    <span class="font-semibold">Está Logado?</span>
+                    <span id="status-logado" class="px-3 py-1 rounded-full text-sm font-bold"></span>
+                </div>
+                <div class="mt-4">
+                    <p class="font-semibold mb-2">Dados da Sessão:</p>
+                    <pre id="session-data" class="bg-gray-100 p-4 rounded text-xs overflow-auto max-h-64"></pre>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">🧪 Fazer Login de Teste</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block font-semibold mb-2">CPF:</label>
+                    <input type="text" id="cpf-input" value="111.444.777-35" class="w-full border-2 border-gray-300 rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block font-semibold mb-2">Senha:</label>
+                    <input type="password" id="senha-input" value="teste123" class="w-full border-2 border-gray-300 rounded-lg px-4 py-2">
+                </div>
+                <button onclick="fazerLogin()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Fazer Login
+                </button>
+                <div id="login-result" class="hidden mt-4 p-4 rounded-lg"></div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">💾 LocalStorage</h2>
+            <div class="space-y-2">
+                <button onclick="verLocalStorage()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                    <i class="fas fa-sync mr-2"></i>Atualizar LocalStorage
+                </button>
+                <button onclick="limparLocalStorage()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition ml-2">
+                    <i class="fas fa-trash mr-2"></i>Limpar LocalStorage
+                </button>
+                <pre id="localstorage-data" class="bg-gray-100 p-4 rounded text-xs overflow-auto max-h-64 mt-4"></pre>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-4">📋 Console Log</h2>
+            <div id="console-log" class="bg-black text-green-400 p-4 rounded text-xs font-mono max-h-96 overflow-auto"></div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Capturar console.log
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const consoleDiv = document.getElementById('console-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            consoleDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        function atualizarStatus() {
+            console.log('🔄 Atualizando status da página...');
+            
+            // Informações do sistema
+            document.getElementById('session-key').textContent = typeof SESSION_KEY !== 'undefined' ? SESSION_KEY : 'NÃO DEFINIDA';
+            
+            // Verificar funções
+            document.getElementById('func-estalogado').textContent = typeof estaLogado === 'function' ? '✅ Disponível' : '❌ Não disponível';
+            document.getElementById('func-obtersessao').textContent = typeof obterSessao === 'function' ? '✅ Disponível' : '❌ Não disponível';
+            document.getElementById('func-salvarsessao').textContent = typeof salvarSessao === 'function' ? '✅ Disponível' : '❌ Não disponível';
+            document.getElementById('func-realizarlogin').textContent = typeof realizarLogin === 'function' ? '✅ Disponível' : '❌ Não disponível';
+            
+            // Status de login
+            if (typeof estaLogado === 'function') {
+                const logado = estaLogado();
+                const statusSpan = document.getElementById('status-logado');
+                if (logado) {
+                    statusSpan.textContent = '✅ SIM';
+                    statusSpan.className = 'px-3 py-1 rounded-full text-sm font-bold bg-green-100 text-green-800';
+                } else {
+                    statusSpan.textContent = '❌ NÃO';
+                    statusSpan.className = 'px-3 py-1 rounded-full text-sm font-bold bg-red-100 text-red-800';
+                }
+            }
+            
+            // Dados da sessão
+            if (typeof obterSessao === 'function') {
+                const sessao = obterSessao();
+                document.getElementById('session-data').textContent = JSON.stringify(sessao, null, 2);
+            }
+            
+            verLocalStorage();
+        }
+        
+        function verLocalStorage() {
+            const storage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                storage[key] = localStorage.getItem(key);
+            }
+            document.getElementById('localstorage-data').textContent = JSON.stringify(storage, null, 2);
+        }
+        
+        function limparLocalStorage() {
+            if (confirm('⚠️ Tem certeza que deseja limpar TODO o localStorage?')) {
+                localStorage.clear();
+                console.log('🗑️ LocalStorage limpo!');
+                atualizarStatus();
+            }
+        }
+        
+        async function fazerLogin() {
+            const cpf = document.getElementById('cpf-input').value;
+            const senha = document.getElementById('senha-input').value;
+            const resultDiv = document.getElementById('login-result');
+            
+            console.log('🔑 Tentando fazer login...');
+            console.log('📝 CPF:', cpf);
+            console.log('📝 Senha:', senha);
+            
+            try {
+                if (typeof realizarLogin === 'function') {
+                    const resultado = await realizarLogin(cpf, senha);
+                    console.log('✅ Login bem-sucedido!', resultado);
+                    resultDiv.className = 'mt-4 p-4 rounded-lg bg-green-100 text-green-800';
+                    resultDiv.innerHTML = '<strong>✅ Login bem-sucedido!</strong><br>' + JSON.stringify(resultado, null, 2);
+                    resultDiv.classList.remove('hidden');
+                    
+                    // Atualizar status após 500ms para dar tempo do localStorage salvar
+                    setTimeout(() => {
+                        atualizarStatus();
+                    }, 500);
+                } else {
+                    throw new Error('Função realizarLogin não está disponível');
+                }
+            } catch (error) {
+                console.error('❌ Erro no login:', error);
+                resultDiv.className = 'mt-4 p-4 rounded-lg bg-red-100 text-red-800';
+                resultDiv.innerHTML = '<strong>❌ Erro no login:</strong><br>' + error.message;
+                resultDiv.classList.remove('hidden');
+            }
+        }
+        
+        // Atualizar status quando a página carregar
+        window.addEventListener('load', () => {
+            console.log('🚀 Página de teste carregada!');
+            atualizarStatus();
+        });
+    </script>
+</body>
+</html>

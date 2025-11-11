@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Criar Afiliado + Webhook Automático | Kainow Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-3xl font-bold text-gray-800">
+                    <i class="fas fa-user-plus text-blue-600"></i>
+                    Criar Afiliado + Webhook Automático
+                </h1>
+                <a href="dashboard.html" class="text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+            <p class="text-gray-600">
+                <i class="fas fa-robot text-green-600"></i>
+                Sistema 100% automático: Cria afiliado e registra webhook na Woovi instantaneamente!
+            </p>
+        </div>
+
+        <!-- Alert Info -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-600 text-xl mr-3 mt-1"></i>
+                <div>
+                    <h3 class="font-bold text-blue-800 mb-1">Como funciona:</h3>
+                    <ol class="text-blue-700 text-sm space-y-1 ml-4 list-decimal">
+                        <li>Sistema cria afiliado no Firebase</li>
+                        <li>Registra webhook único na Woovi automaticamente</li>
+                        <li>Webhook recebe notificações de pagamento</li>
+                        <li>Comissões são pagas via PIX automaticamente</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <form id="affiliate-form" class="space-y-6">
+                <!-- Dados Pessoais -->
+                <div class="border-b pb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-user text-blue-600"></i>
+                        Dados Pessoais
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-id-card text-gray-400"></i>
+                                Nome Completo *
+                            </label>
+                            <input type="text" id="name" required
+                                placeholder="Ex: João da Silva"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-envelope text-gray-400"></i>
+                                Email *
+                            </label>
+                            <input type="email" id="email" required
+                                placeholder="joao@example.com"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-phone text-gray-400"></i>
+                                Telefone (WhatsApp)
+                            </label>
+                            <input type="tel" id="phone"
+                                placeholder="+5511999999999"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-qrcode text-gray-400"></i>
+                                Chave PIX (para receber comissões) *
+                            </label>
+                            <input type="text" id="pixKey" required
+                                placeholder="CPF, email ou telefone"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configurações de Comissão -->
+                <div class="border-b pb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-percent text-green-600"></i>
+                        Comissão
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Percentual de Comissão (%) *
+                            </label>
+                            <input type="number" id="commissionPercent" required
+                                value="25" min="1" max="100" step="1"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-calculator text-gray-400"></i>
+                                Ex: 25% de R$ 49,90 = <span id="preview-commission" class="font-bold text-green-600">R$ 12,48</span>
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Simular com valor de venda (R$)
+                            </label>
+                            <input type="number" id="simulateValue"
+                                value="49.90" min="0" step="0.01"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dados de Acesso -->
+                <div class="border-b pb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-lock text-indigo-600"></i>
+                        Dados de Acesso (Opcional)
+                    </h2>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Se não informar, serão gerados automaticamente
+                    </p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-user text-gray-400"></i>
+                                Nome de usuário
+                            </label>
+                            <input type="text" id="username"
+                                placeholder="Será o email se não informar"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-key text-gray-400"></i>
+                                Senha
+                            </label>
+                            <input type="password" id="password"
+                                placeholder="Será gerada automaticamente"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between pt-4">
+                    <p class="text-sm text-gray-600">
+                        <i class="fas fa-asterisk text-red-500 text-xs"></i>
+                        Campos obrigatórios
+                    </p>
+                    <button type="submit"
+                        class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-8 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition shadow-lg flex items-center gap-2">
+                        <i class="fas fa-rocket"></i>
+                        Criar Afiliado + Webhook Automático
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Result -->
+        <div id="result" class="mt-6 hidden"></div>
+
+        <!-- Loading -->
+        <div id="loading" class="mt-6 hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-cog"></i>
+                    Processando...
+                </h3>
+                <div id="loading-steps" class="text-left max-w-md mx-auto mt-6 space-y-2">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-circle-notch fa-spin text-blue-600"></i>
+                        <span class="text-gray-700">Criando afiliado no Firebase...</span>
+                    </div>
+                    <div class="flex items-center gap-3 opacity-50">
+                        <i class="fas fa-circle text-gray-400"></i>
+                        <span class="text-gray-500">Registrando webhook na Woovi...</span>
+                    </div>
+                    <div class="flex items-center gap-3 opacity-50">
+                        <i class="fas fa-circle text-gray-400"></i>
+                        <span class="text-gray-500">Configurando sistema...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="mt-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">
+                <i class="fas fa-lightbulb text-yellow-500"></i>
+                O que acontece após criar o afiliado?
+            </h3>
+            <ul class="space-y-2 text-gray-700">
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                    <span>Webhook único é registrado na Woovi automaticamente</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                    <span>URL do webhook: <code class="bg-gray-200 px-2 py-1 rounded text-xs">https://seu-backend.com/api/webhooks/affiliates/{id}</code></span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                    <span>Toda venda com esse afiliado dispara o webhook automaticamente</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                    <span>Sistema calcula e transfere comissão via PIX instantaneamente</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                    <span>Afiliado pode acessar dashboard com login e senha</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // CONFIGURAÇÃO
+        // ========================================
+        const BACKEND_URL = 'https://seu-backend.herokuapp.com'; // TODO: Atualizar com URL real
+
+        // ========================================
+        // PREVIEW DE COMISSÃO
+        // ========================================
+        function updateCommissionPreview() {
+            const percent = parseFloat(document.getElementById('commissionPercent').value) || 0;
+            const value = parseFloat(document.getElementById('simulateValue').value) || 0;
+            const commission = (value * percent / 100).toFixed(2);
+            document.getElementById('preview-commission').textContent = `R$ ${commission}`;
+        }
+
+        document.getElementById('commissionPercent').addEventListener('input', updateCommissionPreview);
+        document.getElementById('simulateValue').addEventListener('input', updateCommissionPreview);
+
+        // ========================================
+        // FORM SUBMIT
+        // ========================================
+        document.getElementById('affiliate-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            // Show loading
+            loading.classList.remove('hidden');
+            result.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            // Animate loading steps
+            setTimeout(() => {
+                const steps = document.querySelectorAll('#loading-steps > div');
+                steps[0].classList.add('opacity-50');
+                steps[1].classList.remove('opacity-50');
+                steps[1].querySelector('i').className = 'fas fa-circle-notch fa-spin text-blue-600';
+            }, 1500);
+            
+            setTimeout(() => {
+                const steps = document.querySelectorAll('#loading-steps > div');
+                steps[1].classList.add('opacity-50');
+                steps[2].classList.remove('opacity-50');
+                steps[2].querySelector('i').className = 'fas fa-circle-notch fa-spin text-blue-600';
+            }, 3000);
+            
+            try {
+                const data = {
+                    name: document.getElementById('name').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    pixKey: document.getElementById('pixKey').value.trim(),
+                    commissionPercent: parseInt(document.getElementById('commissionPercent').value),
+                    username: document.getElementById('username').value.trim(),
+                    password: document.getElementById('password').value
+                };
+                
+                const response = await fetch(`${BACKEND_URL}/api/affiliates/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const json = await response.json();
+                
+                loading.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                if (json.success) {
+                    result.className = 'mt-6 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-lg p-8 shadow-lg';
+                    result.innerHTML = `
+                        <div class="text-center mb-6">
+                            <i class="fas fa-check-circle text-green-600 text-6xl mb-4"></i>
+                            <h3 class="text-2xl font-bold text-green-800 mb-2">✅ Sucesso Total!</h3>
+                            <p class="text-green-700">Afiliado criado com webhook automático configurado!</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg p-6 mb-6">
+                            <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-user-circle text-blue-600"></i>
+                                Dados do Afiliado
+                            </h4>
+                            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-600">ID:</span>
+                                    <code class="ml-2 bg-gray-100 px-2 py-1 rounded font-mono text-xs">${json.affiliate.id}</code>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Nome:</span>
+                                    <span class="ml-2 font-medium">${json.affiliate.name}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Email:</span>
+                                    <span class="ml-2 font-medium">${json.affiliate.email}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Comissão:</span>
+                                    <span class="ml-2 font-bold text-green-600">${json.affiliate.commissionPercent}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                            <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-webhook text-indigo-600"></i>
+                                Webhook Configurado
+                            </h4>
+                            <div class="space-y-2 text-sm">
+                                <div>
+                                    <span class="text-gray-600">Webhook ID:</span>
+                                    <code class="ml-2 bg-white px-2 py-1 rounded font-mono text-xs">${json.affiliate.webhookId}</code>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">URL:</span>
+                                    <code class="ml-2 bg-white px-2 py-1 rounded font-mono text-xs break-all">${json.affiliate.webhookUrl}</code>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 rounded-lg p-6 mb-6">
+                            <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-key text-yellow-600"></i>
+                                Dados de Acesso
+                            </h4>
+                            <div class="space-y-2 text-sm">
+                                <div>
+                                    <span class="text-gray-600">Usuário:</span>
+                                    <code class="ml-2 bg-white px-2 py-1 rounded font-mono">${json.affiliate.username}</code>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Senha temporária:</span>
+                                    <code class="ml-2 bg-white px-2 py-1 rounded font-mono">${json.affiliate.temporaryPassword}</code>
+                                </div>
+                                <p class="text-yellow-700 mt-2">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Importante:</strong> Copie a senha temporária e envie para o afiliado!
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-green-100 rounded-lg p-6">
+                            <h4 class="font-bold text-green-800 mb-3">
+                                <i class="fas fa-rocket"></i>
+                                Sistema 100% Automático Ativado!
+                            </h4>
+                            <ul class="space-y-2 text-green-700 text-sm">
+                                <li><i class="fas fa-check text-green-600"></i> Webhook registrado na Woovi</li>
+                                <li><i class="fas fa-check text-green-600"></i> Comissões serão pagas automaticamente via PIX</li>
+                                <li><i class="fas fa-check text-green-600"></i> Afiliado pode fazer login no dashboard</li>
+                                <li><i class="fas fa-check text-green-600"></i> Todas as vendas serão rastreadas</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-6 flex gap-4">
+                            <button onclick="location.reload()" 
+                                class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                                <i class="fas fa-plus"></i> Criar Outro Afiliado
+                            </button>
+                            <a href="dashboard.html" 
+                                class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition text-center">
+                                <i class="fas fa-home"></i> Ir para Dashboard
+                            </a>
+                        </div>
+                    `;
+                    
+                    // Reset form
+                    form.reset();
+                    document.getElementById('commissionPercent').value = 25;
+                    updateCommissionPreview();
+                    
+                } else {
+                    throw new Error(json.error || 'Erro desconhecido');
+                }
+                
+            } catch (error) {
+                loading.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                result.className = 'mt-6 bg-red-50 border-2 border-red-300 rounded-lg p-6 shadow-lg';
+                result.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <i class="fas fa-exclamation-circle text-red-600 text-4xl"></i>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-red-800 mb-2">❌ Erro ao Criar Afiliado</h3>
+                            <p class="text-red-700 mb-4">${error.message}</p>
+                            
+                            <div class="bg-white rounded p-4 text-sm">
+                                <p class="font-bold text-gray-800 mb-2">Possíveis causas:</p>
+                                <ul class="list-disc ml-5 text-gray-700 space-y-1">
+                                    <li>Backend offline ou URL incorreta</li>
+                                    <li>Credenciais da Woovi inválidas</li>
+                                    <li>Firebase não configurado</li>
+                                    <li>Webhook já existe para este afiliado</li>
+                                </ul>
+                            </div>
+                            
+                            <button onclick="location.reload()" 
+                                class="mt-4 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition">
+                                <i class="fas fa-redo"></i> Tentar Novamente
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            result.classList.remove('hidden');
+            result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        // Initial preview
+        updateCommissionPreview();
+    </script>
+</body>
+</html>
