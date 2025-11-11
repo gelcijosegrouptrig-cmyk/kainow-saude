@@ -10,132 +10,48 @@ const BACKEND_URL = process.env.BACKEND_URL;
 const db = admin.firestore();
 
 /**
- * ✅ CRIAR AFILIADO COM WEBHOOK AUTOMÁTICO
- * 
- * Cria afiliado no Firebase e registra webhook único na Woovi
- * 
- * POST /api/affiliates/create
- * Body: { name, email, phone, pixKey, commissionPercent, username, password }
+ * ✅ BUSCAR AFILIADO POR SLUG
+ * GET /api/affiliates/slug/:slug
  */
-router.post('/create', async (req, res) => {
+router.get('/slug/:slug', async (req, res) => {
   try {
-    const { name, email, phone, pixKey, commissionPercent, username, password } = req.body;
+    const { slug } = req.params;
+    console.log('🔍 Buscando afiliado com slug:', slug);
     
-    // Validações
-    if (!name || !email || !pixKey || !commissionPercent) {
-      return res.status(400).json({
+    const snapshot = await db.collection('afiliados')
+      .where('slug', '==', slug)
+      .limit(1)
+      .get();
+    
+    if (snapshot.empty) {
+      console.log('❌ Afiliado não encontrado:', slug);
+      return res.status(404).json({
         success: false,
-        error: 'Campos obrigatórios: name, email, pixKey, commissionPercent'
+        error: 'Afiliado não encontrado',
+        slug: slug
       });
     }
     
-    if (commissionPercent < 1 || commissionPercent > 100) {
-      return res.status(400).json({
-        success: false,
-        error: 'Comissão deve ser entre 1% e 100%'
-      });
-    }
-    
-    console.log(`📝 Criando afiliado: ${name}`);
-    
-    // 1. Gerar ID único para o afiliado
-    const affiliateRef = db.collection('affiliates').doc();
-    const affiliateId = affiliateRef.id;
-    
-    console.log(`🆔 ID gerado: ${affiliateId}`);
-    
-    // 2. Criar webhook na Woovi
-    const webhookData = {
-      webhook: {
-        name: `Webhook Afiliado - ${name}`,
-        event: 'OPENPIX:TRANSACTION_RECEIVED',
-        url: `${BACKEND_URL}/api/webhooks/affiliates/${affiliateId}`,
-        authorization: `Bearer ${process.env.WEBHOOK_SECRET}`,
-        isActive: true
-      }
+    const doc = snapshot.docs[0];
+    const affiliate = {
+      id: doc.id,
+      ...doc.data()
     };
     
-    console.log(`🔗 Criando webhook na Woovi: ${webhookData.webhook.url}`);
-    
-    const webhookResponse = await axios.post(
-      `${WOOVI_API_URL}/webhook`,
-      webhookData,
-      {
-        headers: {
-          'Authorization': WOOVI_API_KEY,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-    
-    const webhookId = webhookResponse.data.webhook.id;
-    
-    console.log(`✅ Webhook criado: ${webhookId}`);
-    
-    // 3. Salvar afiliado no Firebase com webhook_id
-    const affiliateData = {
-      name,
-      email,
-      phone: phone || '',
-      pixKey,
-      commissionPercent: parseInt(commissionPercent),
-      username: username || email,
-      password: password || Math.random().toString(36).slice(-8),
-      webhookId,
-      webhookUrl: `${BACKEND_URL}/api/webhooks/affiliates/${affiliateId}`,
-      totalCommissions: 0,
-      totalSales: 0,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      isActive: true
-    };
-    
-    await affiliateRef.set(affiliateData);
-    
-    console.log(`💾 Afiliado salvo no Firebase`);
-    
-    res.status(201).json({
-      success: true,
-      message: 'Afiliado criado com webhook automático!',
-      affiliate: {
-        id: affiliateId,
-        name,
-        email,
-        pixKey,
-        commissionPercent: parseInt(commissionPercent),
-        webhookId,
-        webhookUrl: `${BACKEND_URL}/api/webhooks/affiliates/${affiliateId}`,
-        username: affiliateData.username,
-        temporaryPassword: affiliateData.password
-      }
-    });
+    console.log('✅ Afiliado encontrado:', affiliate.name);
+    res.json(affiliate);
     
   } catch (error) {
-    console.error('❌ Erro ao criar afiliado:', error.response?.data || error.message);
-    
-    // Registrar erro no Firebase
-    try {
-      await db.collection('errors').add({
-        type: 'affiliate_creation',
-        error: error.message,
-        stack: error.stack,
-        timestamp: admin.firestore.FieldValue.serverTimestamp()
-      });
-    } catch (e) {
-      console.error('Erro ao registrar erro:', e);
-    }
-    
+    console.error('❌ Erro ao buscar afiliado por slug:', error);
     res.status(500).json({
       success: false,
-      error: error.response?.data?.message || error.message,
-      details: error.response?.data
+      error: error.message
     });
   }
 });
 
 /**
  * ✅ LISTAR TODOS OS AFILIADOS
- * 
  * GET /api/affiliates/list
  */
 router.get('/list', async (req, res) => {
@@ -170,8 +86,120 @@ router.get('/list', async (req, res) => {
 });
 
 /**
+ * ✅ CRIAR AFILIADO COM WEBHOOK AUTOMÁTICO
+ * POST /api/affiliates/create
+ */
+router.post('/create', async (req, res) => {
+  try {
+    const { name, email, phone, pixKey, commissionPercent, username, password } = req.body;
+    
+    if (!name || !email || !pixKey || !commissionPercent) {
+      return res.status(400).json({
+        success: false,
+        error: 'Campos obrigatórios: name, email, pixKey, commissionPercent'
+      });
+    }
+    
+    if (commissionPercent < 1 || commissionPercent > 100) {
+      return res.status(400).json({
+        success: false,
+        error: 'Comissão deve ser entre 1% e 100%'
+      });
+    }
+    
+    console.log(`📝 Criando afiliado: ${name}`);
+    
+    const affiliateRef = db.collection('affiliates').doc();
+    const affiliateId = affiliateRef.id;
+    
+    console.log(`🆔 ID gerado: ${affiliateId}`);
+    
+    const webhookData = {
+      webhook: {
+        name: `Webhook Afiliado - ${name}`,
+        event: 'OPENPIX:TRANSACTION_RECEIVED',
+        url: `${BACKEND_URL}/api/webhooks/affiliates/${affiliateId}`,
+        authorization: `Bearer ${process.env.WEBHOOK_SECRET}`,
+        isActive: true
+      }
+    };
+    
+    console.log(`🔗 Criando webhook na Woovi: ${webhookData.webhook.url}`);
+    
+    const webhookResponse = await axios.post(
+      `${WOOVI_API_URL}/webhook`,
+      webhookData,
+      {
+        headers: {
+          'Authorization': WOOVI_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    const webhookId = webhookResponse.data.webhook.id;
+    console.log(`✅ Webhook criado: ${webhookId}`);
+    
+    const affiliateData = {
+      name,
+      email,
+      phone: phone || '',
+      pixKey,
+      commissionPercent: parseInt(commissionPercent),
+      username: username || email,
+      password: password || Math.random().toString(36).slice(-8),
+      webhookId,
+      webhookUrl: `${BACKEND_URL}/api/webhooks/affiliates/${affiliateId}`,
+      totalCommissions: 0,
+      totalSales: 0,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      isActive: true
+    };
+    
+    await affiliateRef.set(affiliateData);
+    console.log(`💾 Afiliado salvo no Firebase`);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Afiliado criado com webhook automático!',
+      affiliate: {
+        id: affiliateId,
+        name,
+        email,
+        pixKey,
+        commissionPercent: parseInt(commissionPercent),
+        webhookId,
+        webhookUrl: `${BACKEND_URL}/api/webhooks/affiliates/${affiliateId}`,
+        username: affiliateData.username,
+        temporaryPassword: affiliateData.password
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Erro ao criar afiliado:', error.response?.data || error.message);
+    
+    try {
+      await db.collection('errors').add({
+        type: 'affiliate_creation',
+        error: error.message,
+        stack: error.stack,
+        timestamp: admin.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (e) {
+      console.error('Erro ao registrar erro:', e);
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: error.response?.data?.message || error.message,
+      details: error.response?.data
+    });
+  }
+});
+
+/**
  * ✅ BUSCAR AFILIADO POR ID
- * 
  * GET /api/affiliates/:id
  */
 router.get('/:id', async (req, res) => {
@@ -194,7 +222,6 @@ router.get('/:id', async (req, res) => {
       updatedAt: doc.data().updatedAt?.toDate()
     };
     
-    // Buscar estatísticas de comissões
     const commissionsSnapshot = await db.collection('commissions')
       .where('affiliateId', '==', id)
       .orderBy('createdAt', 'desc')
@@ -228,7 +255,6 @@ router.get('/:id', async (req, res) => {
 
 /**
  * ✅ ATUALIZAR AFILIADO
- * 
  * PUT /api/affiliates/:id
  */
 router.put('/:id', async (req, res) => {
@@ -236,7 +262,6 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
     
-    // Remover campos que não devem ser atualizados
     delete updates.id;
     delete updates.webhookId;
     delete updates.webhookUrl;
@@ -265,14 +290,12 @@ router.put('/:id', async (req, res) => {
 
 /**
  * ✅ DELETAR AFILIADO E SEU WEBHOOK
- * 
  * DELETE /api/affiliates/:id
  */
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Buscar afiliado
     const doc = await db.collection('affiliates').doc(id).get();
     
     if (!doc.exists) {
@@ -284,7 +307,6 @@ router.delete('/:id', async (req, res) => {
     
     const affiliate = doc.data();
     
-    // Deletar webhook na Woovi
     if (affiliate.webhookId) {
       try {
         await axios.delete(
@@ -298,11 +320,9 @@ router.delete('/:id', async (req, res) => {
         console.log(`🗑️ Webhook deletado na Woovi: ${affiliate.webhookId}`);
       } catch (error) {
         console.error('Erro ao deletar webhook:', error.message);
-        // Continua mesmo se falhar (webhook pode já ter sido deletado)
       }
     }
     
-    // Desativar afiliado (soft delete)
     await db.collection('affiliates').doc(id).update({
       isActive: false,
       deletedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -325,7 +345,6 @@ router.delete('/:id', async (req, res) => {
 
 /**
  * ✅ LISTAR WEBHOOKS ATIVOS NA WOOVI
- * 
  * GET /api/affiliates/webhooks/list-all
  */
 router.get('/webhooks/list-all', async (req, res) => {
@@ -352,137 +371,5 @@ router.get('/webhooks/list-all', async (req, res) => {
     });
   }
 });
-/**
- * ✅ BUSCAR AFILIADO POR SLUG
- * 
- * GET /api/affiliates/slug/:slug
- */
-router.get('/slug/:slug', async (req, res) => {
-  try {
-    const { slug } = req.params;
-    
-    console.log('🔍 Buscando afiliado com slug:', slug);
-    
-    const snapshot = await db.collection('afiliados')
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
-    
-    if (snapshot.empty) {
-      console.log('❌ Afiliado não encontrado:', slug);
-      return res.status(404).json({
-        success: false,
-        error: 'Afiliado não encontrado',
-        slug: slug
-      });
-    }
-    
-    const doc = snapshot.docs[0];
-    const affiliate = {
-      id: doc.id,
-      ...doc.data()
-    };
-    
-    console.log('✅ Afiliado encontrado:', affiliate.name);
-    
-    res.json(affiliate);
-    
-  } catch (error) {
-    console.error('❌ Erro ao buscar afiliado por slug:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-module.exports = router;
-/**
- * ✅ BUSCAR AFILIADO POR SLUG
- * 
- * GET /api/affiliates/slug/:slug
- */
-router.get('/slug/:slug', async (req, res) => {
-  try {
-    const { slug } = req.params;
-    
-    console.log('🔍 Buscando afiliado com slug:', slug);
-    
-    const snapshot = await db.collection('afiliados')
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
-    
-    if (snapshot.empty) {
-      console.log('❌ Afiliado não encontrado:', slug);
-      return res.status(404).json({
-        success: false,
-        error: 'Afiliado não encontrado',
-        slug: slug
-      });
-    }
-    
-    const doc = snapshot.docs[0];
-    const affiliate = {
-      id: doc.id,
-      ...doc.data()
-    };
-    
-    console.log('✅ Afiliado encontrado:', affiliate.name);
-    
-    res.json(affiliate);
-    
-  } catch (error) {
-    console.error('❌ Erro ao buscar afiliado por slug:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-/**
- * ✅ BUSCAR AFILIADO POR SLUG
- * 
- * GET /api/affiliates/slug/:slug
- */
-router.get('/slug/:slug', async (req, res) => {
-  try {
-    const { slug } = req.params;
-    
-    console.log('🔍 Buscando afiliado com slug:', slug);
-    
-    const snapshot = await db.collection('afiliados')
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
-    
-    if (snapshot.empty) {
-      console.log('❌ Afiliado não encontrado:', slug);
-      return res.status(404).json({
-        success: false,
-        error: 'Afiliado não encontrado',
-        slug: slug
-      });
-    }
-    
-    const doc = snapshot.docs[0];
-    const affiliate = {
-      id: doc.id,
-      ...doc.data()
-    };
-    
-    console.log('✅ Afiliado encontrado:', affiliate.name);
-    
-    res.json(affiliate);
-    
-  } catch (error) {
-    console.error('❌ Erro ao buscar afiliado por slug:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-module.exports = router;
 
 module.exports = router;
