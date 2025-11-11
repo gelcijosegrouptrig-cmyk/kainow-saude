@@ -352,5 +352,137 @@ router.get('/webhooks/list-all', async (req, res) => {
     });
   }
 });
+/**
+ * ✅ BUSCAR AFILIADO POR SLUG
+ * 
+ * GET /api/affiliates/slug/:slug
+ */
+router.get('/slug/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    
+    console.log('🔍 Buscando afiliado com slug:', slug);
+    
+    const snapshot = await db.collection('afiliados')
+      .where('slug', '==', slug)
+      .limit(1)
+      .get();
+    
+    if (snapshot.empty) {
+      console.log('❌ Afiliado não encontrado:', slug);
+      return res.status(404).json({
+        success: false,
+        error: 'Afiliado não encontrado',
+        slug: slug
+      });
+    }
+    
+    const doc = snapshot.docs[0];
+    const affiliate = {
+      id: doc.id,
+      ...doc.data()
+    };
+    
+    console.log('✅ Afiliado encontrado:', affiliate.name);
+    
+    res.json(affiliate);
+    
+  } catch (error) {
+    console.error('❌ Erro ao buscar afiliado por slug:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+module.exports = router;
+/**
+ * ✅ BUSCAR AFILIADO POR SLUG
+ * 
+ * GET /api/affiliates/slug/:slug
+ */
+router.get('/slug/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    
+    console.log('🔍 Buscando afiliado com slug:', slug);
+    
+    const snapshot = await db.collection('afiliados')
+      .where('slug', '==', slug)
+      .limit(1)
+      .get();
+    
+    if (snapshot.empty) {
+      console.log('❌ Afiliado não encontrado:', slug);
+      return res.status(404).json({
+        success: false,
+        error: 'Afiliado não encontrado',
+        slug: slug
+      });
+    }
+    
+    const doc = snapshot.docs[0];
+    const affiliate = {
+      id: doc.id,
+      ...doc.data()
+    };
+    
+    console.log('✅ Afiliado encontrado:', affiliate.name);
+    
+    res.json(affiliate);
+    
+  } catch (error) {
+    console.error('❌ Erro ao buscar afiliado por slug:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+/**
+ * ✅ BUSCAR AFILIADO POR SLUG
+ * 
+ * GET /api/affiliates/slug/:slug
+ */
+router.get('/slug/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    
+    console.log('🔍 Buscando afiliado com slug:', slug);
+    
+    const snapshot = await db.collection('afiliados')
+      .where('slug', '==', slug)
+      .limit(1)
+      .get();
+    
+    if (snapshot.empty) {
+      console.log('❌ Afiliado não encontrado:', slug);
+      return res.status(404).json({
+        success: false,
+        error: 'Afiliado não encontrado',
+        slug: slug
+      });
+    }
+    
+    const doc = snapshot.docs[0];
+    const affiliate = {
+      id: doc.id,
+      ...doc.data()
+    };
+    
+    console.log('✅ Afiliado encontrado:', affiliate.name);
+    
+    res.json(affiliate);
+    
+  } catch (error) {
+    console.error('❌ Erro ao buscar afiliado por slug:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+module.exports = router;
 
 module.exports = router;
