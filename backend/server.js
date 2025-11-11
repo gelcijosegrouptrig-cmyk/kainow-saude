@@ -40,6 +40,15 @@ app.use((req, res, next) => {
 const webhookWoovi = require('./webhook-woovi');
 app.use('/webhook', webhookWoovi);
 
+// API Routes
+const affiliatesRoutes = require('./routes/affiliates');
+const subscriptionsRoutes = require('./routes/subscriptions');
+const webhooksRoutes = require('./routes/webhooks');
+
+app.use('/api/affiliates', affiliatesRoutes);
+app.use('/api/subscriptions', subscriptionsRoutes);
+app.use('/api/webhooks', webhooksRoutes);
+
 // Health check
 app.get('/', (req, res) => {
     res.json({ 
