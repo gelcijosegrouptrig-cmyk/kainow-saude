@@ -402,7 +402,78 @@
                 sessionStorage.setItem('kainow_client_data', JSON.stringify(clientData));
 
                 // Redirecionar para pagamento
-                window.location.href = `pagamento-pix.html?client=${docRef.id}&program=${programId}${affiliateRef ? '&ref=' + affiliateRef : ''}`;
+                          // ✅ CRIAR COBRANÇA COM SPLIT WOOVI
+                        if (affiliateRef && affiliateData) {
+                            console.log('💰 Criando cobrança com split 80/20...');
+                            
+                            try {
+                                const BACKEND_URL = 'https://kainow-saude-production.up.railway.app';
+                                const valueInCents = Math.round(currentProgram.price * 100);
+                                
+                                const chargeData = {
+                                    productId: programId,
+                                    value: valueInCents,
+                                    affiliateId: affiliateRef,
+                                    customerName: clientData.nome,
+                                    customerEmail: clientData.email,
+                                    customerPhone: clientData.telefone
+                                };
+                                
+                                console.log('📤 Enviando para API:', chargeData);
+                                
+                                const response = await fetch(`${BACKEND_URL}/api/charges/create-with-split`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(chargeData)
+                                });
+                                
+                                if (!response.ok) {
+                                    const errorData = await response.json();
+                                    throw new Error(errorData.message || 'Erro ao criar cobrança');
+                                }
+                                
+                                const result = await response.json();
+                                console.log('✅ Cobrança criada com sucesso!');
+                                console.log('💰 Split:', result.charge.split);
+                                
+                                // Salvar dados da cobrança no documento do cliente
+                                await db.collection('clientes').doc(docRef.id).update({
+                                    pagamentoId: result.charge.id,
+                                    qrCode: result.charge.qrCode,
+                                    qrCodeText: result.charge.qrCodeText,
+                                    paymentLink: result.charge.paymentLink,
+                                    splitInfo: result.charge.split
+                                });
+                                
+                                // Salvar no localStorage para página de pagamento
+                                localStorage.setItem('kainow_current_charge', JSON.stringify({
+                                    chargeId: result.charge.id,
+                                    clientId: docRef.id,
+                                    productId: programId,
+                                    productName: currentProgram.name,
+                                    value: valueInCents,
+                                    qrCode: result.charge.qrCode,
+                                    qrCodeText: result.charge.qrCodeText,
+                                    paymentLink: result.charge.paymentLink,
+                                    affiliateId: affiliateRef,
+                                    affiliateName: affiliateData.name,
+                                    split: result.charge.split
+                                }));
+                                
+                                console.log('✅ Dados salvos! Redirecionando...');
+                                window.location.href = 'pagamento-pix.html';
+                                
+                            } catch (error) {
+                                console.error('❌ Erro ao criar cobrança:', error);
+                                alert('❌ Erro ao gerar PIX. Tente novamente.');
+                                
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Continuar para Pagamento';
+                            }
+                        } else {
+                            console.log('📝 Sem afiliado, redirecionando para pagamento padrão');
+                            window.location.href = `pagamento-pix.html?client=${docRef.id}&program=${programId}`;
+                        }
 
             } catch (error) {
                 console.error('❌ Erro ao cadastrar:', error);
