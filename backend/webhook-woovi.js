@@ -22,6 +22,17 @@ router.post('/woovi', async (req, res) => {
         console.log('Headers:', req.headers);
         console.log('Body:', JSON.stringify(req.body, null, 2));
 
+        // ✅ ACEITAR TESTES DO WOOVI (requisições vazias)
+        if (!req.body || Object.keys(req.body).length === 0) {
+            console.log('✅ Teste do Woovi - Webhook endpoint está funcionando');
+            return res.status(200).json({ 
+                success: true, 
+                message: 'Webhook endpoint ready',
+                service: 'Kainow Saúde Backend',
+                timestamp: new Date().toISOString()
+            });
+        }
+
         const { event, charge } = req.body;
 
         // Validar evento
