@@ -8,7 +8,7 @@ const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 
-/ Inicializar Firebase Admin
+// Inicializar Firebase Admin
 try {
     // Se tiver credenciais JSON na variável de ambiente
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
