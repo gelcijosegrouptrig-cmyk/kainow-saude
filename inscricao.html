@@ -333,13 +333,7 @@
 
                 showStatus('Cadastro realizado com sucesso! Redirecionando...', 'success');
 
-                // Redirecionar para página de pagamento
-                setTimeout(() => {
-                    const paymentUrl = `finalizar.html?client=${docRef.id}&program=${clientData.programa}${affiliateRef ? '&ref=' + affiliateRef : ''}`;f : ''}`;
-                    console.log('🔄 Redirecionando para:', paymentUrl);
-                    window.location.href = paymentUrl;
-                }, 1500);
-
+               const paymentUrl = `finalizar.html?client=${docRef.id}&program=${clientData.programa}${affiliateRef ? '&ref=' + affiliateRef : ''}`;
             } catch (error) {
                 console.error('❌ Erro ao salvar:', error);
                 showStatus('Erro ao salvar cadastro: ' + error.message, 'error');
