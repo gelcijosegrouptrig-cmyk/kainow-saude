@@ -10,14 +10,24 @@ const admin = require('firebase-admin');
 
 // Inicializar Firebase Admin
 try {
-    admin.initializeApp({
-        projectId: process.env.FIREBASE_PROJECT_ID || 'kainowsaude'
-    });
-    console.log('✅ Firebase Admin inicializado');
+    // Se tiver credenciais JSON na variável de ambiente
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+        const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            projectId: process.env.FIREBASE_PROJECT_ID || serviceAccount.project_id
+        });
+        console.log('✅ Firebase Admin inicializado com credenciais JSON');
+    } else {
+        // Fallback para credenciais padrão (local development)
+        admin.initializeApp({
+            projectId: process.env.FIREBASE_PROJECT_ID || 'kainowsaude'
+        });
+        console.log('✅ Firebase Admin inicializado com credenciais padrão');
+    }
 } catch (error) {
     console.error('❌ Erro ao inicializar Firebase:', error);
 }
-
 const app = express();
 
 // Middleware
