@@ -14,7 +14,7 @@ async function criarCobrancaComAfiliado(productData) {
         // ✅ BUSCAR AFILIADO DIRETO DO FIREBASE
         console.log('🔍 Buscando afiliado no Firebase:', affiliate.id);
         
-        const snapshot = await db.collection('afiliados')
+        const snapshot = await firebase.firestore().collection('afiliados')
             .where('slug', '==', affiliate.id)
             .limit(1)
             .get();
