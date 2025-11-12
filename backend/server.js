@@ -8,25 +8,29 @@ const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 
-// Inicializar Firebase Admin
+/ Inicializar Firebase Admin
 try {
     // Se tiver credenciais JSON na variável de ambiente
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
         const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
-            projectId: process.env.FIREBASE_PROJECT_ID || serviceAccount.project_id
+            projectId: process.env.FIREBASE_PROJECT_ID || serviceAccount.project_id,
+            databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
         });
         console.log('✅ Firebase Admin inicializado com credenciais JSON');
+        console.log(`📊 Database URL: https://${serviceAccount.project_id}.firebaseio.com`);
     } else {
         // Fallback para credenciais padrão (local development)
         admin.initializeApp({
-            projectId: process.env.FIREBASE_PROJECT_ID || 'kainowsaude'
+            projectId: process.env.FIREBASE_PROJECT_ID || 'kainowsaude',
+            databaseURL: 'https://kainowsaude.firebaseio.com'
         });
         console.log('✅ Firebase Admin inicializado com credenciais padrão');
     }
 } catch (error) {
     console.error('❌ Erro ao inicializar Firebase:', error);
+    console.error('Stack:', error.stack);
 }
 const app = express();
 
