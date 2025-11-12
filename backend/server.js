@@ -11,7 +11,7 @@ const admin = require('firebase-admin');
 // Inicializar Firebase Admin
 try {
     admin.initializeApp({
-        projectId: process.env.FIREBASE_PROJECT_ID || 'kainowmedic-fa477'
+        projectId: process.env.FIREBASE_PROJECT_ID || 'kainowsaude'
     });
     console.log('✅ Firebase Admin inicializado');
 } catch (error) {
@@ -38,7 +38,10 @@ app.use((req, res, next) => {
 
 // Routes
 const webhookWoovi = require('./webhook-woovi');
+const chargesRoutes = require('./routes/charges');
+
 app.use('/webhook', webhookWoovi);
+app.use('/api/charges', chargesRoutes);
 
 // Health check
 app.get('/', (req, res) => {
