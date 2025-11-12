@@ -263,7 +263,23 @@ appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
         }
 
         // Gerar cobrança PIX na Woovi
-        async function gerarCobrancaPix() {
+                // FUNÇÕES MOCK TEMPORÁRIAS
+        async function criarCobrancaPix(dados) {
+            console.log('⚠️ MOCK: Criando cobrança PIX...', dados);
+            return {
+                success: true,
+                transactionId: 'MOCK-' + Date.now(),
+                correlationID: 'MOCK-CORR-' + Date.now(),
+                status: 'ACTIVE',
+                qrCode: 'https://via.placeholder.com/256x256/3B82F6/FFFFFF?text=QR+CODE+PIX',
+                qrCodeText: '00020126360014br.gov.bcb.pix0114+5511999999999520400005303986540549.905802BR5925KaiNow Saude6009SAO PAULO62070503***63041D3D'
+            };
+        }
+
+        function iniciarPollingPagamento(transactionId, callback) {
+            console.log('⚠️ MOCK: Polling desativado');
+        }
+
             console.log('🔄 Gerando cobrança PIX...');
 
             const dadosPagamento = {
