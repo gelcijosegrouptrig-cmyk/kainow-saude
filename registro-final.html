@@ -335,7 +335,8 @@
 
                 // Redirecionar para página de pagamento
                 setTimeout(() => {
-                    const paymentUrl = `pagar.html?client=${docRef.id}&program=${clientData.programa}${affiliateRef ? '&ref=' + affiliateRef : ''}`;
+                    const paymentUrl = `pagamento-final.html?client=
+${docRef.id}&program=${clientData.programa}${affiliateRef ? '&ref=' + affiliateRef : ''}`;
                     console.log('🔄 Redirecionando para:', paymentUrl);
                     window.location.href = paymentUrl;
                 }, 1500);
