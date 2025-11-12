@@ -56,8 +56,9 @@ const chargesRoutes = require('./routes/charges');
 
 app.use('/webhook', webhookWoovi);
 app.use('/api/charges', chargesRoutes);
-
-// Health check
+app.use('/api/charges-test', chargesTestRoutes);
+app.use('/api/charges-test', chargesTestRoutes);
+f// Health check
 app.get('/', (req, res) => {
     res.json({ 
         status: 'ok', 
