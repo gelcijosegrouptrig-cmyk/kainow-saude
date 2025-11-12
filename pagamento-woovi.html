@@ -264,18 +264,51 @@ appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
 
         // Gerar cobrança PIX na Woovi
                 // FUNÇÕES MOCK TEMPORÁRIAS
-        async function criarCobrancaPix(dados) {
-            console.log('⚠️ MOCK: Criando cobrança PIX...', dados);
-            return {
-                success: true,
-                transactionId: 'MOCK-' + Date.now(),
-                correlationID: 'MOCK-CORR-' + Date.now(),
-                status: 'ACTIVE',
-                qrCode: 'https://via.placeholder.com/256x256/3B82F6/FFFFFF?text=QR+CODE+PIX',
-                qrCodeText: '00020126360014br.gov.bcb.pix0114+5511999999999520400005303986540549.905802BR5925KaiNow Saude6009SAO PAULO62070503***63041D3D'
-            };
+       async function criarCobrancaPix(dados) {
+    console.log('🔄 Chamando backend para criar PIX real...', dados);
+    
+    try {
+        const backendUrl = 'https://kainow-saude-production.up.railway.app';
+        
+        const response = await fetch(`${backendUrl}/api/charges/create-with-split`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                productId: dados.programa,
+                value: Math.round(dados.valorMensal * 100),
+                affiliateId: dados.afiliadoUsername,
+                customerName: dados.nome,
+                customerEmail: dados.email,
+                customerPhone: dados.telefone
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao criar cobrança');
         }
 
+        const result = await response.json();
+        console.log('✅ PIX criado com sucesso:', result);
+        
+        return {
+            success: true,
+            transactionId: result.charge.id,
+            correlationID: result.charge.id,
+            status: 'ACTIVE',
+            qrCode: result.charge.qrCode,
+            qrCodeText: result.charge.qrCodeText
+        };
+    } catch (error) {
+        console.error('❌ Erro ao criar PIX:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
         function iniciarPollingPagamento(transactionId, callback) {
             console.log('⚠️ MOCK: Polling desativado');
         }
