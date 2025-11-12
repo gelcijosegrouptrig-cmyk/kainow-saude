@@ -1,3 +1,30 @@
+const programNames = {
+    'programa-mulher': 'KaiNow Mulher',
+    'programa-senior': 'KaiNow Sênior', 
+    'programa-farma': 'KaiNow Farma',
+    'programa-acolher': 'KaiNow Acolher',
+    'programa-orienta': 'KaiNow Orienta',
+    'programa-vivaleve': 'KaiNow Viva Leve'
+};
+
+async function handlePixRecorrente(program, value, programName) {
+    const savedAffiliate = JSON.parse(localStorage.getItem('kainow_affiliate') || 'null');
+    
+    if (savedAffiliate && savedAffiliate.slug) {
+        console.log('✅ Afiliado detectado:', savedAffiliate.slug);
+        console.log('💰 Pagamento será dividido: 80% empresa + 20% afiliado');
+        console.log('🎯 Redirecionando para cadastro...');
+        
+        // Redirecionar para cadastro com afiliado
+        window.location.href = `cadastro-checkout.html?program=${program}&ref=${savedAffiliate.slug}`;
+        return;
+    }
+    
+    // Sem afiliado: fluxo normal
+    console.log('📝 Sem afiliado, redirecionando para cadastro...');
+    window.location.href = `cadastro-checkout.html?program=${program}`;
+}
+
 function redirectToCheckout(program, value, programName) {
     const urlParams = new URLSearchParams(window.location.search);
     const affiliateRef = urlParams.get('ref');
@@ -9,42 +36,6 @@ function redirectToCheckout(program, value, programName) {
         console.log('📝 Redirecionando para cadastro sem afiliado');
     }
     window.location.href = checkoutUrl;
-}
-
-notepad js\checkout-redirect.js
-    
-    const programName = programNames[program] || 'KaiNow';
-    const affiliate = window.KaiNowAffiliate ? window.KaiNowAffiliate.getSavedAffiliate() : null;
-    
-    if (affiliate && affiliate.id) {
-        console.log('✅ Afiliado detectado:', affiliate.id);
-        console.log('💰 Pagamento será dividido: 80% empresa + 20% afiliado');
-        
-        let tentativas = 0;
-        const intervalo = setInterval(() => {
-            if (typeof window.criarCobrancaComAfiliado === 'function') {
-                clearInterval(intervalo);
-                const valueInCents = Math.round(value * 100);
-                console.log('🚀 Chamando criarCobrancaComAfiliado()');
-                window.criarCobrancaComAfiliado({
-                    id: program,
-                    name: programName,
-                    value: valueInCents
-                });
-            } else {
-                tentativas++;
-                if (tentativas > 20) {
-                    clearInterval(intervalo);
-                    console.error('❌ Timeout: função não carregou');
-                    alert('Erro ao carregar sistema de pagamento. Recarregue a página.');
-                }
-            }
-        }, 100);
-        return;
-    } else {
-        console.log('📝 Nenhum afiliado detectado, usando checkout padrão');
-        redirectToCheckout(program, value, programName);
-    }
 }
 
 function openCheckoutModal(program, value) {
