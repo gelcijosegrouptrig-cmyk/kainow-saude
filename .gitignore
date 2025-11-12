@@ -74,3 +74,4 @@ coverage/
 # Cloudflare específico
 .dev.vars
 wrangler.toml.local
+backend/serviceAccountKey.json 
