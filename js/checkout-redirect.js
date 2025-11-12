@@ -1,52 +1,93 @@
-const programNames = {
-    'programa-mulher': 'KaiNow Mulher',
-    'programa-senior': 'KaiNow Sênior', 
-    'programa-farma': 'KaiNow Farma',
-    'programa-acolher': 'KaiNow Acolher',
-    'programa-orienta': 'KaiNow Orienta',
-    'programa-vivaleve': 'KaiNow Viva Leve'
-};
+/**
+ * 🎯 Sistema de Redirecionamento para Checkout com Afiliados
+ * 
+ * Gerencia o fluxo de pagamento mantendo o rastreamento do afiliado
+ */
 
-async function handlePixRecorrente(program, value, programName) {
-    const savedAffiliate = JSON.parse(localStorage.getItem('kainow_affiliate') || 'null');
-    
-    if (savedAffiliate && savedAffiliate.slug) {
-        console.log('✅ Afiliado detectado:', savedAffiliate.slug);
-        console.log('💰 Pagamento será dividido: 80% empresa + 20% afiliado');
-        console.log('🎯 Redirecionando para cadastro...');
-        
-        // Redirecionar para cadastro com afiliado
-        window.location.href = `cadastro-checkout.html?program=${program}&ref=${savedAffiliate.slug}`;
-        return;
-    }
-    
-    // Sem afiliado: fluxo normal
-    console.log('📝 Sem afiliado, redirecionando para cadastro...');
-    window.location.href = `cadastro-checkout.html?program=${program}`;
-}
-
+// Função para redirecionar para checkout mantendo o afiliado
+// 🆕 ATUALIZADO: Agora redireciona para inscricao.html (cadastro ANTES do pagamento)
 function redirectToCheckout(program, value, programName) {
+    // Pegar parâmetros da URL atual
     const urlParams = new URLSearchParams(window.location.search);
     const affiliateRef = urlParams.get('ref');
-    let checkoutUrl = `cadastro-checkout.html?program=${program}`;
+    
+    // Construir URL da página de cadastro (novo fluxo)
+    let checkoutUrl = `inscricao.html?program=${program}`;
+    
+    // Adicionar referência do afiliado se existir
     if (affiliateRef) {
         checkoutUrl += `&ref=${affiliateRef}`;
+        
+        // Log para debug
         console.log('🎯 Redirecionando para cadastro com afiliado:', affiliateRef);
     } else {
         console.log('📝 Redirecionando para cadastro sem afiliado');
     }
+    
+    // Redirecionar
     window.location.href = checkoutUrl;
 }
 
+// Função para processar PIX Recorrente (usada nos programas)
+// 🆕 ATUALIZADO: Agora usa sistema de split com afiliados via Woovi
+function handlePixRecorrente(program, value) {
+    // Mapear nomes dos programas
+    const programNames = {
+        'mulher': 'KaiNow Mulher',
+        'senior': 'KaiNow Sênior',
+        'farma': 'KaiNow Farma',
+        'acolher': 'KaiNow Acolher',
+        'orienta': 'KaiNow Orienta',
+        'vivaleve': 'KaiNow Viva Leve'
+    };
+    
+    const programName = programNames[program] || 'KaiNow';
+    
+    // Verificar se tem afiliado rastreado
+    const affiliate = window.KaiNowAffiliate ? window.KaiNowAffiliate.getSavedAffiliate() : null;
+    
+    if (affiliate && affiliate.id) {
+        console.log('✅ Afiliado detectado:', affiliate.id);
+        console.log('💰 Pagamento será dividido: 80% empresa + 20% afiliado');
+        
+        // Usar novo sistema de pagamento com split
+        if (typeof window.criarCobrancaComAfiliado === 'function') {
+            const valueInCents = Math.round(value * 100); // Converter para centavos
+            console.log('🚀 Chamando criarCobrancaComAfiliado()');
+            window.criarCobrancaComAfiliado({
+                id: program,
+                name: programName,
+                value: valueInCents
+            });
+            return; // Importante: sair da função aqui!
+        } else {
+            console.error('❌ Sistema de pagamento com afiliado não carregado!');
+            console.error('❌ window.criarCobrancaComAfiliado não existe');
+            alert('Erro ao processar pagamento. Recarregue a página.');
+            return;
+        }
+    } else {
+        console.log('📝 Nenhum afiliado detectado, usando checkout padrão');
+        // Redirecionar para página de cadastro sem afiliado
+        redirectToCheckout(program, value, programName);
+    }
+}
+
+// Função para abrir checkout em modal (alternativa)
+// 🆕 ATUALIZADO: Modal agora abre página de cadastro
 function openCheckoutModal(program, value) {
+    // Criar modal
     const modal = document.createElement('div');
     modal.id = 'checkout-modal';
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
     modal.style.display = 'none';
     
+    // Pegar afiliado da URL
     const urlParams = new URLSearchParams(window.location.search);
     const affiliateRef = urlParams.get('ref');
-    let iframeUrl = `cadastro-checkout.html?program=${program}&modal=true`;
+    
+    // Construir URL do iframe (página de cadastro)
+    let iframeUrl = `inscricao.html?program=${program}&modal=true`;
     if (affiliateRef) {
         iframeUrl += `&ref=${affiliateRef}`;
     }
@@ -62,13 +103,22 @@ function openCheckoutModal(program, value) {
                     <i class="fas fa-times text-2xl"></i>
                 </button>
             </div>
-            <iframe src="${iframeUrl}" class="w-full h-[calc(90vh-80px)]" frameborder="0"></iframe>
+            <iframe 
+                src="${iframeUrl}" 
+                class="w-full h-[calc(90vh-80px)]"
+                frameborder="0"
+            ></iframe>
         </div>
     `;
     
     document.body.appendChild(modal);
-    setTimeout(() => { modal.style.display = 'flex'; }, 100);
     
+    // Mostrar modal
+    setTimeout(() => {
+        modal.style.display = 'flex';
+    }, 100);
+    
+    // Fechar com ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeCheckoutModal();
@@ -76,14 +126,18 @@ function openCheckoutModal(program, value) {
     });
 }
 
+// Função para fechar modal
 function closeCheckoutModal() {
     const modal = document.getElementById('checkout-modal');
     if (modal) {
         modal.style.display = 'none';
-        setTimeout(() => { modal.remove(); }, 300);
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
     }
 }
 
+// Exportar para uso global
 window.handlePixRecorrente = handlePixRecorrente;
 window.redirectToCheckout = redirectToCheckout;
 window.openCheckoutModal = openCheckoutModal;
