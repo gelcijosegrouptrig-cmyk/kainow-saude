@@ -75,3 +75,4 @@ coverage/
 .dev.vars
 wrangler.toml.local
 backend/serviceAccountKey.json 
+backend/serviceAccountKey.json 
