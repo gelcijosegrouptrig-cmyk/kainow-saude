@@ -1,0 +1,417 @@
+ 1	<!DOCTYPE html>
+     2	<html lang="pt-BR">
+     3	<head>
+     4	    <meta charset="UTF-8">
+     5	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6	    <title>Cadastro - KaiNow Saúde</title>
+     7	    <!-- Build: 2025-11-12 11:30 -->
+     8	    <script src="https://cdn.tailwindcss.com"></script>
+     9	    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    10	    
+    11	    <!-- Firebase SDKs -->
+    12	    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    13	    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    14	    
+    15	    <!-- bcrypt.js para hash de senha -->
+    16	    <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+    17	</head>
+    18	<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    19	    <!-- Header -->
+    20	    <header class="bg-white shadow-md">
+    21	        <div class="container mx-auto px-4 py-4">
+    22	            <div class="flex items-center justify-between">
+    23	                <h1 class="text-2xl font-bold text-blue-600">
+    24	                    <i class="fas fa-heartbeat mr-2"></i>
+    25	                    KaiNow Saúde
+    26	                </h1>
+    27	                <a href="/" class="text-gray-600 hover:text-gray-800">
+    28	                    <i class="fas fa-home mr-2"></i>Início
+    29	                </a>
+    30	            </div>
+    31	        </div>
+    32	    </header>
+    33	
+    34	    <div class="container mx-auto px-4 py-8 max-w-4xl">
+    35	        <!-- Banner do Afiliado -->
+    36	        <div id="affiliate-banner" class="hidden mb-6 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-xl p-6 shadow-lg">
+    37	            <div class="flex items-center">
+    38	                <div class="bg-white text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mr-4">
+    39	                    <i class="fas fa-user-friends text-2xl"></i>
+    40	                </div>
+    41	                <div>
+    42	                    <p class="text-sm opacity-90">✨ Você foi indicado por:</p>
+    43	                    <h3 class="text-2xl font-bold" id="affiliate-name">Carregando...</h3>
+    44	                    <p class="text-xs opacity-75">Garantindo sua comissão de <span id="affiliate-commission">20</span>%</p>
+    45	                </div>
+    46	            </div>
+    47	        </div>
+    48	
+    49	        <!-- Informações do Programa -->
+    50	        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+    51	            <div class="flex items-start justify-between mb-4">
+    52	                <div>
+    53	                    <h2 class="text-3xl font-bold text-gray-800 mb-2" id="program-name">
+    54	                        <i class="fas fa-venus text-pink-500 mr-2"></i>
+    55	                        KaiNow Mulher
+    56	                    </h2>
+    57	                    <p class="text-gray-600" id="program-description">
+    58	                        Plano de saúde completo focado no bem-estar feminino
+    59	                    </p>
+    60	                </div>
+    61	                <div class="text-right">
+    62	                    <p class="text-sm text-gray-600">Valor mensal</p>
+    63	                    <p class="text-4xl font-bold text-blue-600" id="program-price">R$ 49,90</p>
+    64	                    <p class="text-xs text-gray-500">por mês</p>
+    65	                </div>
+    66	            </div>
+    67	
+    68	            <div class="grid md:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg">
+    69	                <div class="text-center">
+    70	                    <i class="fas fa-stethoscope text-3xl text-blue-600 mb-2"></i>
+    71	                    <p class="text-sm font-bold text-gray-700">Telemedicina 24h</p>
+    72	                </div>
+    73	                <div class="text-center">
+    74	                    <i class="fas fa-pills text-3xl text-blue-600 mb-2"></i>
+    75	                    <p class="text-sm font-bold text-gray-700">Descontos em Farmácias</p>
+    76	                </div>
+    77	                <div class="text-center">
+    78	                    <i class="fas fa-calendar-check text-3xl text-blue-600 mb-2"></i>
+    79	                    <p class="text-sm font-bold text-gray-700">Agendamento Online</p>
+    80	                </div>
+    81	            </div>
+    82	        </div>
+    83	
+    84	        <!-- Formulário de Cadastro -->
+    85	        <div class="bg-white rounded-xl shadow-lg p-8">
+    86	            <div class="mb-6">
+    87	                <h3 class="text-2xl font-bold text-gray-800 mb-2">
+    88	                    <i class="fas fa-user-plus mr-2 text-blue-600"></i>
+    89	                    Complete seu Cadastro
+    90	                </h3>
+    91	                <p class="text-gray-600">
+    92	                    Preencha seus dados para continuar com a assinatura
+    93	                </p>
+    94	            </div>
+    95	
+    96	            <form id="register-form" class="space-y-6">
+    97	                <!-- Nome Completo -->
+    98	                <div>
+    99	                    <label class="block text-sm font-bold text-gray-700 mb-2">
+   100	                        <i class="fas fa-user mr-2"></i>Nome Completo *
+   101	                    </label>
+   102	                    <input 
+   103	                        type="text" 
+   104	                        id="nome"
+   105	                        required
+   106	                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+   107	                        placeholder="Seu nome completo"
+   108	                    >
+   109	                </div>
+   110	
+   111	                <!-- Email e CPF -->
+   112	                <div class="grid md:grid-cols-2 gap-4">
+   113	                    <div>
+   114	                        <label class="block text-sm font-bold text-gray-700 mb-2">
+   115	                            <i class="fas fa-envelope mr-2"></i>Email *
+   116	                        </label>
+   117	                        <input 
+   118	                            type="email" 
+   119	                            id="email"
+   120	                            required
+   121	                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+   122	                            placeholder="seu@email.com"
+   123	                        >
+   124	                    </div>
+   125	                    <div>
+   126	                        <label class="block text-sm font-bold text-gray-700 mb-2">
+   127	                            <i class="fas fa-id-card mr-2"></i>CPF *
+   128	                        </label>
+   129	                        <input 
+   130	                            type="text" 
+   131	                            id="cpf"
+   132	                            required
+   133	                            maxlength="14"
+   134	                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+   135	                            placeholder="000.000.000-00"
+   136	                        >
+   137	                    </div>
+   138	                </div>
+   139	
+   140	                <!-- Telefone e Data de Nascimento -->
+   141	                <div class="grid md:grid-cols-2 gap-4">
+   142	                    <div>
+   143	                        <label class="block text-sm font-bold text-gray-700 mb-2">
+   144	                            <i class="fas fa-phone mr-2"></i>Telefone *
+   145	                        </label>
+   146	                        <input 
+   147	                            type="tel" 
+   148	                            id="telefone"
+   149	                            required
+   150	                            maxlength="15"
+   151	                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+   152	                            placeholder="(11) 99999-9999"
+   153	                        >
+   154	                    </div>
+   155	                    <div>
+   156	                        <label class="block text-sm font-bold text-gray-700 mb-2">
+   157	                            <i class="fas fa-calendar mr-2"></i>Data de Nascimento *
+   158	                        </label>
+   159	                        <input 
+   160	                            type="date" 
+   161	                            id="dataNascimento"
+   162	                            required
+   163	                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+   164	                        >
+   165	                    </div>
+   166	                </div>
+   167	
+   168	                <!-- Senha e Confirmação -->
+   169	                <div class="grid md:grid-cols-2 gap-4">
+   170	                    <div>
+   171	                        <label class="block text-sm font-bold text-gray-700 mb-2">
+   172	                            <i class="fas fa-lock mr-2"></i>Criar Senha *
+   173	                        </label>
+   174	                        <input 
+   175	                            type="password" 
+   176	                            id="senha"
+   177	                            required
+   178	                            minlength="6"
+   179	                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+   180	                            placeholder="Mínimo 6 caracteres"
+   181	                        >
+   182	                    </div>
+   183	                    <div>
+   184	                        <label class="block text-sm font-bold text-gray-700 mb-2">
+   185	                            <i class="fas fa-lock mr-2"></i>Confirmar Senha *
+   186	                        </label>
+   187	                        <input 
+   188	                            type="password" 
+   189	                            id="confirmarSenha"
+   190	                            required
+   191	                            minlength="6"
+   192	                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+   193	                            placeholder="Digite novamente"
+   194	                        >
+   195	                    </div>
+   196	                </div>
+   197	
+   198	                <!-- Termos -->
+   199	                <div class="bg-gray-50 rounded-lg p-4">
+   200	                    <label class="flex items-start">
+   201	                        <input 
+   202	                            type="checkbox" 
+   203	                            id="termos"
+   204	                            required
+   205	                            class="mt-1 mr-3 w-5 h-5"
+   206	                        >
+   207	                        <span class="text-sm text-gray-700">
+   208	                            Li e concordo com os 
+   209	                            <a href="#" class="text-blue-600 hover:underline">Termos de Uso</a> e 
+   210	                            <a href="#" class="text-blue-600 hover:underline">Política de Privacidade</a>
+   211	                        </span>
+   212	                    </label>
+   213	                </div>
+   214	
+   215	                <!-- Resumo do Pagamento -->
+   216	                <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
+   217	                    <h4 class="font-bold text-gray-800 mb-4">
+   218	                        <i class="fas fa-receipt mr-2"></i>Resumo da Assinatura
+   219	                    </h4>
+   220	                    <div class="space-y-2 text-sm">
+   221	                        <div class="flex justify-between">
+   222	                            <span class="text-gray-600">Plano:</span>
+   223	                            <span class="font-bold" id="summary-plan">KaiNow Mulher</span>
+   224	                        </div>
+   225	                        <div class="flex justify-between">
+   226	                            <span class="text-gray-600">Valor mensal:</span>
+   227	                            <span class="font-bold" id="summary-price">R$ 49,90</span>
+   228	                        </div>
+   229	                        <div class="flex justify-between text-xs text-gray-500">
+   230	                            <span>Renovação automática</span>
+   231	                            <span>Todo dia 5</span>
+   232	                        </div>
+   233	                        <div class="pt-3 border-t border-blue-300 flex justify-between">
+   234	                            <span class="font-bold text-gray-800">Total hoje:</span>
+   235	                            <span class="text-2xl font-bold text-blue-600" id="summary-total">R$ 49,90</span>
+   236	                        </div>
+   237	                    </div>
+   238	                </div>
+   239	
+   240	                <!-- Botão de Enviar -->
+   241	                <button 
+   242	                    type="submit"
+   243	                    id="submit-btn"
+   244	                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-lg font-bold text-lg hover:shadow-lg transition transform hover:scale-105"
+   245	                >
+   246	                    <i class="fas fa-check-circle mr-2"></i>
+   247	                    Continuar para Pagamento
+   248	                </button>
+   249	
+   250	                <p class="text-xs text-center text-gray-500">
+   251	                    <i class="fas fa-lock mr-1"></i>
+   252	                    Seus dados estão protegidos e seguros
+   253	                </p>
+   254	            </form>
+   255	        </div>
+   256	    </div>
+   257	
+   258	    <script>
+   259	        // Configuração Firebase
+   260	        const firebaseConfig = {
+   261	            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+   262	            authDomain: "kainowsaude.firebaseapp.com",
+   263	            projectId: "kainowsaude",
+   264	            storageBucket: "kainowsaude.firebasestorage.app",
+   265	            messagingSenderId: "230049250523",
+   266	            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+   267	        };
+   268	
+   269	        firebase.initializeApp(firebaseConfig);
+   270	        const db = firebase.firestore();
+   271	
+   272	        // Obter parâmetros da URL
+   273	        const urlParams = new URLSearchParams(window.location.search);
+   274	        const affiliateRef = urlParams.get('ref');
+   275	        const programId = urlParams.get('program') || 'mulher';
+   276	
+   277	        // Dados dos programas
+   278	        const programs = {
+   279	            'mulher': { name: 'KaiNow Mulher', price: 49.90, icon: 'fa-venus', color: 'pink', description: 'Plano de saúde focado no bem-estar feminino' },
+   280	            'senior': { name: 'KaiNow Sênior', price: 59.90, icon: 'fa-user-shield', color: 'amber', description: 'Cuidado especial para a melhor idade' },
+   281	            'farma': { name: 'KaiNow Farma', price: 19.90, icon: 'fa-pills', color: 'green', description: 'Descontos exclusivos em medicamentos' },
+   282	            'acolher': { name: 'KaiNow Acolher', price: 24.90, icon: 'fa-hands-holding-child', color: 'blue', description: 'Apoio psicológico e emocional' },
+   283	            'orienta': { name: 'KaiNow Orienta', price: 19.90, icon: 'fa-lightbulb', color: 'purple', description: 'Orientações médicas especializadas' },
+   284	            'vivaleve': { name: 'KaiNow Viva Leve', price: 24.90, icon: 'fa-spa', color: 'teal', description: 'Qualidade de vida e bem-estar' }
+   285	        };
+   286	
+   287	        const currentProgram = programs[programId];
+   288	
+   289	        // Atualizar informações do programa
+   290	        document.getElementById('program-name').innerHTML = `<i class="fas ${currentProgram.icon} text-${currentProgram.color}-500 mr-2"></i>${currentProgram.name}`;
+   291	        document.getElementById('program-description').textContent = currentProgram.description;
+   292	        document.getElementById('program-price').textContent = `R$ ${currentProgram.price.toFixed(2).replace('.', ',')}`;
+   293	        document.getElementById('summary-plan').textContent = currentProgram.name;
+   294	        document.getElementById('summary-price').textContent = `R$ ${currentProgram.price.toFixed(2).replace('.', ',')}`;
+   295	        document.getElementById('summary-total').textContent = `R$ ${currentProgram.price.toFixed(2).replace('.', ',')}`;
+   296	
+   297	        // Buscar informações do afiliado
+   298	        let affiliateData = null;
+   299	
+   300	        if (affiliateRef) {
+   301	            db.collection('affiliates')
+   302	                .where('username', '==', affiliateRef)
+   303	                .limit(1)
+   304	                .get()
+   305	                .then(snapshot => {
+   306	                    if (!snapshot.empty) {
+   307	                        affiliateData = snapshot.docs[0].data();
+   308	                        document.getElementById('affiliate-banner').classList.remove('hidden');
+   309	                        document.getElementById('affiliate-name').textContent = affiliateData.name;
+   310	                        document.getElementById('affiliate-commission').textContent = affiliateData.commission || 20;
+   311	                        console.log('✅ Afiliado encontrado:', affiliateData);
+   312	                    }
+   313	                })
+   314	                .catch(error => {
+   315	                    console.error('❌ Erro ao buscar afiliado:', error);
+   316	                });
+   317	        }
+   318	
+   319	        // Máscaras de input
+   320	        document.getElementById('cpf').addEventListener('input', function(e) {
+   321	            let value = e.target.value.replace(/\D/g, '');
+   322	            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+   323	            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+   324	            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+   325	            e.target.value = value;
+   326	        });
+   327	
+   328	        document.getElementById('telefone').addEventListener('input', function(e) {
+   329	            let value = e.target.value.replace(/\D/g, '');
+   330	            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+   331	            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+   332	            e.target.value = value;
+   333	        });
+   334	
+   335	        // Processar formulário
+   336	        document.getElementById('register-form').addEventListener('submit', async function(e) {
+   337	            e.preventDefault();
+   338	
+   339	            const senha = document.getElementById('senha').value;
+   340	            const confirmarSenha = document.getElementById('confirmarSenha').value;
+   341	
+   342	            if (senha !== confirmarSenha) {
+   343	                alert('❌ As senhas não coincidem!');
+   344	                return;
+   345	            }
+   346	
+   347	            const submitBtn = document.getElementById('submit-btn');
+   348	            submitBtn.disabled = true;
+   349	            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...';
+   350	
+   351	            try {
+   352	                // 🔐 FAZER HASH DA SENHA (Segurança!)
+   353	                console.log('🔐 Gerando hash da senha...');
+   354	                
+   355	                let senhaHash;
+   356	                
+   357	                // Verificar se bcrypt está disponível
+   358	                if (typeof bcrypt === 'undefined' || !bcrypt.hashSync) {
+   359	                    console.warn('⚠️ bcrypt não disponível - usando senha sem hash (TEMPORÁRIO)');
+   360	                    senhaHash = senha; // TEMPORÁRIO - em produção sempre use hash!
+   361	                } else {
+   362	                    senhaHash = bcrypt.hashSync(senha, 10);
+   363	                    console.log('✅ Hash gerado com sucesso');
+   364	                }
+   365	                
+   366	                const clientData = {
+   367	                    nome: document.getElementById('nome').value.trim(),
+   368	                    email: document.getElementById('email').value.trim().toLowerCase(),
+   369	                    cpf: document.getElementById('cpf').value.trim(),
+   370	                    telefone: document.getElementById('telefone').value.trim(),
+   371	                    dataNascimento: document.getElementById('dataNascimento').value,
+   372	                    senha: senhaHash, // ✅ SENHA COM HASH!
+   373	                    
+   374	                    programa: programId,
+   375	                    programaNome: currentProgram.name,
+   376	                    valorMensal: currentProgram.price,
+   377	                    
+   378	                    indicadoPor: affiliateRef || null,
+   379	                    afiliado: affiliateData ? {
+   380	                        username: affiliateData.username,
+   381	                        nome: affiliateData.name,
+   382	                        comissao: affiliateData.commission || 20,
+   383	                        pixKey: affiliateData.pixKey
+   384	                    } : null,
+   385	                    
+   386	                    status: 'aguardando_pagamento',
+   387	                    dataCadastro: firebase.firestore.FieldValue.serverTimestamp(),
+   388	                    pagamentoId: null,
+   389	                    dataPagamento: null
+   390	                };
+   391	
+   392	                console.log('📝 Salvando cliente (senha com hash):', { ...clientData, senha: '[HASH PROTEGIDO]' });
+   393	
+   394	                // Salvar no Firestore
+   395	                const docRef = await db.collection('clientes').add(clientData);
+   396	
+   397	                console.log('✅ Cliente cadastrado! ID:', docRef.id);
+   398	
+   399	                // Salvar ID do cliente na sessão
+   400	                sessionStorage.setItem('kainow_client_id', docRef.id);
+   401	                sessionStorage.setItem('kainow_client_data', JSON.stringify(clientData));
+   402	
+   403	                // Redirecionar para pagamento
+   404	                window.location.href = `pagamento-pix.html?client=${docRef.id}&program=${programId}${affiliateRef ? '&ref=' + affiliateRef : ''}`;
+   405	
+   406	            } catch (error) {
+   407	                console.error('❌ Erro ao cadastrar:', error);
+   408	                alert('❌ Erro ao processar cadastro: ' + error.message);
+   409	                
+   410	                submitBtn.disabled = false;
+   411	                submitBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Continuar para Pagamento';
+   412	            }
+   413	        });
+   414	    </script>
+   415	</body>
+   416	</html>
+   417	
