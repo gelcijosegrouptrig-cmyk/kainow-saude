@@ -335,7 +335,7 @@
 
                 // Redirecionar para página de pagamento
                 setTimeout(() => {
-                    const paymentUrl = `pagamento-final.html?client=
+                    const paymentUrl = `pagamento-woovi.html?client=
 ${docRef.id}&program=${clientData.programa}${affiliateRef ? '&ref=' + affiliateRef : ''}`;
                     console.log('🔄 Redirecionando para:', paymentUrl);
                     window.location.href = paymentUrl;

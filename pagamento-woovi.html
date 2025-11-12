@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento PIX - KaiNow Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Woovi Payment Integration -->
+    <script src="js/woovi-payment.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4">
+            <h1 class="text-2xl font-bold text-blue-600">
+                <i class="fas fa-heartbeat mr-2"></i>
+                KaiNow Saúde - Pagamento
+            </h1>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Status -->
+        <div id="status-info" class="bg-blue-100 border-l-4 border-blue-500 p-4 mb-6 rounded">
+            <div class="flex items-center">
+                <i class="fas fa-info-circle text-blue-600 text-2xl mr-3"></i>
+                <div>
+                    <p class="font-bold text-blue-800">Seus dados foram salvos com sucesso!</p>
+                    <p class="text-blue-700 text-sm">Gerando QR Code PIX...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- QR Code PIX -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                    <i class="fab fa-pix text-blue-600 mr-2"></i>
+                    Pagamento via PIX
+                </h2>
+
+                <!-- Loading -->
+                <div id="qr-loading" class="text-center py-12">
+                    <i class="fas fa-spinner fa-spin text-blue-600 text-6xl mb-4"></i>
+                    <p class="text-gray-600">Gerando QR Code...</p>
+                </div>
+
+                <!-- QR Code -->
+                <div id="qr-container" style="display:none;">
+                    <div class="bg-gray-100 rounded-lg p-8 mb-6 text-center">
+                        <div class="bg-white inline-block p-4 rounded-lg shadow-md">
+                            <img id="qr-code-image" src="" alt="QR Code PIX" class="w-64 h-64 mx-auto">
+                        </div>
+                    </div>
+
+                    <!-- Código PIX -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            Ou copie o código PIX:
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input 
+                                type="text" 
+                                id="pix-code"
+                                value=""
+                                readonly
+                                class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded text-xs"
+                            >
+                            <button 
+                                onclick="copyPixCode()"
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                            >
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Instruções -->
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <p class="font-bold text-blue-800 mb-2">Como pagar:</p>
+                        <ol class="text-sm text-blue-700 space-y-1">
+                            <li>1. Abra o app do seu banco</li>
+                            <li>2. Escolha pagar com PIX</li>
+                            <li>3. Escaneie o QR Code ou cole o código</li>
+                            <li>4. Confirme o pagamento</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Erro -->
+                <div id="qr-error" style="display:none;" class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-6xl mb-4"></i>
+                    <p class="text-red-600 font-bold mb-2">Erro ao gerar QR Code</p>
+                    <p class="text-gray-600 text-sm" id="error-message"></p>
+                    <button onclick="location.reload()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+                        Tentar Novamente
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resumo -->
+            <div class="space-y-6">
+                <!-- Dados do Cliente -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="font-bold text-gray-800 mb-4">
+                        <i class="fas fa-user mr-2"></i>
+                        Seus Dados
+                    </h3>
+                    <div class="space-y-2 text-sm" id="client-info">
+                        <p><strong>Nome:</strong> <span id="client-name">Carregando...</span></p>
+                        <p><strong>Email:</strong> <span id="client-email">...</span></p>
+                        <p><strong>CPF:</strong> <span id="client-cpf">...</span></p>
+                        <p><strong>Telefone:</strong> <span id="client-phone">...</span></p>
+                    </div>
+                </div>
+
+                <!-- Plano -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="font-bold text-gray-800 mb-4">
+                        <i class="fas fa-clipboard-list mr-2"></i>
+                        Plano Contratado
+                    </h3>
+                    <div class="space-y-2 text-sm">
+                        <p><strong>Plano:</strong> <span id="plan-name">...</span></p>
+                        <p><strong>Valor:</strong> <span id="plan-price" class="text-blue-600 font-bold">R$ 0,00/mês</span></p>
+                        <p class="text-xs text-gray-500">Cobrança recorrente mensal</p>
+                    </div>
+                </div>
+
+                <!-- Afiliado (se houver) -->
+                <div id="affiliate-card" style="display:none;" class="bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-xl shadow-lg p-6">
+                    <h3 class="font-bold mb-2">
+                        <i class="fas fa-user-friends mr-2"></i>
+                        Indicado por
+                    </h3>
+                    <p class="text-xl font-bold" id="affiliate-name-display">Nome do Afiliado</p>
+                    <p class="text-xs opacity-75">Comissão de <span id="affiliate-commission-display">20</span>% garantida</p>
+                </div>
+
+                <!-- Total -->
+                <div class="bg-blue-600 text-white rounded-xl shadow-lg p-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm opacity-90">Valor Total</p>
+                            <p class="text-4xl font-bold" id="total-price">R$ 0,00</p>
+                            <p class="text-xs opacity-75">Primeira mensalidade</p>
+                        </div>
+                        <i class="fab fa-pix text-6xl opacity-20"></i>
+                    </div>
+                </div>
+
+                <!-- Aguardando Pagamento -->
+                <div id="waiting-payment" class="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-clock text-yellow-600 text-2xl mr-3 animate-pulse"></i>
+                        <div>
+                            <p class="font-bold text-yellow-800">Aguardando pagamento...</p>
+                            <p class="text-yellow-700 text-xs">Você será redirecionado automaticamente após confirmar</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagamento Confirmado -->
+                <div id="payment-confirmed" style="display:none;" class="bg-green-50 border-2 border-green-500 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-600 text-2xl mr-3"></i>
+                        <div>
+                            <p class="font-bold text-green-800">Pagamento confirmado!</p>
+                            <p class="text-green-700 text-xs">Redirecionando para seu dashboard...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração Firebase
+        onst firebaseConfig = {
+    apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",  // ← VÍRGULA AQUI!
+    authDomain: "kainowsaude.firebaseapp.com",
+    projectId: "kainowsaude",
+    storageBucket: "kainowsaude.firebasestorage.app",
+    messagingSenderId: "230049250523",
+    appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+};            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+authDomain: "kainowsaude.firebaseapp.com",
+projectId: "kainowsaude",
+storageBucket: "kainowsaude.firebasestorage.app",
+messagingSenderId: "230049250523",
+appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+
+            authDomain: "kainowmedic-fa477.firebaseapp.com",
+            projectId: "kainowmedic-fa477",
+            storageBucket: "kainowmedic-fa477.firebasestorage.app",
+            messagingSenderId: "144366365597",
+            appId: "1:144366365597:web:6e4c95fb8e0e7267bb72b2",
+            measurementId: "G-RJQY0XEGXK"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Obter parâmetros
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientId = urlParams.get('client');
+        const programId = urlParams.get('program');
+        const affiliateRef = urlParams.get('ref');
+
+        let clientData = null;
+        let pixTransactionId = null;
+
+        // Carregar dados e gerar PIX
+        async function init() {
+            if (!clientId) {
+                alert('❌ ID do cliente não encontrado!');
+                window.location.href = 'cadastro-checkout.html';
+                return;
+            }
+
+            try {
+                // Carregar dados do cliente
+                const doc = await db.collection('clientes').doc(clientId).get();
+                
+                if (!doc.exists) {
+                    alert('❌ Cliente não encontrado!');
+                    return;
+                }
+
+                clientData = doc.data();
+                console.log('✅ Dados do cliente:', clientData);
+
+                // Exibir dados
+                document.getElementById('client-name').textContent = clientData.nome;
+                document.getElementById('client-email').textContent = clientData.email;
+                document.getElementById('client-cpf').textContent = clientData.cpf;
+                document.getElementById('client-phone').textContent = clientData.telefone;
+                
+                document.getElementById('plan-name').textContent = clientData.programaNome;
+                document.getElementById('plan-price').textContent = `R$ ${clientData.valorMensal.toFixed(2).replace('.', ',')}/mês`;
+                document.getElementById('total-price').textContent = `R$ ${clientData.valorMensal.toFixed(2).replace('.', ',')}`;
+                
+                // Exibir afiliado se houver
+                if (clientData.afiliado && clientData.afiliado.nome) {
+                    document.getElementById('affiliate-card').style.display = 'block';
+                    document.getElementById('affiliate-name-display').textContent = clientData.afiliado.nome;
+                    document.getElementById('affiliate-commission-display').textContent = clientData.afiliado.comissao || 20;
+                }
+
+                // Gerar cobrança PIX
+                await gerarCobrancaPix();
+
+            } catch (error) {
+                console.error('❌ Erro:', error);
+                mostrarErro('Erro ao carregar dados: ' + error.message);
+            }
+        }
+
+        // Gerar cobrança PIX na Woovi
+                // FUNÇÕES MOCK TEMPORÁRIAS
+        async function criarCobrancaPix(dados) {
+            console.log('⚠️ MOCK: Criando cobrança PIX...', dados);
+            return {
+                success: true,
+                transactionId: 'MOCK-' + Date.now(),
+                correlationID: 'MOCK-CORR-' + Date.now(),
+                status: 'ACTIVE',
+                qrCode: 'https://via.placeholder.com/256x256/3B82F6/FFFFFF?text=QR+CODE+PIX',
+                qrCodeText: '00020126360014br.gov.bcb.pix0114+5511999999999520400005303986540549.905802BR5925KaiNow Saude6009SAO PAULO62070503***63041D3D'
+            };
+        }
+
+        function iniciarPollingPagamento(transactionId, callback) {
+            console.log('⚠️ MOCK: Polling desativado');
+        }
+
+            console.log('🔄 Gerando cobrança PIX...');
+
+            const dadosPagamento = {
+                clienteId: clientId,
+                nome: clientData.nome,
+                email: clientData.email,
+                cpf: clientData.cpf,
+                telefone: clientData.telefone,
+                programa: clientData.programa,
+                programaNome: clientData.programaNome,
+                valorMensal: clientData.valorMensal,
+                afiliadoUsername: clientData.indicadoPor || null,
+                afiliadoNome: clientData.afiliado?.nome || null,
+                afiliadoCpf: clientData.afiliado?.cpf || null,
+                afiliadoPixKey: clientData.afiliado?.pixKey || null,
+                comissaoPercent: clientData.afiliado?.comissao || 0
+            };
+
+            const resultado = await criarCobrancaPix(dadosPagamento);
+
+            if (resultado.success) {
+                console.log('✅ QR Code gerado:', resultado);
+                
+                pixTransactionId = resultado.transactionId;
+
+                // Salvar transactionId no Firestore
+                await db.collection('clientes').doc(clientId).update({
+                    pixTransactionId: resultado.transactionId,
+                    pixCorrelationID: resultado.correlationID,
+                    pixStatus: resultado.status,
+                    pixCreatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Exibir QR Code
+                document.getElementById('qr-loading').style.display = 'none';
+                document.getElementById('qr-container').style.display = 'block';
+                document.getElementById('qr-code-image').src = resultado.qrCode;
+                document.getElementById('pix-code').value = resultado.qrCodeText;
+
+                // Iniciar polling
+                iniciarPollingPagamento(resultado.transactionId, handlePagamentoStatus);
+
+            } else {
+                console.error('❌ Erro ao gerar PIX:', resultado.error);
+                mostrarErro(resultado.error);
+            }
+        }
+
+        // Handle status do pagamento
+        function handlePagamentoStatus(resultado) {
+            console.log('📊 Status do pagamento:', resultado);
+
+            if (resultado.pago) {
+                // Pagamento confirmado!
+                confirmarPagamento(resultado.data);
+            } else if (resultado.expirado) {
+                mostrarErro('O QR Code expirou. Por favor, gere um novo.');
+            } else if (resultado.timeout) {
+                console.log('⏰ Timeout do polling. QR Code ainda válido.');
+            }
+        }
+
+        // Confirmar pagamento
+        async function confirmarPagamento(dadosPagamento) {
+            console.log('✅ Confirmando pagamento...');
+
+            try {
+                // Atualizar status no Firestore
+                await db.collection('clientes').doc(clientId).update({
+                    status: 'ativo',
+                    pixStatus: 'COMPLETED',
+                    pixPaidAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    dataPagamento: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Ocultar aguardando
+                document.getElementById('waiting-payment').style.display = 'none';
+                
+                // Mostrar confirmado
+                document.getElementById('payment-confirmed').style.display = 'block';
+
+                // Salvar sessão
+                const sessionData = {
+                    id: clientId,
+                    ...clientData,
+                    status: 'ativo'
+                };
+                sessionStorage.setItem('kainow_cliente_session', JSON.stringify(sessionData));
+
+                // Redirecionar após 2 segundos
+                setTimeout(() => {
+                    window.location.href = 'cliente/dashboard.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error('❌ Erro ao confirmar pagamento:', error);
+                alert('Erro ao confirmar pagamento. Entre em contato com o suporte.');
+            }
+        }
+
+        // Copiar código PIX
+        function copyPixCode() {
+            const pixCode = document.getElementById('pix-code');
+            pixCode.select();
+            pixCode.setSelectionRange(0, 99999); // Para mobile
+            
+            try {
+                document.execCommand('copy');
+                alert('✅ Código PIX copiado!');
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+            }
+        }
+
+        // Mostrar erro
+        function mostrarErro(mensagem) {
+            document.getElementById('qr-loading').style.display = 'none';
+            document.getElementById('qr-error').style.display = 'block';
+            document.getElementById('error-message').textContent = mensagem;
+        }
+
+        // Inicializar
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
