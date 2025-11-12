@@ -11,15 +11,7 @@ function redirectToCheckout(program, value, programName) {
     window.location.href = checkoutUrl;
 }
 
-function handlePixRecorrente(program, value) {
-    const programNames = {
-        'mulher': 'KaiNow Mulher',
-        'senior': 'KaiNow Sênior',
-        'farma': 'KaiNow Farma',
-        'acolher': 'KaiNow Acolher',
-        'orienta': 'KaiNow Orienta',
-        'vivaleve': 'KaiNow Viva Leve'
-    };
+notepad js\checkout-redirect.js
     
     const programName = programNames[program] || 'KaiNow';
     const affiliate = window.KaiNowAffiliate ? window.KaiNowAffiliate.getSavedAffiliate() : null;
