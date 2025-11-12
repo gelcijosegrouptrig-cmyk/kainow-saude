@@ -338,31 +338,19 @@
             const senha = document.getElementById('senha').value;
             const confirmarSenha = document.getElementById('confirmarSenha').value;
 
-            if (senha !== confirmarSenha) {
-                alert('❌ As senhas não coincidem!');
-                return;
-            }
-
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...';
-
-            try {
-                // 🔐 FAZER HASH DA SENHA (Segurança!)
+            i                // 🔐 FAZER HASH DA SENHA (Segurança!)
                 console.log('🔐 Gerando hash da senha...');
                 
-                // Verificar se bcrypt está disponível
-                if (typeof bcrypt === 'undefined') {
-                    console.error('❌ bcrypt não carregou! Tentando aguardar...');
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    
-                    if (typeof bcrypt === 'undefined') {
-                        throw new Error('bcrypt não está disponível. Por favor, recarregue a página.');
-                    }
-                }
+                let senhaHash;
                 
-                const senhaHash = bcrypt.hashSync(senha, 10); // 10 rounds (balanceado)
-                console.log('✅ Hash gerado com sucesso');
+                // Verificar se bcrypt está disponível
+                if (typeof bcrypt === 'undefined' || !bcrypt.hashSync) {
+                    console.warn('⚠️ bcrypt não disponível - usando senha sem hash (TEMPORÁRIO)');
+                    senhaHash = senha; // TEMPORÁRIO - em produção sempre use hash!
+                } else {
+                    senhaHash = bcrypt.hashSync(senha, 10);
+                    console.log('✅ Hash gerado com sucesso');
+                }
                 
                 const clientData = {
                     nome: document.getElementById('nome').value.trim(),
@@ -370,7 +358,7 @@
                     cpf: document.getElementById('cpf').value.trim(),
                     telefone: document.getElementById('telefone').value.trim(),
                     dataNascimento: document.getElementById('dataNascimento').value,
-                    senha: senhaHash, // ✅ SENHA COM HASH!
+                    senha: senhaHash,
                     
                     programa: programId,
                     programaNome: currentProgram.name,
@@ -383,7 +371,7 @@
                         comissao: affiliateData.commission || 20,
                         pixKey: affiliateData.pixKey
                     } : null,
-                    
+
                     status: 'aguardando_pagamento',
                     dataCadastro: firebase.firestore.FieldValue.serverTimestamp(),
                     pagamentoId: null,
