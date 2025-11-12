@@ -53,7 +53,7 @@ app.use((req, res, next) => {
 // Routes
 const webhookWoovi = require('./webhook-woovi');
 const chargesRoutes = require('./routes/charges');
-
+const chargesTestRoutes = require('./routes/charges-test');
 app.use('/webhook', webhookWoovi);
 app.use('/api/charges', chargesRoutes);
 app.use('/api/charges-test', chargesTestRoutes);
