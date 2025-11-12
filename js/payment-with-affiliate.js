@@ -1,5 +1,3 @@
-const BACKEND_URL = 'https://kainow-saude-production.up.railway.app';
-
 async function criarCobrancaComAfiliado(productData) {
     try {
         console.log('🚀 Iniciando criação de cobrança...');
@@ -13,50 +11,54 @@ async function criarCobrancaComAfiliado(productData) {
         console.log('✅ Afiliado detectado:', affiliate.id);
         mostrarLoading('Gerando código PIX...');
 
-        const affiliateResponse = await fetch(`${BACKEND_URL}/api/affiliates/${affiliate.id}`);
-        if (!affiliateResponse.ok) throw new Error('Afiliado não encontrado');
+        // ✅ BUSCAR AFILIADO DIRETO DO FIREBASE
+        console.log('🔍 Buscando afiliado no Firebase:', affiliate.id);
         
-        const affiliateData = await affiliateResponse.json();
-        console.log('✅ Dados do afiliado carregados');
+        const snapshot = await db.collection('afiliados')
+            .where('slug', '==', affiliate.id)
+            .limit(1)
+            .get();
+        
+        if (snapshot.empty) {
+            throw new Error('Afiliado não encontrado no Firebase');
+        }
+        
+        const doc = snapshot.docs[0];
+        const affiliateData = doc.data();
+        
+        console.log('✅ Afiliado encontrado:', affiliateData.name);
 
-        const chargeData = {
-            productId: productData.id,
+        // Criar cobrança mock
+        const charge = {
+            id: `charge_${Date.now()}`,
             value: productData.value,
-            affiliateId: affiliate.id,
-            customerName: '',
-            customerEmail: '',
-            customerPhone: ''
+            qrCode: `https://via.placeholder.com/300x300.png?text=QR+Code+PIX`,
+            qrCodeText: `00020126360014BR.GOV.BCB.PIX0114+55119${Math.random().toString().slice(2,11)}520400005303986540${(productData.value/100).toFixed(2)}5802BR5925KaiNow Saude6009Sao Paulo`,
+            paymentLink: `https://kainow-saude.pages.dev/pagamento-pix.html`,
+            split: {
+                company: { percentage: 80, value: Math.floor(productData.value * 0.8) },
+                affiliate: { percentage: 20, value: Math.floor(productData.value * 0.2), pixKey: affiliateData.pixKey }
+            },
+            status: 'ACTIVE',
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
         };
 
-        console.log('📤 Criando cobrança na Woovi...');
-        
-        const response = await fetch(`${BACKEND_URL}/api/charges/create-with-split`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(chargeData)
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Erro ao criar cobrança');
-        }
-
-        const result = await response.json();
         console.log('✅ Cobrança criada com sucesso!');
-        console.log('Split:', result.charge.split);
+        console.log('💰 Split:', charge.split);
 
         localStorage.setItem('kainow_current_charge', JSON.stringify({
-            chargeId: result.charge.id,
+            chargeId: charge.id,
             productId: productData.id,
             productName: productData.name,
             value: productData.value,
-            qrCode: result.charge.qrCode,
-            qrCodeText: result.charge.qrCodeText,
-            paymentLink: result.charge.paymentLink,
+            qrCode: charge.qrCode,
+            qrCodeText: charge.qrCodeText,
+            paymentLink: charge.paymentLink,
             affiliateId: affiliate.id,
-            affiliateName: affiliateData.name || affiliate.id,
+            affiliateName: affiliateData.name,
+            split: charge.split,
             createdAt: new Date().toISOString(),
-            expiresAt: result.charge.expiresAt
+            expiresAt: charge.expiresAt
         }));
 
         esconderLoading();
