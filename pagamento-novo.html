@@ -1,0 +1,400 @@
+ 1	<!DOCTYPE html>
+     2	<html lang="pt-BR">
+     3	<head>
+     4	    <meta charset="UTF-8">
+     5	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6	    <title>Pagamento PIX - KaiNow Saúde</title>
+     7	    <script src="https://cdn.tailwindcss.com"></script>
+     8	    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+     9	    
+    10	    <!-- Firebase SDKs -->
+    11	    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    12	    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    13	    
+    14	</head>
+    15	<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    16	    <!-- Header -->
+    17	    <header class="bg-white shadow-md">
+    18	        <div class="container mx-auto px-4 py-4">
+    19	            <h1 class="text-2xl font-bold text-blue-600">
+    20	                <i class="fas fa-heartbeat mr-2"></i>
+    21	                KaiNow Saúde - Pagamento
+    22	            </h1>
+    23	        </div>
+    24	    </header>
+    25	
+    26	    <div class="container mx-auto px-4 py-8 max-w-4xl">
+    27	        <!-- Status -->
+    28	        <div id="status-info" class="bg-blue-100 border-l-4 border-blue-500 p-4 mb-6 rounded">
+    29	            <div class="flex items-center">
+    30	                <i class="fas fa-info-circle text-blue-600 text-2xl mr-3"></i>
+    31	                <div>
+    32	                    <p class="font-bold text-blue-800">Seus dados foram salvos com sucesso!</p>
+    33	                    <p class="text-blue-700 text-sm">Gerando QR Code PIX...</p>
+    34	                </div>
+    35	            </div>
+    36	        </div>
+    37	
+    38	        <div class="grid md:grid-cols-2 gap-6">
+    39	            <!-- QR Code PIX -->
+    40	            <div class="bg-white rounded-xl shadow-lg p-8">
+    41	                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+    42	                    <i class="fab fa-pix text-blue-600 mr-2"></i>
+    43	                    Pagamento via PIX
+    44	                </h2>
+    45	
+    46	                <!-- Loading -->
+    47	                <div id="qr-loading" class="text-center py-12">
+    48	                    <i class="fas fa-spinner fa-spin text-blue-600 text-6xl mb-4"></i>
+    49	                    <p class="text-gray-600">Gerando QR Code...</p>
+    50	                </div>
+    51	
+    52	                <!-- QR Code -->
+    53	                <div id="qr-container" style="display:none;">
+    54	                    <div class="bg-gray-100 rounded-lg p-8 mb-6 text-center">
+    55	                        <div class="bg-white inline-block p-4 rounded-lg shadow-md">
+    56	                            <img id="qr-code-image" src="" alt="QR Code PIX" class="w-64 h-64 mx-auto">
+    57	                        </div>
+    58	                    </div>
+    59	
+    60	                    <!-- Código PIX -->
+    61	                    <div class="mb-6">
+    62	                        <label class="block text-sm font-bold text-gray-700 mb-2">
+    63	                            Ou copie o código PIX:
+    64	                        </label>
+    65	                        <div class="flex items-center gap-2">
+    66	                            <input 
+    67	                                type="text" 
+    68	                                id="pix-code"
+    69	                                value=""
+    70	                                readonly
+    71	                                class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded text-xs"
+    72	                            >
+    73	                            <button 
+    74	                                onclick="copyPixCode()"
+    75	                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    76	                            >
+    77	                                <i class="fas fa-copy"></i>
+    78	                            </button>
+    79	                        </div>
+    80	                    </div>
+    81	
+    82	                    <!-- Instruções -->
+    83	                    <div class="bg-blue-50 rounded-lg p-4">
+    84	                        <p class="font-bold text-blue-800 mb-2">Como pagar:</p>
+    85	                        <ol class="text-sm text-blue-700 space-y-1">
+    86	                            <li>1. Abra o app do seu banco</li>
+    87	                            <li>2. Escolha pagar com PIX</li>
+    88	                            <li>3. Escaneie o QR Code ou cole o código</li>
+    89	                            <li>4. Confirme o pagamento</li>
+    90	                        </ol>
+    91	                    </div>
+    92	                </div>
+    93	
+    94	                <!-- Erro -->
+    95	                <div id="qr-error" style="display:none;" class="text-center py-8">
+    96	                    <i class="fas fa-exclamation-triangle text-red-600 text-6xl mb-4"></i>
+    97	                    <p class="text-red-600 font-bold mb-2">Erro ao gerar QR Code</p>
+    98	                    <p class="text-gray-600 text-sm" id="error-message"></p>
+    99	                    <button onclick="location.reload()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+   100	                        Tentar Novamente
+   101	                    </button>
+   102	                </div>
+   103	            </div>
+   104	
+   105	            <!-- Resumo -->
+   106	            <div class="space-y-6">
+   107	                <!-- Dados do Cliente -->
+   108	                <div class="bg-white rounded-xl shadow-lg p-6">
+   109	                    <h3 class="font-bold text-gray-800 mb-4">
+   110	                        <i class="fas fa-user mr-2"></i>
+   111	                        Seus Dados
+   112	                    </h3>
+   113	                    <div class="space-y-2 text-sm" id="client-info">
+   114	                        <p><strong>Nome:</strong> <span id="client-name">Carregando...</span></p>
+   115	                        <p><strong>Email:</strong> <span id="client-email">...</span></p>
+   116	                        <p><strong>CPF:</strong> <span id="client-cpf">...</span></p>
+   117	                        <p><strong>Telefone:</strong> <span id="client-phone">...</span></p>
+   118	                    </div>
+   119	                </div>
+   120	
+   121	                <!-- Plano -->
+   122	                <div class="bg-white rounded-xl shadow-lg p-6">
+   123	                    <h3 class="font-bold text-gray-800 mb-4">
+   124	                        <i class="fas fa-clipboard-list mr-2"></i>
+   125	                        Plano Contratado
+   126	                    </h3>
+   127	                    <div class="space-y-2 text-sm">
+   128	                        <p><strong>Plano:</strong> <span id="plan-name">...</span></p>
+   129	                        <p><strong>Valor:</strong> <span id="plan-price" class="text-blue-600 font-bold">R$ 0,00/mês</span></p>
+   130	                        <p class="text-xs text-gray-500">Cobrança recorrente mensal</p>
+   131	                    </div>
+   132	                </div>
+   133	
+   134	                <!-- Afiliado (se houver) -->
+   135	                <div id="affiliate-card" style="display:none;" class="bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-xl shadow-lg p-6">
+   136	                    <h3 class="font-bold mb-2">
+   137	                        <i class="fas fa-user-friends mr-2"></i>
+   138	                        Indicado por
+   139	                    </h3>
+   140	                    <p class="text-xl font-bold" id="affiliate-name-display">Nome do Afiliado</p>
+   141	                    <p class="text-xs opacity-75">Comissão de <span id="affiliate-commission-display">20</span>% garantida</p>
+   142	                </div>
+   143	
+   144	                <!-- Total -->
+   145	                <div class="bg-blue-600 text-white rounded-xl shadow-lg p-6">
+   146	                    <div class="flex justify-between items-center">
+   147	                        <div>
+   148	                            <p class="text-sm opacity-90">Valor Total</p>
+   149	                            <p class="text-4xl font-bold" id="total-price">R$ 0,00</p>
+   150	                            <p class="text-xs opacity-75">Primeira mensalidade</p>
+   151	                        </div>
+   152	                        <i class="fab fa-pix text-6xl opacity-20"></i>
+   153	                    </div>
+   154	                </div>
+   155	
+   156	                <!-- Aguardando Pagamento -->
+   157	                <div id="waiting-payment" class="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
+   158	                    <div class="flex items-center">
+   159	                        <i class="fas fa-clock text-yellow-600 text-2xl mr-3 animate-pulse"></i>
+   160	                        <div>
+   161	                            <p class="font-bold text-yellow-800">Aguardando pagamento...</p>
+   162	                            <p class="text-yellow-700 text-xs">Você será redirecionado automaticamente após confirmar</p>
+   163	                        </div>
+   164	                    </div>
+   165	                </div>
+   166	
+   167	                <!-- Pagamento Confirmado -->
+   168	                <div id="payment-confirmed" style="display:none;" class="bg-green-50 border-2 border-green-500 rounded-lg p-4">
+   169	                    <div class="flex items-center">
+   170	                        <i class="fas fa-check-circle text-green-600 text-2xl mr-3"></i>
+   171	                        <div>
+   172	                            <p class="font-bold text-green-800">Pagamento confirmado!</p>
+   173	                            <p class="text-green-700 text-xs">Redirecionando para seu dashboard...</p>
+   174	                        </div>
+   175	                    </div>
+   176	                </div>
+   177	            </div>
+   178	        </div>
+   179	    </div>
+   180	
+   181	    <script>
+   182	        // Configuração Firebase
+   183	        const firebaseConfig = {
+   184	            apiKey: "AIzaSyA2-tCGH1uaABTzMqhK_BhTy-zIZba0wMs",
+   185	            authDomain: "kainowsaude.firebaseapp.com",
+   186	            projectId: "kainowsaude",
+   187	            storageBucket: "kainowsaude.firebasestorage.app",
+   188	            messagingSenderId: "230049250523",
+   189	            appId: "1:230049250523:web:ce16ada5c4e5488e64e0fe"
+   190	        };
+   191	
+   192	        firebase.initializeApp(firebaseConfig);
+   193	        const db = firebase.firestore();
+   194	
+   195	        // Obter parâmetros
+   196	        const urlParams = new URLSearchParams(window.location.search);
+   197	        const clientId = urlParams.get('client');
+   198	        const programId = urlParams.get('program');
+   199	        const affiliateRef = urlParams.get('ref');
+   200	
+   201	        let clientData = null;
+   202	        let pixTransactionId = null;
+   203	
+   204	        // Carregar dados e gerar PIX
+   205	        async function init() {
+   206	            if (!clientId) {
+   207	                alert('❌ ID do cliente não encontrado!');
+   208	                window.location.href = 'cadastro-checkout.html';
+   209	                return;
+   210	            }
+   211	
+   212	            try {
+   213	                // Carregar dados do cliente
+   214	                const doc = await db.collection('clientes').doc(clientId).get();
+   215	                
+   216	                if (!doc.exists) {
+   217	                    alert('❌ Cliente não encontrado!');
+   218	                    return;
+   219	                }
+   220	
+   221	                clientData = doc.data();
+   222	                console.log('✅ Dados do cliente:', clientData);
+   223	
+   224	                // Exibir dados
+   225	                document.getElementById('client-name').textContent = clientData.nome;
+   226	                document.getElementById('client-email').textContent = clientData.email;
+   227	                document.getElementById('client-cpf').textContent = clientData.cpf;
+   228	                document.getElementById('client-phone').textContent = clientData.telefone;
+   229	                
+   230	                document.getElementById('plan-name').textContent = clientData.programaNome;
+   231	                document.getElementById('plan-price').textContent = `R$ ${clientData.valorMensal.toFixed(2).replace('.', ',')}/mês`;
+   232	                document.getElementById('total-price').textContent = `R$ ${clientData.valorMensal.toFixed(2).replace('.', ',')}`;
+   233	                
+   234	                // Exibir afiliado se houver
+   235	                if (clientData.afiliado && clientData.afiliado.nome) {
+   236	                    document.getElementById('affiliate-card').style.display = 'block';
+   237	                    document.getElementById('affiliate-name-display').textContent = clientData.afiliado.nome;
+   238	                    document.getElementById('affiliate-commission-display').textContent = clientData.afiliado.comissao || 20;
+   239	                }
+   240	
+   241	                // Gerar cobrança PIX
+   242	                await gerarCobrancaPix();
+   243	
+   244	            } catch (error) {
+   245	                console.error('❌ Erro:', error);
+   246	                mostrarErro('Erro ao carregar dados: ' + error.message);
+   247	            }
+   248	        }
+   249	
+   250	        // FUNÇÕES MOCK TEMPORÁRIAS (substituir por integração Woovi real)
+   251	        async function criarCobrancaPix(dados) {
+   252	            // Mock: Simula criação de cobrança
+   253	            console.log('⚠️ MOCK: Criando cobrança PIX...', dados);
+   254	            
+   255	            // Retorna dados mockados
+   256	            return {
+   257	                success: true,
+   258	                transactionId: 'MOCK-' + Date.now(),
+   259	                correlationID: 'MOCK-CORR-' + Date.now(),
+   260	                status: 'ACTIVE',
+   261	                qrCode: 'https://via.placeholder.com/256x256/3B82F6/FFFFFF?text=QR+CODE+PIX+MOCK', // Placeholder
+   262	                qrCodeText: '00020126360014br.gov.bcb.pix0114+5511999999999520400005303986540549.905802BR5925KaiNow Saude6009SAO PAULO62070503***63041D3D'
+   263	            };
+   264	        }
+   265	
+   266	        function iniciarPollingPagamento(transactionId, callback) {
+   267	            // Mock: Não faz polling real
+   268	            console.log('⚠️ MOCK: Polling de pagamento desativado');
+   269	            console.log('ℹ️ Em produção, aguardaria confirmação via webhook ou polling');
+   270	        }
+   271	
+   272	        // Gerar cobrança PIX na Woovi
+   273	        async function gerarCobrancaPix() {
+   274	            console.log('🔄 Gerando cobrança PIX...');
+   275	
+   276	            const dadosPagamento = {
+   277	                clienteId: clientId,
+   278	                nome: clientData.nome,
+   279	                email: clientData.email,
+   280	                cpf: clientData.cpf,
+   281	                telefone: clientData.telefone,
+   282	                programa: clientData.programa,
+   283	                programaNome: clientData.programaNome,
+   284	                valorMensal: clientData.valorMensal,
+   285	                afiliadoUsername: clientData.indicadoPor || null,
+   286	                afiliadoNome: clientData.afiliado?.nome || null,
+   287	                afiliadoCpf: clientData.afiliado?.cpf || null,
+   288	                afiliadoPixKey: clientData.afiliado?.pixKey || null,
+   289	                comissaoPercent: clientData.afiliado?.comissao || 0
+   290	            };
+   291	
+   292	            const resultado = await criarCobrancaPix(dadosPagamento);
+   293	
+   294	            if (resultado.success) {
+   295	                console.log('✅ QR Code gerado:', resultado);
+   296	                
+   297	                pixTransactionId = resultado.transactionId;
+   298	
+   299	                // Salvar transactionId no Firestore
+   300	                await db.collection('clientes').doc(clientId).update({
+   301	                    pixTransactionId: resultado.transactionId,
+   302	                    pixCorrelationID: resultado.correlationID,
+   303	                    pixStatus: resultado.status,
+   304	                    pixCreatedAt: firebase.firestore.FieldValue.serverTimestamp()
+   305	                });
+   306	
+   307	                // Exibir QR Code
+   308	                document.getElementById('qr-loading').style.display = 'none';
+   309	                document.getElementById('qr-container').style.display = 'block';
+   310	                document.getElementById('qr-code-image').src = resultado.qrCode;
+   311	                document.getElementById('pix-code').value = resultado.qrCodeText;
+   312	
+   313	                // Iniciar polling
+   314	                iniciarPollingPagamento(resultado.transactionId, handlePagamentoStatus);
+   315	
+   316	            } else {
+   317	                console.error('❌ Erro ao gerar PIX:', resultado.error);
+   318	                mostrarErro(resultado.error);
+   319	            }
+   320	        }
+   321	
+   322	        // Handle status do pagamento
+   323	        function handlePagamentoStatus(resultado) {
+   324	            console.log('📊 Status do pagamento:', resultado);
+   325	
+   326	            if (resultado.pago) {
+   327	                // Pagamento confirmado!
+   328	                confirmarPagamento(resultado.data);
+   329	            } else if (resultado.expirado) {
+   330	                mostrarErro('O QR Code expirou. Por favor, gere um novo.');
+   331	            } else if (resultado.timeout) {
+   332	                console.log('⏰ Timeout do polling. QR Code ainda válido.');
+   333	            }
+   334	        }
+   335	
+   336	        // Confirmar pagamento
+   337	        async function confirmarPagamento(dadosPagamento) {
+   338	            console.log('✅ Confirmando pagamento...');
+   339	
+   340	            try {
+   341	                // Atualizar status no Firestore
+   342	                await db.collection('clientes').doc(clientId).update({
+   343	                    status: 'ativo',
+   344	                    pixStatus: 'COMPLETED',
+   345	                    pixPaidAt: firebase.firestore.FieldValue.serverTimestamp(),
+   346	                    dataPagamento: firebase.firestore.FieldValue.serverTimestamp()
+   347	                });
+   348	
+   349	                // Ocultar aguardando
+   350	                document.getElementById('waiting-payment').style.display = 'none';
+   351	                
+   352	                // Mostrar confirmado
+   353	                document.getElementById('payment-confirmed').style.display = 'block';
+   354	
+   355	                // Salvar sessão
+   356	                const sessionData = {
+   357	                    id: clientId,
+   358	                    ...clientData,
+   359	                    status: 'ativo'
+   360	                };
+   361	                sessionStorage.setItem('kainow_cliente_session', JSON.stringify(sessionData));
+   362	
+   363	                // Redirecionar após 2 segundos
+   364	                setTimeout(() => {
+   365	                    window.location.href = 'cliente/dashboard.html';
+   366	                }, 2000);
+   367	
+   368	            } catch (error) {
+   369	                console.error('❌ Erro ao confirmar pagamento:', error);
+   370	                alert('Erro ao confirmar pagamento. Entre em contato com o suporte.');
+   371	            }
+   372	        }
+   373	
+   374	        // Copiar código PIX
+   375	        function copyPixCode() {
+   376	            const pixCode = document.getElementById('pix-code');
+   377	            pixCode.select();
+   378	            pixCode.setSelectionRange(0, 99999); // Para mobile
+   379	            
+   380	            try {
+   381	                document.execCommand('copy');
+   382	                alert('✅ Código PIX copiado!');
+   383	            } catch (err) {
+   384	                console.error('Erro ao copiar:', err);
+   385	            }
+   386	        }
+   387	
+   388	        // Mostrar erro
+   389	        function mostrarErro(mensagem) {
+   390	            document.getElementById('qr-loading').style.display = 'none';
+   391	            document.getElementById('qr-error').style.display = 'block';
+   392	            document.getElementById('error-message').textContent = mensagem;
+   393	        }
+   394	
+   395	        // Inicializar
+   396	        window.addEventListener('load', init);
+   397	    </script>
+   398	</body>
+   399	</html>
+   400	
