@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste SIMPLES - Woovi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #667eea;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        h1 { color: #667eea; }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:disabled { background: #ccc; }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            display: none;
+        }
+        .result.active { display: block; }
+        .result.success { background: #d4edda; color: #155724; }
+        .result.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste SIMPLES - Woovi (SEM Split)</h1>
+        <p><strong>Este teste NÃO usa Firebase nem Split</strong></p>
+        
+        <button class="btn" onclick="testar()">🚀 Testar Woovi API</button>
+        
+        <div class="result" id="resultado"></div>
+    </div>
+
+    <script>
+        async function testar() {
+            const resultado = document.getElementById('resultado');
+            resultado.classList.remove('active', 'success', 'error');
+            resultado.textContent = '';
+
+            let log = '📤 Testando Woovi API...\n\n';
+            
+            try {
+                const response = await fetch('https://kainow-saude-production.up.railway.app/api/charges-test/create-simple', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+
+                log += `Status: ${response.status}\n\n`;
+                const data = await response.json();
+                log += JSON.stringify(data, null, 2);
+
+                if (response.ok && data.success) {
+                    resultado.classList.add('success');
+                    log += '\n\n✅ SUCESSO! Woovi está funcionando!';
+                } else {
+                    resultado.classList.add('error');
+                    log += '\n\n❌ ERRO!';
+                }
+
+            } catch (error) {
+                log += `\n\n🔥 ERRO: ${error.message}`;
+                resultado.classList.add('error');
+            }
+
+            resultado.textContent = log;
+            resultado.classList.add('active');
+        }
+    </script>
+</body>
+</html>

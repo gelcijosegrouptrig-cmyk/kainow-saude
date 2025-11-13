@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Pagamento com Split - KaiNow Saúde</title>
+    <style>
+        body { font-family: Arial; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        h1 { color: #667eea; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px; width: 100%; font-size: 16px; border-radius: 50px; cursor: pointer; margin-top: 10px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
+        .resultado { margin-top: 20px; padding: 20px; border-radius: 10px; display: none; }
+        .resultado.show { display: block; }
+        .success { background: #d4edda; border: 2px solid #28a745; color: #155724; }
+        .error { background: #f8d7da; border: 2px solid #dc3545; color: #721c24; }
+        .qr-code { text-align: center; margin-top: 20px; }
+        .qr-code img { max-width: 300px; border: 3px solid #667eea; border-radius: 10px; }
+        .pix-code { background: #f5f5f5; padding: 15px; border-radius: 5px; word-break: break-all; font-family: monospace; font-size: 11px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💳 Pagamento PIX com Split</h1>
+        
+        <div class="form-group">
+            <label>Programa:</label>
+            <select id="programa">
+                <option value="saude-mulher">Saúde da Mulher - R$ 200,00/mês</option>
+                <option value="saude-senior">Saúde Sênior - R$ 250,00/mês</option>
+                <option value="viva-leve">Viva Leve - R$ 180,00/mês</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Código do Afiliado:</label>
+            <input type="text" id="affiliateId" value="rute" placeholder="Ex: rute">
+        </div>
+
+        <div class="form-group">
+            <label>Seu Nome:</label>
+            <input type="text" id="customerName" placeholder="Seu nome completo">
+        </div>
+
+        <div class="form-group">
+            <label>Seu E-mail:</label>
+            <input type="email" id="customerEmail" placeholder="seu@email.com">
+        </div>
+
+        <div class="form-group">
+            <label>Seu Telefone:</label>
+            <input type="tel" id="customerPhone" placeholder="(11) 99999-9999">
+        </div>
+
+        <button class="btn" onclick="gerarPix()">🚀 Gerar PIX com Split 80/20</button>
+
+        <div class="resultado" id="resultado"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBxFfSKC0Vj6aezqPYVrKtFiNwHb9vC9Lo",
+            authDomain: "kainowsaude.firebaseapp.com",
+            projectId: "kainowsaude",
+            storageBucket: "kainowsaude.firebasestorage.app",
+            messagingSenderId: "230049250523",
+            appId: "1:230049250523:web:b4a77f0d92fe57ddba8794"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.gerarPix = async function() {
+            const resultado = document.getElementById('resultado');
+            resultado.className = 'resultado';
+            resultado.innerHTML = '⏳ Processando...';
+            resultado.classList.add('show');
+
+            try {
+                const programa = document.getElementById('programa').value;
+                const affiliateId = document.getElementById('affiliateId').value;
+                const customerName = document.getElementById('customerName').value;
+                const customerEmail = document.getElementById('customerEmail').value;
+                const customerPhone = document.getElementById('customerPhone').value;
+
+                if (!affiliateId || !customerName || !customerEmail) {
+                    throw new Error('Preencha todos os campos obrigatórios');
+                }
+
+                // Buscar afiliado no Firestore
+                const q = query(collection(db, 'affiliates'), where('slug', '==', affiliateId));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    throw new Error('Afiliado não encontrado');
+                }
+
+                const affiliateData = querySnapshot.docs[0].data();
+
+                // Valores por programa
+                const valores = {
+                    'saude-mulher': 200.00,
+                    'saude-senior': 250.00,
+                    'viva-leve': 180.00
+                };
+
+                const valorTotal = valores[programa];
+
+                // Criar PIX com split na Split Partner API
+                const splitResponse = await fetch('https://eb50a388.split-partner.pages.dev/api/v2/pix/split', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        valor_total: valorTotal,
+                        descricao: `KaiNow Saúde - ${programa} - ${customerName}`,
+                        pessoa1: {
+                            nome: "KaiNow Saúde",
+                            chave_pix: "contato@kainow.com.br",
+                            percentual: 80
+                        },
+                        pessoa2: {
+                            nome: affiliateData.name,
+                            chave_pix: affiliateData.pixKey,
+                            percentual: 20
+                        }
+                    })
+                });
+
+                const splitData = await splitResponse.json();
+
+                if (!splitResponse.ok) {
+                    throw new Error(splitData.error || 'Erro ao criar PIX');
+                }
+
+                // Mostrar resultado
+                resultado.className = 'resultado success show';
+                resultado.innerHTML = `
+                    <h3>✅ PIX Gerado com Sucesso!</h3>
+                    <p><strong>Valor Total:</strong> R$ ${valorTotal.toFixed(2)}</p>
+                    <p><strong>Split:</strong> 80% KaiNow (R$ ${(valorTotal * 0.8).toFixed(2)}) | 20% ${affiliateData.name} (R$ ${(valorTotal * 0.2).toFixed(2)})</p>
+                    <div class="qr-code">
+                        <img src="data:image/png;base64,${splitData.qr_code_base64}" alt="QR Code">
+                    </div>
+                    <div class="pix-code">
+                        <strong>PIX Copia e Cola:</strong><br>
+                        ${splitData.pix_copia_cola}
+                    </div>
+                    <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                        <strong>Status:</strong> ${splitData.status}<br>
+                        <strong>ID:</strong> ${splitData.transaction_id}<br>
+                        <strong>Expira em:</strong> ${new Date(splitData.expira_em).toLocaleString('pt-BR')}
+                    </p>
+                `;
+
+            } catch (error) {
+                resultado.className = 'resultado error show';
+                resultado.innerHTML = `
+                    <h3>❌ Erro</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        };
+    </script>
+</body>
+</html>
